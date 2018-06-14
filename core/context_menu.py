@@ -19,5 +19,13 @@ def setmenu(self):
         self.on_tree_widget_context_menu
     )
     self.popMenu_tree = QMenu(self)
+    self.popMenu_tree.setSeparatorsCollapsible(True)
     self.tree_add = QAction("&Add", self)
     self.popMenu_tree.addAction(self.tree_add)
+    self.tree_copy = QAction("&Copy", self)
+    self.popMenu_tree.addAction(self.tree_copy)
+    self.tree_clone = QAction("C&lone", self)
+    self.popMenu_tree.addAction(self.tree_clone)
+    self.popMenu_tree.addSeparator()
+    self.tree_delete = QAction("&Delete", self)
+    self.popMenu_tree.addAction(self.tree_delete)

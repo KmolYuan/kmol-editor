@@ -129,7 +129,7 @@ class Ui_MainWindow(object):
         self.highlighter_option.setItemText(1, _translate("MainWindow", "HTML"))
         self.highlighter_option.setItemText(2, _translate("MainWindow", "Python"))
         self.tree_main.headerItem().setText(0, _translate("MainWindow", "Name"))
-        self.tree_main.headerItem().setText(1, _translate("MainWindow", "Property"))
+        self.tree_main.headerItem().setText(1, _translate("MainWindow", "Path"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.console_tab), _translate("MainWindow", "Console"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.find_tab), _translate("MainWindow", "Find and Replace"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))

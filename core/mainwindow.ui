@@ -115,7 +115,7 @@
               </column>
               <column>
                <property name="text">
-                <string>Property</string>
+                <string>Path</string>
                </property>
               </column>
              </widget>

@@ -66,9 +66,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(QPoint)
     def on_tree_widget_context_menu(self, point: QPoint):
         """TODO: Operations."""
+        has_item = bool(self.tree_main.currentItem())
+        for action in (self.tree_delete, self.tree_copy, self.tree_clone):
+            action.setVisible(has_item)
         action = self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
         if action == self.tree_add:
             self.addNode()
+        elif action == self.tree_delete:
+            self.deleteNode()
     
     def addNode(self):
         """Add a node at current item."""
@@ -79,3 +84,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             current_item.addChild(item)
         else:
             self.tree_main.addTopLevelItem(item)
+    
+    def deleteNode(self):
+        """Delete the current item."""
+        current_item = self.tree_main.currentItem()
+        item = current_item.parent()
+        if item:
+            item.removeChild(current_item)
