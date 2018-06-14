@@ -38,7 +38,7 @@ class TextEditor(QPlainTextEdit):
         self.setWordWrapMode(QTextOption.NoWrap)
         self.setStyleSheet(
             "QPlainTextEdit{" +
-            "font-family:'Consolas';" +
+            "font-family:'Mono';" +
             "color: #ccc;" +
             "background-color: #2b2b2b;" +
             "}"

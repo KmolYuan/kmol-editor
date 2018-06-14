@@ -2,5 +2,6 @@
 <RCC version="1.0">
 <qresource>
     <file>icons/kmol.png</file>
+    <file>icons/Logo_Qt.png</file>
 </qresource>
 </RCC>

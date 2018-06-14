@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric project file for project kmol-editor -->
-<!-- Saved: 2018-06-14, 15:56:36 -->
+<!-- Saved: 2018-06-14, 21:36:55 -->
 <!-- Copyright (C) 2018 KmolYuan,  -->
 <Project version="5.1">
   <Language>en_US</Language>
@@ -16,6 +16,8 @@
     <Source>core/QtModules.py</Source>
     <Source>core/Ui_mainwindow.py</Source>
     <Source>core/__init__.py</Source>
+    <Source>core/context_menu.py</Source>
+    <Source>core/data_structure.py</Source>
     <Source>core/info.py</Source>
     <Source>core/loggingHandler.py</Source>
     <Source>core/mainwindow.py</Source>

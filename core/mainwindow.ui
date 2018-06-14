@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>646</width>
-    <height>573</height>
+    <width>779</width>
+    <height>688</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <normaloff>:/icons/kmol.png</normaloff>:/icons/kmol.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QSplitter" name="h_splitter">
       <property name="orientation">
@@ -74,27 +74,74 @@
           </layout>
          </item>
          <item>
-          <widget class="QTreeWidget" name="tree_widget">
-           <column>
-            <property name="text">
-             <string>Name</string>
+          <widget class="QWidget" name="tree_widget" native="true">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Property</string>
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Line count</string>
+            <property name="topMargin">
+             <number>0</number>
             </property>
-           </column>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QTreeWidget" name="tree_main">
+              <property name="dragEnabled">
+               <bool>true</bool>
+              </property>
+              <property name="dragDropMode">
+               <enum>QAbstractItemView::InternalMove</enum>
+              </property>
+              <property name="defaultDropAction">
+               <enum>Qt::MoveAction</enum>
+              </property>
+              <property name="verticalScrollMode">
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
+              </property>
+              <column>
+               <property name="text">
+                <string>Name</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Property</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
        </widget>
-       <widget class="QTextBrowser" name="console"/>
+       <widget class="QTabWidget" name="tabWidget">
+        <widget class="QWidget" name="console_tab">
+         <attribute name="title">
+          <string>Console</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QTextBrowser" name="console"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="find_tab">
+         <attribute name="title">
+          <string>Find and Replace</string>
+         </attribute>
+        </widget>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -105,8 +152,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>646</width>
-     <height>22</height>
+     <width>779</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -124,8 +171,18 @@
      <string>&amp;Edit</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_mde_tw"/>
+    <addaction name="separator"/>
+    <addaction name="action_about_qt"/>
+    <addaction name="action_about"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_New_project">
@@ -155,6 +212,29 @@
   <action name="action_Close">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/kmol.png</normaloff>:/icons/kmol.png</iconset>
+   </property>
+   <property name="text">
+    <string>About Kmol editor</string>
+   </property>
+  </action>
+  <action name="action_mde_tw">
+   <property name="text">
+    <string>mde.tw</string>
+   </property>
+  </action>
+  <action name="action_about_qt">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/Logo_Qt.png</normaloff>:/icons/Logo_Qt.png</iconset>
+   </property>
+   <property name="text">
+    <string>About Qt</string>
    </property>
   </action>
  </widget>
