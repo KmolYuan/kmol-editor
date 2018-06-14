@@ -18,6 +18,8 @@ from core.QtModules import (
     QMessageBox,
     QDesktopServices,
     QUrl,
+    QFileDialog,
+    QStandardPaths,
 )
 from core.info import INFO
 from core.text_editor import TextEditor
@@ -67,6 +69,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #Data
         self.data = DataDict()
+        self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
     
     @pyqtSlot(str)
     def __appendToConsole(self, log):
@@ -78,24 +81,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(QPoint)
     def on_tree_widget_context_menu(self, point: QPoint):
         """TODO: Operations."""
-        has_item = bool(self.tree_main.currentItem())
-        for action in (self.tree_delete, self.tree_copy, self.tree_clone):
-            action.setVisible(has_item)
+        item = self.tree_main.currentItem()
+        has_item = bool(item)
+        is_root = bool(item.parent()) if has_item else False
+        self.tree_close.setVisible(has_item)
+        self.action_open.setVisible(not is_root)
+        for action in (
+            self.tree_add,
+            self.tree_copy,
+            self.tree_clone,
+            self.tree_delete,
+        ):
+            action.setVisible(is_root)
         action = self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
         if action == self.tree_add:
             self.addNode()
         elif action == self.tree_delete:
             self.deleteNode()
     
+    def openFile(self):
+        """Open file."""
+        filenames, ok = QFileDialog.getOpenFileNames(self,
+            "Open Projects",
+            self.env,
+            "Kmol Project (*.kmol)"
+        )
+        if not ok:
+            return
+        print(filenames)
+    
     def addNode(self):
         """Add a node at current item."""
         current_item = self.tree_main.currentItem()
         item = QTreeWidgetItem(["New node", ""])
         item.setFlags(item.flags() | Qt.ItemIsEditable)
-        if current_item and current_item.childCount():
-            current_item.addChild(item)
-        else:
-            self.tree_main.addTopLevelItem(item)
+        current_item.addChild(item)
     
     def deleteNode(self):
         """Delete the current item."""
@@ -112,7 +132,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def on_action_about_triggered(self):
         """Kmol editor about."""
-        QMessageBox.about(self, "About Kmol Editor", '\n'.join(INFO + (
+        QMessageBox.about(self, "About Kmol Editor", '\n'.join(INFO + ('',
             "Author: " + __author__,
             "Email: " + __email__,
             __copyright__,
@@ -128,7 +148,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_exec_button_clicked(self):
         """Execute the script."""
         script = self.text_editor.toPlainText()
-        try:
-            exec(script)
-        except Exception as e:
-            print(e)
+        
+        def func():
+            try:
+                exec(script)
+            except Exception as e:
+                print(e)
+        
+        func()
