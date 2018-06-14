@@ -40,19 +40,6 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QComboBox" name="highlighter_option">
              <item>
               <property name="text">
@@ -69,6 +56,26 @@
                <string>Python</string>
               </property>
              </item>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="exec_button">
+             <property name="text">
+              <string>Execute Script</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -160,16 +167,12 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="action_New_project"/>
+    <addaction name="action_New_Project"/>
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
+    <addaction name="action_New_Window"/>
     <addaction name="action_Close"/>
-   </widget>
-   <widget class="QMenu" name="menu_Edit">
-    <property name="title">
-     <string>&amp;Edit</string>
-    </property>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -181,13 +184,12 @@
     <addaction name="action_about"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Edit"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="action_New_project">
+  <action name="action_New_Project">
    <property name="text">
-    <string>New project</string>
+    <string>New Project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -237,9 +239,31 @@
     <string>About Qt</string>
    </property>
   </action>
+  <action name="action_New_Window">
+   <property name="text">
+    <string>New Window</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../icons.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_Close</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>389</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

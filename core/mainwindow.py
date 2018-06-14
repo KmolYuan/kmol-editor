@@ -15,6 +15,9 @@ from core.QtModules import (
     QPoint,
     QTreeWidgetItem,
     QHeaderView,
+    QMessageBox,
+    QDesktopServices,
+    QUrl,
 )
 from core.info import INFO
 from core.text_editor import TextEditor
@@ -33,6 +36,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
         self.setupUi(self)
+        
+        #Start new window.
+        @pyqtSlot()
+        def newMainWindow():
+            XStream.back()
+            run = self.__class__()
+            run.show()
+        
+        self.action_New_Window.triggered.connect(newMainWindow)
         
         #Text editor
         self.text_editor = TextEditor(self)
@@ -91,3 +103,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item = current_item.parent()
         if item:
             item.removeChild(current_item)
+    
+    @pyqtSlot()
+    def on_action_about_qt_triggered(self):
+        """Qt about."""
+        QMessageBox.aboutQt(self)
+    
+    @pyqtSlot()
+    def on_action_about_triggered(self):
+        """Kmol editor about."""
+        QMessageBox.about(self, "About Kmol Editor", '\n'.join(INFO + (
+            "Author: " + __author__,
+            "Email: " + __email__,
+            __copyright__,
+            "License: " + __license__,
+        )))
+    
+    @pyqtSlot()
+    def on_action_mde_tw_triggered(self):
+        """Mde website."""
+        QDesktopServices.openUrl(QUrl("http://mde.tw"))
+    
+    @pyqtSlot()
+    def on_exec_button_clicked(self):
+        """Execute the script."""
+        script = self.text_editor.toPlainText()
+        try:
+            exec(script)
+        except Exception as e:
+            print(e)
