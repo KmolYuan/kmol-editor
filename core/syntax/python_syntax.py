@@ -90,6 +90,9 @@ class PythonHighlighter(QSyntaxHighlighter):
             (r'\b[+-]?[0-9]+[lL]?\b', 0, STYLES['numbers']),
             (r'\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b', 0, STYLES['numbers']),
             (r'\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b', 0, STYLES['numbers']),
+            
+            #others
+            (r'^[\w\s]*@others$', 0, STYLES['keyword']),
         ]
         
         # Build a QRegExp for each pattern

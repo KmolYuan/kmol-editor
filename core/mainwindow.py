@@ -181,12 +181,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data = []
         for i in range(node.childCount()):
             data.append(self.__saveFile(node.child(i)))
-        my_content_list = self.data[node.text(0)].splitlines()
+        my_content_list = self.data[int(node.text(2))].splitlines()
         for i in range(len(my_content_list)):
             text = my_content_list[i]
             if text.endswith("@others"):
-                preffix = text[:len("@others")]
-                my_content_list[i] = ''.join(preffix + d for d in data)
+                preffix = text[:-len("@others")]
+                my_content_list[i] = '\n\n'.join(preffix + d for d in data)
         my_content_list = '\n'.join(my_content_list)
         path_text = node.text(1)
         if path_text:

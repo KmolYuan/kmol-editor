@@ -69,6 +69,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             # Maths
             (r'\$\w+\$', 0, STYLES['string2']),
             (r'\$\$\w+\$\$', 0, STYLES['string2']),
+            
+            #others
+            (r'^[\w\s]*@others$', 0, STYLES['keyword']),
         ]
         
         # Build a QRegExp for each pattern

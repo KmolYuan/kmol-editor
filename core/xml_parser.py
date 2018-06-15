@@ -16,7 +16,6 @@ from xml.dom import minidom
 from core.QtModules import (
     QTreeWidget,
     QTreeWidgetItem,
-    QFileInfo,
 )
 from core.data_structure import DataDict
 from core.info import __version__
@@ -33,19 +32,15 @@ def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
         'code': root_node.text(2),
     })
     
-    def addNode(node: QTreeWidgetItem, root: Element, *, filemode: bool = False):
+    def addNode(node: QTreeWidgetItem, root: Element):
         attr = {
             'name': node.text(0),
             'path': node.text(1),
+            'code': node.text(2),
         }
-        if QFileInfo(attr['path']).suffix():
-            attr['lines'] = str(len(data[int(node.text(2))]))
-            filemode = True
-        else:
-            attr['code'] = str(node.text(2))
-        sub = SubElement(root, 'file' if filemode else 'node', attr)
+        sub = SubElement(root, 'node', attr)
         for i in range(node.childCount()):
-            addNode(node.child(i), sub, filemode=filemode)
+            addNode(node.child(i), sub)
     
     for i in range(root_node.childCount()):
         addNode(root_node.child(i), root)
