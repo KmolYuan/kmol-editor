@@ -95,7 +95,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ):
             action.setVisible(is_root or not has_item)
         self.tree_close.setVisible(has_item and is_root)
-        self.action_save.setVisible(is_root)
+        self.action_save.setVisible(
+            is_root and
+            not (item.flags() & Qt.ItemIsDragEnabled)
+        )
         for action in (
             self.tree_add,
             self.tree_path,
@@ -137,19 +140,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __addFile(self, path: str):
         """Add a file."""
         self.env = QFileInfo(path).absolutePath()
-        item = QTreeWidgetItem([QFileInfo(path).baseName(), path])
-        item.setFlags(
-            Qt.ItemIsSelectable |
-            Qt.ItemIsUserCheckable |
-            Qt.ItemIsEnabled
-        )
+        item = QTreeWidgetItem([
+            QFileInfo(path).baseName(),
+            path,
+            str(self.data.newNum())
+        ])
+        item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
         self.tree_main.addTopLevelItem(item)
     
     @pyqtSlot()
     def addNode(self):
         """Add a node at current item."""
         current_item = self.tree_main.currentItem()
-        item = QTreeWidgetItem(["New node", ""])
+        item = QTreeWidgetItem(["New node", "", str(self.data.newNum())])
         item.setFlags(item.flags() | Qt.ItemIsEditable)
         current_item.addChild(item)
     
@@ -211,7 +214,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 """Get the path from parent."""
                 parent = node.parent()
                 if parent:
-                    return QFileInfo(QDir(getpath(parent)), node.text(1) + '/').absolutePath()
+                    path = node.text(1)
+                    return QFileInfo(
+                        QDir(getpath(parent)),
+                        path + '/' if path else ''
+                    ).absolutePath()
                 else:
                     return QFileInfo(node.text(1)).absoluteFilePath()
             
@@ -282,8 +289,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Switch node function.
         
         + Auto collapse and expand function.
-        + TODO: Store the string data.
+        + Store the string data.
         """
-        self.tree_main.collapseItem(previous)
         self.tree_main.expandItem(current)
         self.tree_main.scrollToItem(current)
+        
+        if previous:
+            self.data[int(previous.text(2))] = self.text_editor.toPlainText()
+        if current:
+            self.text_editor.setPlainText(self.data[int(current.text(2))])

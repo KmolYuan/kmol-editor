@@ -74,6 +74,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.console.sizePolicy().hasHeightForWidth())
         self.console.setSizePolicy(sizePolicy)
+        self.console.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         self.console.setObjectName("console")
         self.verticalLayout_3.addWidget(self.console)
         self.panel_widget.addTab(self.console_tab, "")

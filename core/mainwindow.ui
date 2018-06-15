@@ -149,6 +149,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="lineWrapMode">
+             <enum>QTextEdit::NoWrap</enum>
+            </property>
            </widget>
           </item>
          </layout>

@@ -20,22 +20,41 @@ class DataDict:
         self.__saved = {key: True for key in data}
     
     def clear(self):
+        """Clear data."""
         self.__data.clear()
         self.__saved.clear()
     
     def __getitem__(self, key: Hashable) -> str:
-        try:
+        """Get item string."""
+        if key in self.__data:
             return self.__data[key]
-        except KeyError:
+        else:
             return ""
     
     def __setitem__(self, key: Hashable, context: str):
+        """Set item."""
         self.__data[key] = context
         self.__saved[key] = False
     
-    def saved(self, key: Hashable) -> bool:
+    def __delitem__(self, key: Hashable):
+        """Delete the key and avoid raise error."""
+        if key in self.__data:
+            del self.__data[key]
+            del self.__saved[key]
+    
+    def is_saved(self, key: Hashable) -> bool:
+        """Return saved status."""
         return self.__saved[key]
     
     def saveAll(self):
+        """Change all saved status."""
         for key in self.__data:
             self.__saved[key] = True
+    
+    def newNum(self) -> int:
+        """Get a unused number."""
+        i = 0
+        while i in self.__data:
+            i += 1
+        else:
+            return i
