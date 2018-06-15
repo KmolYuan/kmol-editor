@@ -26,7 +26,11 @@ def setmenu(self):
     self.popMenu_tree.addAction(self.action_open)
     self.tree_add = QAction("&Add", self)
     self.tree_add.triggered.connect(self.addNode)
+    self.tree_add.setShortcut("Ctrl+I")
     self.popMenu_tree.addAction(self.tree_add)
+    
+    self.popMenu_tree.addSeparator()
+    
     self.tree_path = QAction("Set &Path", self)
     self.tree_path.triggered.connect(self.setPath)
     self.popMenu_tree.addAction(self.tree_path)
@@ -36,7 +40,9 @@ def setmenu(self):
     self.popMenu_tree.addAction(self.tree_copy)
     self.tree_clone = QAction("C&lone", self)
     self.popMenu_tree.addAction(self.tree_clone)
+    
     self.popMenu_tree.addSeparator()
+    
     self.tree_delete = QAction("&Delete", self)
     self.tree_delete.triggered.connect(self.deleteNode)
     self.popMenu_tree.addAction(self.tree_delete)

@@ -30,6 +30,7 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
+from core.xml_parser import tree_parse, tree_wirte
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -122,7 +123,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if not filename:
             return
-        self.__addFile(filename + '.kmol')
+        if QFileInfo(filename).suffix() != 'kmol':
+            filename += '.kmol'
+        self.__addFile(filename)
     
     @pyqtSlot()
     def openFile(self):
@@ -135,7 +138,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ok:
             return
         for name in filenames:
-            self.__addFile(name)
+            tree_parse(name, self.tree_main)
     
     def __addFile(self, path: str):
         """Add a file."""
@@ -176,6 +179,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     "Markdown (*.md)",
                     "HTML (*.html)",
                     "Python script (*.py)",
+                    "Text file (*.txt)",
                     "All files (*.*)",
                 ])
             )
@@ -195,7 +199,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = self.tree_main.topLevelItem(index)
         self.__saveFile(item)
     
-    def __saveFile(self, node: QTreeWidgetItem) -> Optional[str]:
+    def __saveFile(self, node: QTreeWidgetItem) -> str:
         """Recursive to all the contents of nodes."""
         data = []
         for i in range(node.childCount()):
@@ -220,17 +224,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         path + '/' if path else ''
                     ).absolutePath()
                 else:
-                    return QFileInfo(node.text(1)).absoluteFilePath()
+                    return QFileInfo(node.text(1)).absolutePath()
             
             current_path = QFileInfo(getpath(node))
             suffix = QFileInfo(path_text).suffix()
-            if suffix in ('md', 'html', 'py'):
-                #TODO: Save text files.
-                print(my_content_list)
-                print(current_path.absoluteFilePath())
+            if suffix in ('md', 'html', 'py', 'txt'):
+                #Save text files.
+                filename = QDir(current_path.absolutePath()).filePath(path_text)
+                with open(filename, 'w') as f:
+                    f.write(my_content_list)
             elif suffix == 'kmol':
-                #TODO: Save project.
-                return None
+                #Save project.
+                tree_wirte(path_text, node, self.data)
         return my_content_list
     
     @pyqtSlot()

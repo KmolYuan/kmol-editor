@@ -7,7 +7,12 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
-from typing import Dict, Hashable
+from typing import (
+    Tuple,
+    Dict,
+    Iterator,
+    Hashable,
+)
 
 
 class DataDict:
@@ -42,6 +47,14 @@ class DataDict:
             del self.__data[key]
             del self.__saved[key]
     
+    def __len__(self):
+        """Length."""
+        return len(self.__data)
+    
+    def items(self) -> Iterator[Tuple[int, str]]:
+        """Items of data."""
+        return self.__data.items()
+    
     def is_saved(self, key: Hashable) -> bool:
         """Return saved status."""
         return self.__saved[key]
@@ -57,4 +70,5 @@ class DataDict:
         while i in self.__data:
             i += 1
         else:
+            self[i] = ""
             return i
