@@ -132,14 +132,24 @@
          </item>
         </layout>
        </widget>
-       <widget class="QTabWidget" name="tabWidget">
+       <widget class="QTabWidget" name="panel_widget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
         <widget class="QWidget" name="console_tab">
          <attribute name="title">
           <string>Console</string>
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QTextBrowser" name="console"/>
+           <widget class="QTextBrowser" name="console">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -147,6 +157,47 @@
          <attribute name="title">
           <string>Find and Replace</string>
          </attribute>
+        </widget>
+        <widget class="QWidget" name="deprecated_tab">
+         <attribute name="title">
+          <string>Deprecated</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="deprecated_label">
+              <property name="text">
+               <string>The contents of deleted nodes.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deprecated_clear">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Clear</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QListWidget" name="deprecated_list">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
       </widget>
@@ -170,6 +221,7 @@
     <addaction name="action_new_project"/>
     <addaction name="action_open"/>
     <addaction name="action_save"/>
+    <addaction name="action_save_all"/>
     <addaction name="separator"/>
     <addaction name="action_New_Window"/>
     <addaction name="action_close"/>
@@ -247,6 +299,14 @@
     <string>New Window</string>
    </property>
   </action>
+  <action name="action_save_all">
+   <property name="text">
+    <string>Save All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../icons.qrc"/>
@@ -265,6 +325,22 @@
     <hint type="destinationlabel">
      <x>389</x>
      <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deprecated_clear</sender>
+   <signal>clicked()</signal>
+   <receiver>deprecated_list</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>717</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>389</x>
+     <y>518</y>
     </hint>
    </hints>
   </connection>

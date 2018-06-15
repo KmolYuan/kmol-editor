@@ -91,5 +91,15 @@ class TextEditor(QPlainTextEdit):
             cur.setPosition(anchor)
             cur.setPosition(pos, QTextCursor.KeepAnchor)
             cur.insertText('\n' + " " * space_count)
+        elif key == Qt.Key_Backspace:
+            pos = cur.position()
+            anchor = cur.anchor()
+            cur.movePosition(QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
+            text = cur.selectedText()[1:]
+            if text.isspace():
+                cur.insertText(text.replace(text.replace(self.tab, ''), ''))
+            else:
+                cur.setPosition(pos, QTextCursor.KeepAnchor)
+                super(TextEditor, self).keyPressEvent(event)
         else:
             super(TextEditor, self).keyPressEvent(event)
