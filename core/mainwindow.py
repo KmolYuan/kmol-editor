@@ -20,6 +20,7 @@ from core.QtModules import (
     QUrl,
     QFileDialog,
     QStandardPaths,
+    QFileInfo,
 )
 from core.info import INFO
 from core.text_editor import TextEditor
@@ -80,24 +81,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot(QPoint)
     def on_tree_widget_context_menu(self, point: QPoint):
-        """TODO: Operations."""
+        """Operations."""
         item = self.tree_main.currentItem()
         has_item = bool(item)
-        is_root = bool(item.parent()) if has_item else False
+        is_root = not (bool(item.parent()) if has_item else False)
         self.tree_close.setVisible(has_item)
-        self.action_open.setVisible(not is_root)
+        for action in (
+            self.action_open,
+            self.action_new_project,
+        ):
+            action.setVisible(is_root)
         for action in (
             self.tree_add,
             self.tree_copy,
             self.tree_clone,
             self.tree_delete,
         ):
-            action.setVisible(is_root)
+            action.setVisible(has_item)
         action = self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
-        if action == self.tree_add:
-            self.addNode()
-        elif action == self.tree_delete:
-            self.deleteNode()
+    
+    def newFile(self):
+        """New file."""
+        filename, ok = QFileDialog.getSaveFileName(self,
+            "New Project",
+            self.env,
+            "Kmol Project (*.kmol)"
+        )
+        if not ok:
+            return
+        self.__addFile(filename)
     
     def openFile(self):
         """Open file."""
@@ -108,7 +120,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if not ok:
             return
-        print(filenames)
+        for name in filenames:
+            self.__addFile(name)
+    
+    def __addFile(self, path: str):
+        """Add a file."""
+        self.env = QFileInfo(path).absolutePath()
+        item = QTreeWidgetItem([QFileInfo(path).baseName(), path])
+        item.setFlags(
+            Qt.ItemIsSelectable |
+            Qt.ItemIsUserCheckable |
+            Qt.ItemIsEnabled
+        )
+        self.tree_main.addTopLevelItem(item)
     
     def addNode(self):
         """Add a node at current item."""
