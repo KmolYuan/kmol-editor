@@ -87,31 +87,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(QPoint)
     def on_tree_widget_context_menu(self, point: QPoint):
         """Operations."""
-        item = self.tree_main.currentItem()
-        has_item = bool(item)
-        is_root = (not item.parent()) if has_item else False
-        for action in (
-            self.action_open,
-            self.action_new_project,
-        ):
-            action.setVisible(is_root or not has_item)
-        self.tree_close.setVisible(has_item and is_root)
-        self.action_save.setVisible(
-            is_root and
-            not (item.flags() & Qt.ItemIsDragEnabled)
-        )
-        for action in (
-            self.tree_add,
-            self.tree_path,
-        ):
-            action.setVisible(has_item)
-        for action in (
-            self.tree_copy,
-            self.tree_clone,
-            self.tree_delete,
-        ):
-            action.setVisible(has_item and not is_root)
-        action = self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
+        self.__actionChange()
+        self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
     
     @pyqtSlot()
     def newFile(self):
@@ -233,9 +210,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 filename = QDir(current_path.absolutePath()).filePath(path_text)
                 with open(filename, 'w') as f:
                     f.write(my_content_list)
+                print("Saved {}".format(filename))
             elif suffix == 'kmol':
                 #Save project.
                 tree_wirte(path_text, node, self.data)
+                print("Saved {}".format(path_text))
         return my_content_list
     
     @pyqtSlot()
@@ -303,3 +282,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.data[int(previous.text(2))] = self.text_editor.toPlainText()
         if current:
             self.text_editor.setPlainText(self.data[int(current.text(2))])
+        
+        self.__actionChange()
+    
+    def __actionChange(self):
+        item = self.tree_main.currentItem()
+        has_item = bool(item)
+        is_root = (not item.parent()) if has_item else False
+        for action in (
+            self.action_open,
+            self.action_new_project,
+        ):
+            action.setVisible(is_root or not has_item)
+        self.tree_close.setVisible(has_item and is_root)
+        self.action_save.setVisible(
+            is_root and
+            not (item.flags() & Qt.ItemIsDragEnabled)
+        )
+        for action in (
+            self.tree_add,
+            self.tree_path,
+        ):
+            action.setVisible(has_item)
+        for action in (
+            self.tree_copy,
+            self.tree_clone,
+            self.tree_delete,
+        ):
+            action.setVisible(has_item and not is_root)

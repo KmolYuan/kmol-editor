@@ -8,6 +8,7 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from core.QtModules import (
+    Qt,
     QMenu,
     QAction,
 )
@@ -27,6 +28,7 @@ def setmenu(self):
     self.tree_add = QAction("&Add", self)
     self.tree_add.triggered.connect(self.addNode)
     self.tree_add.setShortcut("Ctrl+I")
+    self.tree_add.setShortcutContext(Qt.WindowShortcut)
     self.popMenu_tree.addAction(self.tree_add)
     
     self.popMenu_tree.addSeparator()
