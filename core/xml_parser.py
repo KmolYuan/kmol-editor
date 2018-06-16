@@ -8,21 +8,52 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from xml.etree.ElementTree import (
+    ElementTree,
     Element,
     SubElement,
     tostring,
 )
 from xml.dom import minidom
 from core.QtModules import (
+    Qt,
     QTreeWidget,
     QTreeWidgetItem,
+    QFileInfo,
 )
 from core.data_structure import DataDict
 from core.info import __version__
 
 
-def tree_parse(filename: str, tree_main: QTreeWidget):
+def tree_parse(filename: str, tree_main: QTreeWidget, data: DataDict):
     """Parse in to tree widget."""
+    tree = ElementTree(file=filename)
+    root = tree.getroot()
+    root_node = QTreeWidgetItem([
+        QFileInfo(filename).baseName(),
+        filename,
+        root.attrib['code']
+    ])
+    root_node.setFlags(root_node.flags() & ~Qt.ItemIsDragEnabled)
+    tree_main.addTopLevelItem(root_node)
+    
+    def addNode(node: Element, root: QTreeWidgetItem):
+        """Add node in to tree widget."""
+        attr = node.attrib
+        sub = QTreeWidgetItem([attr['name'], attr['path'], attr['code']])
+        root.addChild(sub)
+        for child in node:
+            if child.tag == 'node':
+                addNode(child, sub)
+    
+    for child in root:
+        if child.tag == 'data-structure':
+            for d in child:
+                if d.tag == 'data':
+                    data[int(d.attrib['code'])] = d.text
+        elif child.tag == 'node':
+            addNode(child, root_node)
+    
+    print("Loaded: {}".format(filename))
 
 
 def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
@@ -48,6 +79,9 @@ def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
     for code, context in data.items():
         context_node = SubElement(data_node, 'data', {'code': str(code)})
         context_node.text = context
+    
     xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent=" "*3)
     with open(filename, 'w') as f:
         f.write(xmlstr)
+    
+    print("Saved {}".format(filename))

@@ -34,6 +34,12 @@ from core.xml_parser import tree_parse, tree_wirte
 from .Ui_mainwindow import Ui_MainWindow
 
 
+def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
+    """Return the parent if exist."""
+    item = node.parent()
+    return _get_root(item) if item else node
+
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     
     """
@@ -115,7 +121,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ok:
             return
         for name in filenames:
-            tree_parse(name, self.tree_main)
+            tree_parse(name, self.tree_main, self.data)
     
     def __addFile(self, path: str):
         """Add a file."""
@@ -214,14 +220,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif suffix == 'kmol':
                 #Save project.
                 tree_wirte(path_text, node, self.data)
-                print("Saved {}".format(path_text))
         return my_content_list
     
     @pyqtSlot()
     def deleteNode(self):
         """Delete the current item."""
         current_item = self.tree_main.currentItem()
-        self.deprecated_list.addItem(QListWidgetItem(current_item.text(0)))
+        self.deprecated_list.addItem(QListWidgetItem(
+            "{}@{}".format(current_item.text(0), current_item.text(2))
+        ))
         item = current_item.parent()
         item.removeChild(current_item)
     
