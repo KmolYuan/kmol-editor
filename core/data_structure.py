@@ -38,8 +38,9 @@ class DataDict:
     
     def __setitem__(self, key: Hashable, context: str):
         """Set item."""
+        old_context = self[key]
         self.__data[key] = context
-        self.__saved[key] = False
+        self.__saved[key] = old_context == context
     
     def __delitem__(self, key: Hashable):
         """Delete the key and avoid raise error."""
@@ -58,6 +59,10 @@ class DataDict:
     def is_saved(self, key: Hashable) -> bool:
         """Return saved status."""
         return self.__saved[key]
+    
+    def is_all_saved(self) -> bool:
+        """Return True if all saved."""
+        return all(self.is_saved(key) for key in self.__data)
     
     def saveAll(self):
         """Change all saved status."""

@@ -52,6 +52,7 @@ def tree_parse(filename: str, tree_main: QTreeWidget, data: DataDict):
                     data[int(d.attrib['code'])] = d.text
         elif child.tag == 'node':
             addNode(child, root_node)
+    data.saveAll()
     
     print("Loaded: {}".format(filename))
 
@@ -79,9 +80,10 @@ def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
     for code, context in data.items():
         context_node = SubElement(data_node, 'data', {'code': str(code)})
         context_node.text = context
+    data.saveAll()
     
     xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent=" "*3)
     with open(filename, 'w') as f:
         f.write(xmlstr)
     
-    print("Saved {}".format(filename))
+    print("Saved: {}".format(filename))

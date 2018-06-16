@@ -154,6 +154,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             if filename:
                 filename += '.kmol'
+            else:
+                return
         else:
             filename, ok = QFileDialog.getOpenFileName(self,
                 "Open File",
@@ -166,8 +168,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     "All files (*.*)",
                 ])
             )
-        if filename and ok:
-            item.setText(1, filename)
+            if not ok:
+                return
+        project_path = QDir(_get_root(item).text(1))
+        project_path.cdUp()
+        item.setText(1, project_path.relativeFilePath(filename))
     
     @pyqtSlot()
     def saveFile(self, index: Optional[int] = None, *, all: bool = False):
@@ -176,8 +181,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for row in range(self.tree_main.topLevelItemCount()):
                 self.saveFile(row)
             return
-        elif index is None:
-            item = self.tree_main.currentItem()
+        if index is None:
+            item = _get_root(self.tree_main.currentItem())
         else:
             item = self.tree_main.topLevelItem(index)
         self.__saveFile(item)
@@ -216,7 +221,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 filename = QDir(current_path.absolutePath()).filePath(path_text)
                 with open(filename, 'w') as f:
                     f.write(my_content_list)
-                print("Saved {}".format(filename))
+                print("Saved: {}".format(filename))
             elif suffix == 'kmol':
                 #Save project.
                 tree_wirte(path_text, node, self.data)
@@ -235,7 +240,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def closeFile(self):
         """Close project node."""
-        #TODO: Check is all saved.
+        if not self.data.is_all_saved():
+            reply = QMessageBox.question(self,
+                "Not saved",
+                "Do you went to save the project?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save
+            )
+            if reply == QMessageBox.Save:
+                self.saveFile()
+            elif reply == QMessageBox.Cancel:
+                return
         index = self.tree_main.indexOfTopLevelItem(self.tree_main.currentItem())
         self.tree_main.takeTopLevelItem(index)
     
@@ -302,10 +317,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ):
             action.setVisible(is_root or not has_item)
         self.tree_close.setVisible(has_item and is_root)
-        self.action_save.setVisible(
-            is_root and
-            not (item.flags() & Qt.ItemIsDragEnabled)
-        )
         for action in (
             self.tree_add,
             self.tree_path,
