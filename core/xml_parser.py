@@ -40,6 +40,7 @@ def tree_parse(filename: str, tree_main: QTreeWidget, data: DataDict):
         """Add node in to tree widget."""
         attr = node.attrib
         sub = QTreeWidgetItem([attr['name'], attr['path'], attr['code']])
+        sub.setFlags(sub.flags() | Qt.ItemIsEditable)
         root.addChild(sub)
         for child in node:
             if child.tag == 'node':
@@ -49,7 +50,7 @@ def tree_parse(filename: str, tree_main: QTreeWidget, data: DataDict):
         if child.tag == 'data-structure':
             for d in child:
                 if d.tag == 'data':
-                    data[int(d.attrib['code'])] = d.text
+                    data[int(d.attrib['code'])] = d.text if d.text else ""
         elif child.tag == 'node':
             addNode(child, root_node)
     data.saveAll()
@@ -57,12 +58,14 @@ def tree_parse(filename: str, tree_main: QTreeWidget, data: DataDict):
     print("Loaded: {}".format(filename))
 
 
-def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
+def tree_write(filename: str, root_node: QTreeWidgetItem, data: DataDict):
     """Write to XML file."""
     root = Element('kmolroot', {
         'version': __version__,
         'code': root_node.text(2),
     })
+    
+    codes = set()
     
     def addNode(node: QTreeWidgetItem, root: Element):
         attr = {
@@ -70,7 +73,11 @@ def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
             'path': node.text(1),
             'code': node.text(2),
         }
+        print(attr['path'])
         sub = SubElement(root, 'node', attr)
+        codes.add(attr['code'])
+        if QFileInfo(node.text(1)).suffix() not in ('', 'kmol'):
+            return
         for i in range(node.childCount()):
             addNode(node.child(i), sub)
     
@@ -78,6 +85,8 @@ def tree_wirte(filename: str, root_node: QTreeWidgetItem, data: DataDict):
         addNode(root_node.child(i), root)
     data_node = SubElement(root, 'data-structure')
     for code, context in data.items():
+        if str(code) not in codes:
+            continue
         context_node = SubElement(data_node, 'data', {'code': str(code)})
         context_node.text = context
     data.saveAll()

@@ -14,7 +14,6 @@ from core.QtModules import (
     QWidget,
     QPlainTextEdit,
     QTextCursor,
-    QTextOption,
 )
 from core.syntax import (
     HtmlHighlighter,
@@ -35,7 +34,6 @@ class TextEditor(QPlainTextEdit):
     
     def __init__(self, parent: QWidget):
         super(TextEditor, self).__init__(parent)
-        self.setWordWrapMode(QTextOption.NoWrap)
         self.setStyleSheet(
             "QPlainTextEdit{" +
             "font-family:'Mono';" +

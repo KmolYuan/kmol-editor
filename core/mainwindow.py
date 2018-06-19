@@ -30,7 +30,7 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.xml_parser import tree_parse, tree_wirte
+from core.xml_parser import tree_parse, tree_write
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -108,6 +108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         if QFileInfo(filename).suffix() != 'kmol':
             filename += '.kmol'
+        self.env = QFileInfo(path).absolutePath()
         self.__addFile(filename)
     
     @pyqtSlot()
@@ -120,12 +121,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if not ok:
             return
-        for name in filenames:
-            tree_parse(name, self.tree_main, self.data)
+        
+        def in_widget(path: str) -> int:
+            """Is name in tree widget."""
+            for i in range(self.tree_main.topLevelItemCount()):
+                if path == self.tree_main.topLevelItem(i).text(1):
+                    return i
+            return -1
+        
+        for filename in filenames:
+            self.env = QFileInfo(filename).absolutePath()
+            index = in_widget(filename)
+            if index == -1:
+                tree_parse(filename, self.tree_main, self.data)
+            else:
+                self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
     
     def __addFile(self, path: str):
         """Add a file."""
-        self.env = QFileInfo(path).absolutePath()
         item = QTreeWidgetItem([
             QFileInfo(path).baseName(),
             path,
@@ -170,6 +183,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             if not ok:
                 return
+        self.env = QFileInfo(filename).absolutePath()
         project_path = QDir(_get_root(item).text(1))
         project_path.cdUp()
         item.setText(1, project_path.relativeFilePath(filename))
@@ -199,32 +213,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 preffix = text[:-len("@others")]
                 my_content_list[i] = '\n\n'.join(preffix + d for d in data)
         my_content_list = '\n'.join(my_content_list)
-        path_text = node.text(1)
+        path_text = QFileInfo(node.text(1)).fileName()
         if path_text:
-            
-            def getpath(node: QTreeWidgetItem) -> str:
-                """Get the path from parent."""
-                parent = node.parent()
-                if parent:
-                    path = node.text(1)
-                    return QFileInfo(
-                        QDir(getpath(parent)),
-                        path + '/' if path else ''
-                    ).absolutePath()
-                else:
-                    return QFileInfo(node.text(1)).absolutePath()
-            
-            current_path = QFileInfo(getpath(node))
             suffix = QFileInfo(path_text).suffix()
             if suffix in ('md', 'html', 'py', 'txt'):
+                
+                def getpath(node: QTreeWidgetItem) -> str:
+                    """Get the path from parent."""
+                    parent = node.parent()
+                    if parent:
+                        path = node.text(1)
+                        return QFileInfo(
+                            QDir(getpath(parent)),
+                            path + '/' if path else ''
+                        ).absolutePath()
+                    else:
+                        return QFileInfo(node.text(1)).absolutePath()
+                
+                current_path = QFileInfo(getpath(node))
+                
                 #Save text files.
-                filename = QDir(current_path.absolutePath()).filePath(path_text)
+                filepath = QDir(current_path.absolutePath())
+                if not filepath.exists():
+                    filepath.mkpath('.')
+                    print("Create Folder: {}".format(filepath.absolutePath()))
+                filename = filepath.filePath(path_text)
                 with open(filename, 'w') as f:
                     f.write(my_content_list)
                 print("Saved: {}".format(filename))
             elif suffix == 'kmol':
                 #Save project.
-                tree_wirte(path_text, node, self.data)
+                tree_write(node.text(1), node, self.data)
         return my_content_list
     
     @pyqtSlot()
@@ -282,6 +301,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         def func():
             try:
                 exec(script)
+            except SyntaxError as e:
+                print("Not a Python script.")
             except Exception as e:
                 print(e)
         
