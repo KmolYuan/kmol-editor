@@ -9,7 +9,6 @@ __email__ = "pyslvs@gmail.com"
 
 from typing import (
     Tuple,
-    Dict,
     Iterator,
     Hashable,
 )
@@ -19,10 +18,9 @@ class DataDict:
     
     """A wrapper class contain the data of nodes."""
     
-    def __init__(self, data: Dict[Hashable, str] = {}):
+    def __init__(self):
         self.__data = {}
-        self.__data.update(data)
-        self.__saved = {key: True for key in data}
+        self.__saved = {}
     
     def clear(self):
         """Clear data."""
@@ -48,9 +46,17 @@ class DataDict:
             del self.__data[key]
             del self.__saved[key]
     
-    def __len__(self):
+    def __len__(self) -> int:
         """Length."""
         return len(self.__data)
+    
+    def __repr__(self) -> str:
+        """Text format."""
+        return str(self.__data)
+    
+    def __contains__(self, key: Hashable) -> bool:
+        """Return True if index is in the data."""
+        return key in self.__data
     
     def items(self) -> Iterator[Tuple[int, str]]:
         """Items of data."""

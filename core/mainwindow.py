@@ -30,7 +30,7 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.xml_parser import tree_parse, tree_write
+from core.xml_parser import getpath, tree_parse, tree_write
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -97,7 +97,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
     
     @pyqtSlot()
-    def newFile(self):
+    def newProj(self):
         """New file."""
         filename, suffix = QFileDialog.getSaveFileName(self,
             "New Project",
@@ -109,10 +109,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if QFileInfo(filename).suffix() != 'kmol':
             filename += '.kmol'
         self.env = QFileInfo(filename).absolutePath()
-        self.__addFile(filename)
+        item = QTreeWidgetItem([
+            QFileInfo(filename).baseName(),
+            filename,
+            str(self.data.newNum())
+        ])
+        item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
+        self.tree_main.addTopLevelItem(item)
     
     @pyqtSlot()
-    def openFile(self):
+    def openProj(self):
         """Open file."""
         filenames, ok = QFileDialog.getOpenFileNames(self,
             "Open Projects",
@@ -136,16 +142,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 tree_parse(filename, self.tree_main, self.data)
             else:
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
-    
-    def __addFile(self, path: str):
-        """Add a file."""
-        item = QTreeWidgetItem([
-            QFileInfo(path).baseName(),
-            path,
-            str(self.data.newNum())
-        ])
-        item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
-        self.tree_main.addTopLevelItem(item)
+        
+        self.text_editor.clear()
     
     @pyqtSlot()
     def addNode(self):
@@ -189,17 +187,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item.setText(1, project_path.relativeFilePath(filename))
     
     @pyqtSlot()
-    def saveFile(self, index: Optional[int] = None, *, all: bool = False):
+    def saveProj(self, index: Optional[int] = None, *, all: bool = False):
         """Save project and files."""
         if all:
             for row in range(self.tree_main.topLevelItemCount()):
-                self.saveFile(row)
+                self.saveProj(row)
             return
         if index is None:
             item = _get_root(self.tree_main.currentItem())
         else:
             item = self.tree_main.topLevelItem(index)
+        self.tree_main.setCurrentItem(item)
         self.__saveFile(item)
+        self.data.saveAll()
     
     def __saveFile(self, node: QTreeWidgetItem) -> str:
         """Recursive to all the contents of nodes."""
@@ -217,23 +217,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if path_text:
             suffix = QFileInfo(path_text).suffix()
             if suffix in ('md', 'html', 'py', 'txt'):
-                
-                def getpath(node: QTreeWidgetItem) -> str:
-                    """Get the path from parent."""
-                    parent = node.parent()
-                    if parent:
-                        path = node.text(1)
-                        return QFileInfo(
-                            QDir(getpath(parent)),
-                            path + '/' if path else ''
-                        ).absolutePath()
-                    else:
-                        return QFileInfo(node.text(1)).absolutePath()
-                
-                current_path = QFileInfo(getpath(node))
-                
                 #Save text files.
-                filepath = QDir(current_path.absolutePath())
+                filepath = QDir(QFileInfo(getpath(node)).absolutePath())
                 if not filepath.exists():
                     filepath.mkpath('.')
                     print("Create Folder: {}".format(filepath.absolutePath()))
@@ -255,6 +240,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ))
         item = current_item.parent()
         item.removeChild(current_item)
+        self.text_editor.clear()
     
     @pyqtSlot()
     def closeFile(self):
@@ -267,11 +253,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.Save
             )
             if reply == QMessageBox.Save:
-                self.saveFile()
+                self.saveProj()
             elif reply == QMessageBox.Cancel:
                 return
-        index = self.tree_main.indexOfTopLevelItem(self.tree_main.currentItem())
-        self.tree_main.takeTopLevelItem(index)
+        
+        root = self.tree_main.currentItem()
+        
+        def clearData(node: QTreeWidgetItem):
+            """Delete data from data structure."""
+            del self.data[int(node.text(2))]
+            for i in range(node.childCount()):
+                clearData(node.child(i))
+        
+        clearData(root)
+        self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
+        self.text_editor.clear()
     
     @pyqtSlot()
     def on_action_about_qt_triggered(self):
@@ -296,17 +292,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def on_exec_button_clicked(self):
         """Execute the script."""
-        script = self.text_editor.toPlainText()
-        
-        def func():
-            try:
-                exec(script)
-            except SyntaxError as e:
-                print("Not a Python script.")
-            except Exception as e:
-                print(e)
-        
-        func()
+        try:
+            exec(self.text_editor.toPlainText())
+        except SyntaxError as e:
+            print("Not a Python script.")
+        except Exception as e:
+            print(e)
     
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def on_tree_main_currentItemChanged(self,
