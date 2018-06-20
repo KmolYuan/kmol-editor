@@ -16,3 +16,5 @@ __all__ = [
     'MarkdownHighlighter',
     'PythonHighlighter',
 ]
+
+SUPPORT_FILE_FORMATS = ['md', 'html', 'txt']

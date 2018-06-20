@@ -60,11 +60,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             (r'\+?@[\w]+\:', 0, STYLES['defclass']),
             
             # Title
-            (r'^[\s]*[#]+\s\b', 0, STYLES['keyword']),
+            (r'^[\s]*[#]+\s[\w\s]+$', 0, STYLES['keyword']),
             
             # Line drawing
-            (r'^--[-]+$', 0, STYLES['keyword']),
             (r'^==[=]+$', 0, STYLES['keyword']),
+            (r'^--[-]+$', 0, STYLES['keyword']),
             
             # Maths
             (r'\$\w+\$', 0, STYLES['string2']),

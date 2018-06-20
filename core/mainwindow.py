@@ -108,7 +108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         if QFileInfo(filename).suffix() != 'kmol':
             filename += '.kmol'
-        self.env = QFileInfo(path).absolutePath()
+        self.env = QFileInfo(filename).absolutePath()
         self.__addFile(filename)
     
     @pyqtSlot()

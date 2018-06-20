@@ -16,7 +16,7 @@ from .styles import STYLES
 
 class HtmlHighlighter(QSyntaxHighlighter):
     
-    """Syntax highlighter for the HTML language."""
+    """TODO: Syntax highlighter for the HTML language."""
     
     # keywords
     keywords = [
