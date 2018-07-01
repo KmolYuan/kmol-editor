@@ -87,6 +87,11 @@ class TextEditor(QsciScintilla):
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
         
+        #Indicator.
+        self.indicatorDefine(QsciScintilla.BoxIndicator, 0)
+        self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
+        self.cursorPositionChanged.connect(self.catchWords)
+        
         #Widget size.
         self.setMinimumSize(400, 450)
     
@@ -95,6 +100,24 @@ class TextEditor(QsciScintilla):
         lexer = QSCIHIGHLIGHTERS[option]()
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
+    
+    @pyqtSlot(int, int)
+    def catchWords(self, line: int, index: int):
+        """Catch words that is same with current word."""
+        end_line, end_index = self.lineIndexFromPosition(self.length())
+        self.clearIndicatorRange(0, 0, end_line, end_index, 0)
+        pos = self.positionFromLineIndex(line, index)
+        wpos_start = self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True)
+        wpos_end = self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True)
+        wpos_start_line, wpos_start_index = self.lineIndexFromPosition(wpos_start)
+        wpos_end_line, wpos_end_index = self.lineIndexFromPosition(wpos_end)
+        self.fillIndicatorRange(
+            wpos_start_line,
+            wpos_start_index,
+            wpos_end_line,
+            wpos_end_index,
+            0
+        )
     
     def wheelEvent(self, event):
         if QApplication.keyboardModifiers() != Qt.ControlModifier:
