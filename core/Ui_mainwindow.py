@@ -167,6 +167,7 @@ class Ui_MainWindow(object):
         self.exec_button.setText(_translate("MainWindow", "Execute Script"))
         self.tree_main.headerItem().setText(0, _translate("MainWindow", "Name"))
         self.tree_main.headerItem().setText(1, _translate("MainWindow", "Path"))
+        self.tree_main.headerItem().setText(2, _translate("MainWindow", "Pointer"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.console_tab), _translate("MainWindow", "Console"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.find_tab), _translate("MainWindow", "Find and Replace"))
         self.deprecated_label.setText(_translate("MainWindow", "The contents of deleted nodes."))

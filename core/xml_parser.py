@@ -15,7 +15,8 @@ from xml.etree.ElementTree import (
 )
 from xml.dom import minidom
 from core.QtModules import (
-    Qt,
+    QTreeItem,
+    QTreeRoot,
     QTreeWidget,
     QTreeWidgetItem,
     QFileInfo,
@@ -91,20 +92,18 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
     """Parse in to tree widget."""
     tree = ElementTree(file=projname)
     root = tree.getroot()
-    root_node = QTreeWidgetItem([
+    root_node = QTreeRoot(
         QFileInfo(projname).baseName(),
         projname,
         root.attrib['code']
-    ])
-    root_node.setFlags(root_node.flags() & ~Qt.ItemIsDragEnabled)
+    )
     tree_main.addTopLevelItem(root_node)
     data[int(root.attrib['code'])] = ""
     
     def addNode(node: Element, root: QTreeWidgetItem):
         """Add node in to tree widget."""
         attr = node.attrib
-        sub = QTreeWidgetItem([attr['name'], attr['path'], attr['code']])
-        sub.setFlags(sub.flags() | Qt.ItemIsEditable)
+        sub = QTreeItem(attr['name'], attr['path'], attr['code'])
         root.addChild(sub)
         
         code = int(attr['code'])
@@ -217,8 +216,7 @@ def parseMarkdown(
         
         code_node = data.newNum()
         
-        sub = QTreeWidgetItem([title, "", str(code_node)])
-        sub.setFlags(sub.flags() | Qt.ItemIsEditable)
+        sub = QTreeItem(title, "", str(code_node))
         items.append(sub)
         root = section_root(i)
         if root == -1:

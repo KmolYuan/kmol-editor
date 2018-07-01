@@ -10,10 +10,11 @@ __email__ = "pyslvs@gmail.com"
 from typing import Optional
 from core.QtModules import (
     pyqtSlot,
-    Qt,
     QMainWindow,
     QTextCursor,
     QPoint,
+    QTreeItem,
+    QTreeRoot,
     QTreeWidgetItem,
     QHeaderView,
     QMessageBox,
@@ -114,13 +115,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if QFileInfo(filename).suffix() != 'kmol':
             filename += '.kmol'
         self.env = QFileInfo(filename).absolutePath()
-        item = QTreeWidgetItem([
+        self.tree_main.addTopLevelItem(QTreeRoot(
             QFileInfo(filename).baseName(),
             filename,
             str(self.data.newNum())
-        ])
-        item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
-        self.tree_main.addTopLevelItem(item)
+        ))
     
     @pyqtSlot()
     def openProj(self):
@@ -153,10 +152,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def addNode(self):
         """Add a node at current item."""
-        current_item = self.tree_main.currentItem()
-        item = QTreeWidgetItem(["New node", "", str(self.data.newNum())])
-        item.setFlags(item.flags() | Qt.ItemIsEditable)
-        current_item.addChild(item)
+        self.tree_main.currentItem().addChild(QTreeItem(
+            "New node",
+            "",
+            str(self.data.newNum())
+        ))
     
     @pyqtSlot()
     def setPath(self):

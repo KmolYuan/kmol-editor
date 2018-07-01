@@ -201,6 +201,8 @@ __all__ = [
     'QThread',
     'QTimer',
     'QToolTip',
+    'QTreeItem',
+    'QTreeRoot',
     'QTreeWidget',
     'QTreeWidgetItem',
     'QUndoCommand',
@@ -213,6 +215,26 @@ __all__ = [
     'QSCIHIGHLIGHTERS',
     'Qt',
 ]
+
+
+def QTreeItem(name: str, path: str, code: str) -> QTreeWidgetItem:
+    """Add a normal tree item.
+    
+    + Editable
+    """
+    item = QTreeWidgetItem([name, path, code])
+    item.setFlags(item.flags() | Qt.ItemIsEditable)
+    return item
+
+
+def QTreeRoot(name: str, path: str, code: str) -> QTreeWidgetItem:
+    """Add a root tree item.
+    
+    + Drag disabled
+    """
+    item = QTreeWidgetItem([name, path, code])
+    item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
+    return item
 
 
 class QsciLexerCustomPython(QsciLexerPython):
