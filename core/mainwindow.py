@@ -197,7 +197,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = _get_root(self.tree_main.currentItem())
         else:
             item = self.tree_main.topLevelItem(index)
-        self.tree_main.setCurrentItem(item)
+        self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
         self.__saveFile(item)
         self.data.saveAll()
     
@@ -293,7 +293,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_exec_button_clicked(self):
         """Execute the script."""
         try:
-            exec(self.text_editor.toPlainText())
+            exec(self.text_editor.text())
         except SyntaxError as e:
             print("Not a Python script.")
         except Exception as e:
@@ -313,9 +313,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.scrollToItem(current)
         
         if previous:
-            self.data[int(previous.text(2))] = self.text_editor.toPlainText()
+            self.data[int(previous.text(2))] = self.text_editor.text()
         if current:
-            self.text_editor.setPlainText(self.data[int(current.text(2))])
+            self.text_editor.setText(self.data[int(current.text(2))])
         
         self.__actionChange()
     

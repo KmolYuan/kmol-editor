@@ -23,7 +23,9 @@ from core.QtModules import (
 )
 from core.data_structure import DataDict
 from core.info import __version__
-from core.syntax import SUPPORT_FILE_FORMATS
+
+
+SUPPORT_FILE_FORMATS = ['py', 'md', 'html']
 
 
 def _suffix(filename: str) -> str:

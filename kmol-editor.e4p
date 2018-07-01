@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric project file for project kmol-editor -->
-<!-- Saved: 2018-06-15, 17:18:09 -->
+<!-- Saved: 2018-07-01, 13:27:11 -->
 <!-- Copyright (C) 2018 KmolYuan,  -->
 <Project version="5.1">
   <Language>en_US</Language>
@@ -21,11 +21,6 @@
     <Source>core/info.py</Source>
     <Source>core/loggingHandler.py</Source>
     <Source>core/mainwindow.py</Source>
-    <Source>core/syntax/__init__.py</Source>
-    <Source>core/syntax/html_syntax.py</Source>
-    <Source>core/syntax/markdown_syntax.py</Source>
-    <Source>core/syntax/python_syntax.py</Source>
-    <Source>core/syntax/styles.py</Source>
     <Source>core/text_editor.py</Source>
     <Source>core/xml_parser.py</Source>
     <Source>icons_rc.py</Source>

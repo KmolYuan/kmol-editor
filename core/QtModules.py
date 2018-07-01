@@ -84,6 +84,7 @@ from PyQt5.QtGui import (
     QCursor,
     QDesktopServices,
     QFont,
+    QFontMetrics,
     QIcon,
     QImage,
     QKeySequence,
@@ -97,13 +98,11 @@ from PyQt5.QtGui import (
     QTextCursor,
     QTextOption,
 )
-from PyQt5.QtChart import (
-    QCategoryAxis,
-    QChart,
-    QChartView,
-    QLineSeries,
-    QScatterSeries,
-    QValueAxis,
+from PyQt5.Qsci import (
+    QsciScintilla,
+    QsciLexerMarkdown,
+    QsciLexerHTML,
+    QsciLexerPython,
 )
 from PyQt5.QtCore import qVersion, PYQT_VERSION_STR
 
@@ -116,9 +115,6 @@ __all__ = [
     'QAction',
     'QApplication',
     'QBrush',
-    'QCategoryAxis',
-    'QChart',
-    'QChartView',
     'QCheckBox',
     'QColor',
     'QColorDialog',
@@ -134,6 +130,7 @@ __all__ = [
     'QFileDialog',
     'QFileInfo',
     'QFont',
+    'QFontMetrics',
     'QGraphicsScene',
     'QGraphicsView',
     'QHBoxLayout',
@@ -144,7 +141,6 @@ __all__ = [
     'QKeySequence',
     'QLabel',
     'QLineEdit',
-    'QLineSeries',
     'QListWidget',
     'QListWidgetItem',
     'QMainWindow',
@@ -167,7 +163,6 @@ __all__ = [
     'QRectF',
     'QRegExp',
     'QSpacerItem',
-    'QScatterSeries',
     'QSettings',
     'QSize',
     'QSizeF',
@@ -193,8 +188,11 @@ __all__ = [
     'QUndoStack',
     'QUndoView',
     'QUrl',
-    'QValueAxis',
     'QVBoxLayout',
     'QWidget',
+    'QsciScintilla',
+    'QsciLexerMarkdown',
+    'QsciLexerHTML',
+    'QsciLexerPython',
     'Qt',
 ]
