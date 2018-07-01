@@ -214,6 +214,21 @@ __all__ = [
     'Qt',
 ]
 
+
+class QsciLexerCustomPython(QsciLexerPython):
+    
+    """Custom Python highter."""
+    
+    def __init__(self, *args):
+        super(QsciLexerCustomPython, self).__init__(*args)
+    
+    def keywords(self, set: int) -> str:
+        if set == 2:
+            return "self True False"
+        else:
+            return QsciLexerPython.keywords(self, set)
+
+
 QSCIHIGHLIGHTERS = {
     "Bash": QsciLexerBash,
     "Batch": QsciLexerBatch,
@@ -232,7 +247,7 @@ QSCIHIGHLIGHTERS = {
     "Makefile": QsciLexerMakefile,
     "Markdown": QsciLexerMarkdown,
     "Matlab": QsciLexerMatlab,
-    "Python": QsciLexerPython,
+    "Python": QsciLexerCustomPython,
     "SQL": QsciLexerSQL,
     "Tex": QsciLexerTeX,
     "XML": QsciLexerXML,

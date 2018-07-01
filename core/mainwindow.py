@@ -296,13 +296,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_exec_button_clicked(self):
-        """Execute the script."""
-        try:
-            exec(self.text_editor.text())
-        except SyntaxError as e:
-            print("Not a Python script.")
-        except Exception as e:
-            print(e)
+        """Run the script in a new thread."""
+        from threading import Thread
+        Thread(target=exec, args=(self.text_editor.text(),)).start()
     
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def on_tree_main_currentItemChanged(self,

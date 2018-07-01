@@ -7,6 +7,7 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+import platform
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -30,14 +31,19 @@ class TextEditor(QsciScintilla):
         """UI settings."""
         super(TextEditor, self).__init__(parent)
         
-        #Set the default font
-        self.font = QFont('Courier')
+        #Set the default font.
+        if platform.system().lower() == "windows":
+            font_name = 'Courier'
+        else:
+            font_name = "Mono"
+        self.font = QFont(font_name)
         self.font.setFixedPitch(True)
         self.font.setPointSize(14)
         self.setFont(self.font)
         self.setMarginsFont(self.font)
+        self.zoomTo(10)
         
-        #Margin 0 is used for line numbers
+        #Margin 0 is used for line numbers.
         fontmetrics = QFontMetrics(self.font)
         self.setMarginsFont(self.font)
         self.setMarginWidth(0, fontmetrics.width("0000") + 4)
@@ -47,13 +53,17 @@ class TextEditor(QsciScintilla):
         #Brace matching.
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
         
-        #Current line visible with special background color
+        #Current line visible with special background color.
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
         
-        #Set lexer
+        #Set lexer.
         self.setHighlighter("Markdown")
-        self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, b'Courier')
+        self.SendScintilla(
+            QsciScintilla.SCI_STYLESETFONT,
+            1,
+            font_name.encode('utf-8')
+        )
         
         #Don't want to see the horizontal scrollbar at all.
         self.setWrapMode(QsciScintilla.WrapWord)
@@ -87,9 +97,9 @@ class TextEditor(QsciScintilla):
         self.setLexer(lexer)
     
     def wheelEvent(self, event):
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
-            value = event.angleDelta().y()
-            if value >= 0:
-                self.zoomIn()
-            else:
-                self.zoomOut()
+        if QApplication.keyboardModifiers() != Qt.ControlModifier:
+            return
+        if event.angleDelta().y() >= 0:
+            self.zoomIn()
+        else:
+            self.zoomOut()
