@@ -13,7 +13,6 @@ branches:
     - /^dev\d*[.]?\d*$/
 
 script:
-  - sudo apt -y install desktop-file-utils zenity
   - make
 
 before_cache:
