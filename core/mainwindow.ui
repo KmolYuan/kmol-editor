@@ -40,23 +40,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="highlighter_option">
-             <item>
-              <property name="text">
-               <string>Markdown</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>HTML</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Python</string>
-              </property>
-             </item>
-            </widget>
+            <widget class="QComboBox" name="highlighter_option"/>
            </item>
            <item>
             <spacer name="horizontalSpacer">
@@ -214,7 +198,7 @@
      <x>0</x>
      <y>0</y>
      <width>779</width>
-     <height>30</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

@@ -10,14 +10,15 @@ __email__ = "pyslvs@gmail.com"
 from core.QtModules import (
     pyqtSlot,
     Qt,
+    QApplication,
     QWidget,
-    QsciScintilla,
-    QsciLexerMarkdown,
-    QsciLexerHTML,
-    QsciLexerPython,
     QFont,
     QFontMetrics,
     QColor,
+    #QScintilla widget
+    QsciScintilla,
+    #Other highlighters
+    QSCIHIGHLIGHTERS,
 )
 
 
@@ -25,19 +26,12 @@ class TextEditor(QsciScintilla):
     
     """QScintilla text editor."""
     
-    HIGHLIGHTERS = [
-        QsciLexerMarkdown,
-        QsciLexerHTML,
-        QsciLexerPython,
-    ]
-    
     def __init__(self, parent: QWidget):
         """UI settings."""
         super(TextEditor, self).__init__(parent)
         
         #Set the default font
-        self.font = QFont()
-        self.font.setFamily('Courier')
+        self.font = QFont('Courier')
         self.font.setFixedPitch(True)
         self.font.setPointSize(14)
         self.setFont(self.font)
@@ -46,7 +40,7 @@ class TextEditor(QsciScintilla):
         #Margin 0 is used for line numbers
         fontmetrics = QFontMetrics(self.font)
         self.setMarginsFont(self.font)
-        self.setMarginWidth(0, fontmetrics.width("00000") + 5)
+        self.setMarginWidth(0, fontmetrics.width("0000") + 4)
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
         
@@ -58,10 +52,11 @@ class TextEditor(QsciScintilla):
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
         
         #Set lexer
-        self.setHighlighter(0)
+        self.setHighlighter("Markdown")
         self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, b'Courier')
         
         #Don't want to see the horizontal scrollbar at all.
+        self.setWrapMode(QsciScintilla.WrapWord)
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
         
         #Auto completion.
@@ -82,10 +77,19 @@ class TextEditor(QsciScintilla):
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
         
-        self.setMinimumSize(600, 450)
+        #Widget size.
+        self.setMinimumSize(400, 450)
     
-    @pyqtSlot(int)
-    def setHighlighter(self, option: int):
-        lexer = self.HIGHLIGHTERS[option]()
+    @pyqtSlot(str)
+    def setHighlighter(self, option: str):
+        lexer = QSCIHIGHLIGHTERS[option]()
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
+    
+    def wheelEvent(self, event):
+        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+            value = event.angleDelta().y()
+            if value >= 0:
+                self.zoomIn()
+            else:
+                self.zoomOut()

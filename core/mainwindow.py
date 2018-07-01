@@ -24,6 +24,7 @@ from core.QtModules import (
     QFileInfo,
     QListWidgetItem,
     QDir,
+    QSCIHIGHLIGHTERS,
 )
 from core.info import INFO
 from core.text_editor import TextEditor
@@ -62,11 +63,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.insertWidget(1, self.text_editor)
-        self.highlighter_option.currentIndexChanged.connect(
-            self.text_editor.setHighlighter
-        )
         self.h_splitter.setStretchFactor(0, 10)
         self.h_splitter.setStretchFactor(1, 20)
+        
+        #Highlighters
+        self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
+        self.highlighter_option.setCurrentText("Markdown")
+        self.highlighter_option.currentTextChanged.connect(
+            self.text_editor.setHighlighter
+        )
         
         #Tree widget
         setmenu(self)

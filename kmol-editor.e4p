@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric project file for project kmol-editor -->
-<!-- Saved: 2018-07-01, 13:27:11 -->
-<!-- Copyright (C) 2018 KmolYuan,  -->
+<!-- Saved: 2018-07-01, 17:07:54 -->
+<!-- Copyright (C) 2018 KmolYuan, pyslvs@gmail.com -->
 <Project version="5.1">
   <Language>en_US</Language>
   <Hash>55880d3fca5560d58724fc0c1bfa9376fb9c10bf</Hash>
@@ -10,7 +10,7 @@
   <ProjectType>PyQt5</ProjectType>
   <Version>18.06</Version>
   <Author>KmolYuan</Author>
-  <Email></Email>
+  <Email>pyslvs@gmail.com</Email>
   <Eol index="0"/>
   <Sources>
     <Source>core/QtModules.py</Source>
@@ -32,6 +32,10 @@
   <Resources>
     <Resource>icons.qrc</Resource>
   </Resources>
+  <Others>
+    <Other>Makefile</Other>
+    <Other>appimage_recipe.sh</Other>
+  </Others>
   <MainScript>launch_kmol.py</MainScript>
   <Vcs>
     <VcsType>Git</VcsType>
