@@ -39,9 +39,15 @@ from .Ui_mainwindow import Ui_MainWindow
 
 
 def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
-    """Return the parent if exist."""
-    item = node.parent()
-    return _get_root(item) if item else node
+    """Return the top-level parent if exist."""
+    parent = node.parent()
+    return _get_root(parent) if parent else node
+
+
+def _grand_parent(node: QTreeWidgetItem) -> QTreeWidgetItem:
+    """Return the grand parent if exist."""
+    parent = node.parent()
+    return (parent.parent() if parent else node.treeWidget()) or node.treeWidget()
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -104,11 +110,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         replace_project.activated.connect(self.replace_project_button.click)
         
+        #Node edit.
+        moveUpNode = QShortcut(QKeySequence("Ctrl+Up"), self)
+        moveUpNode.activated.connect(self.__moveUpNode)
+        moveDownNode = QShortcut(QKeySequence("Ctrl+Down"), self)
+        moveDownNode.activated.connect(self.__moveDownNode)
+        moveRightNode = QShortcut(QKeySequence("Ctrl+Right"), self)
+        moveRightNode.activated.connect(self.__moveRightNode)
+        moveLeftNode = QShortcut(QKeySequence("Ctrl+Left"), self)
+        moveLeftNode.activated.connect(self.__moveLeftNode)
+        
         #Data
         self.data = DataDict()
-        self.data.codeAdded.connect(self.addToPointers)
-        self.data.codeChanged.connect(self.editPointers)
-        self.data.codeDeleted.connect(self.removeFromPointers)
+        self.data.codeAdded.connect(self.__addToPointers)
+        self.data.codeChanged.connect(self.__editPointers)
+        self.data.codeDeleted.connect(self.__removeFromPointers)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
     
     @pyqtSlot(str)
@@ -265,19 +281,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def deleteNode(self):
         """Delete the current item."""
         current_item = self.tree_main.currentItem()
-        item = current_item.parent()
-        item.removeChild(current_item)
-        self.text_editor.clear()
+        parent = current_item.parent()
+        self.tree_main.setCurrentItem(parent)
+        parent.removeChild(current_item)
     
     @pyqtSlot(str, str)
-    def addToPointers(self, code: str, doc: str):
+    def __addToPointers(self, code: str, doc: str):
         """Add pointer content by code."""
         item = QListWidgetItem(code)
         item.setToolTip(doc[:50])
         self.pointer_list.addItem(item)
     
     @pyqtSlot(str, str)
-    def editPointers(self, code: str, doc: str):
+    def __editPointers(self, code: str, doc: str):
         """Edit pointer content by code."""
         for row in range(self.pointer_list.count()):
             item = self.pointer_list.item(row)
@@ -285,7 +301,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 item.setToolTip(doc[:50])
     
     @pyqtSlot(str)
-    def removeFromPointers(self, code: str):
+    def __removeFromPointers(self, code: str):
         """Remove pointer by code."""
         for row in range(self.pointer_list.count()):
             if code == self.pointer_list.item(row).text():
@@ -318,6 +334,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         clearData(root)
         self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
         self.text_editor.clear()
+    
+    @pyqtSlot()
+    def __moveUpNode(self):
+        """TODO: Move up current node."""
+        currentItem = self.tree_main.currentItem()
+        if not currentItem:
+            return
+        print("Up")
+    
+    @pyqtSlot()
+    def __moveDownNode(self):
+        """TODO: Move down current node."""
+        currentItem = self.tree_main.currentItem()
+        if not currentItem:
+            return
+        print("Down")
+    
+    @pyqtSlot()
+    def __moveRightNode(self):
+        """TODO: Move right current node."""
+        currentItem = self.tree_main.currentItem()
+        if not currentItem:
+            return
+        print("Right")
+    
+    @pyqtSlot()
+    def __moveLeftNode(self):
+        """TODO: Move left current node."""
+        currentItem = self.tree_main.currentItem()
+        if not currentItem:
+            return
+        print("Left")
     
     @pyqtSlot()
     def on_action_about_qt_triggered(self):

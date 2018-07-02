@@ -225,7 +225,7 @@ def QTreeItem(name: str, path: str, code: str) -> QTreeWidgetItem:
     + Editable
     """
     item = QTreeWidgetItem([name, path, code])
-    item.setFlags(item.flags() | Qt.ItemIsEditable)
+    item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable)
     return item
 
 
@@ -235,7 +235,7 @@ def QTreeRoot(name: str, path: str, code: str) -> QTreeWidgetItem:
     + Drag disabled
     """
     item = QTreeWidgetItem([name, path, code])
-    item.setFlags(item.flags() & ~Qt.ItemIsDragEnabled)
+    item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
     return item
 
 
