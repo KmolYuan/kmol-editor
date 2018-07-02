@@ -203,28 +203,28 @@ def parseMarkdown(
     titles_count = len(titles_sorted) - 1
     buttom_level = max(titles.values())
     
-    def parent(line: int, level: int) -> QTreeWidgetItem:
-        """The parent of the title."""
-        for i, pre_line in enumerate(reversed(titles_sorted[:line])):
-            if titles[pre_line] == level - 1:
+    def parent(index: int, level: int) -> QTreeWidgetItem:
+        """The parent of current title."""
+        for i, pre_index in reversed(tuple(enumerate(titles_sorted[:index]))):
+            if titles[pre_index] == level - 1:
                 return tree_items[i]
         return node
     
-    for line, line_num in enumerate(titles_sorted):
+    for index, line_num in enumerate(titles_sorted):
         level = titles[line_num]
         code = data.newNum()
-        if line == titles_count:
+        if index == titles_count:
             doc = string_list[line_num:]
         else:
-            doc = string_list[line_num:titles_sorted[line + 1]]
-        if level != buttom_level and line != titles_count:
-            doc += ['', '@others', '']
+            doc = string_list[line_num:titles_sorted[index + 1]]
+        if level != buttom_level and index != titles_count:
+            doc += ['@others', '']
         data[code] = '\n'.join(doc)
         title = doc[0]
         if title.startswith("#"):
             title = title.split(maxsplit=1)[1]
         item = QTreeItem(title, '', str(code))
-        parent(line, level).addChild(item)
+        parent(index, level).addChild(item)
         tree_items.append(item)
     
     del tree_items

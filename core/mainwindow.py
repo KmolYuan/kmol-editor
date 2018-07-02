@@ -250,6 +250,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     filepath.mkpath('.')
                     print("Create Folder: {}".format(filepath.absolutePath()))
                 filename = filepath.filePath(path_text)
+                #Add end new line.
+                if my_content_list[-1] != '\n':
+                    my_content_list += '\n'
                 with open(filename, 'w') as f:
                     f.write(my_content_list)
                 print("Saved: {}".format(filename))
