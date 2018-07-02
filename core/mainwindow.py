@@ -11,6 +11,8 @@ from typing import Optional
 from core.QtModules import (
     pyqtSlot,
     QMainWindow,
+    QShortcut,
+    QKeySequence,
     QTextCursor,
     QPoint,
     QTreeItem,
@@ -66,6 +68,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.h_splitter.insertWidget(1, self.text_editor)
         self.h_splitter.setStretchFactor(0, 10)
         self.h_splitter.setStretchFactor(1, 20)
+        self.text_editor.currtWordChanged.connect(self.search_bar.setPlaceholderText)
         
         #Highlighters
         self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
@@ -84,6 +87,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for info in INFO:
             print(info)
         print('-' * 7)
+        
+        #Searching function.
+        find_next = QShortcut(QKeySequence("F3"), self)
+        find_next.activated.connect(self.find_next_button.click)
+        find_previous = QShortcut(QKeySequence("F4"), self)
+        find_previous.activated.connect(self.find_previous_button.click)
         
         #Data
         self.data = DataDict()
@@ -240,9 +249,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def deleteNode(self):
         """Delete the current item."""
         current_item = self.tree_main.currentItem()
-        self.deprecated_list.addItem(QListWidgetItem(
-            "{}@{}".format(current_item.text(0), current_item.text(2))
-        ))
         item = current_item.parent()
         item.removeChild(current_item)
         self.text_editor.clear()
@@ -341,3 +347,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tree_delete,
         ):
             action.setVisible(has_item and not is_root)
+    
+    def __findText(self, forward: bool) -> bool:
+        """Find text by options."""
+        if not self.search_bar.text():
+            self.search_bar.setText(self.search_bar.placeholderText())
+        pos = self.text_editor.positionFromLineIndex(
+            *self.text_editor.getCursorPosition()
+        )
+        if not self.text_editor.findFirst(
+            self.search_bar.text(),
+            self.re_option.isChecked(),
+            self.match_case_option.isChecked(),
+            self.whole_word_option.isChecked(),
+            self.wrap_around.isChecked(),
+            forward,
+            *self.text_editor.lineIndexFromPosition(pos if forward else pos - 1)
+        ):
+            QMessageBox.information(self,
+                "Text not found.",
+                "\"{}\" is not in current document".format(
+                    self.search_bar.text()
+                )
+            )
+    
+    @pyqtSlot()
+    def on_find_next_button_clicked(self):
+        """Find to next."""
+        self.__findText(True)
+    
+    @pyqtSlot()
+    def on_find_previous_button_clicked(self):
+        """Find to previous."""
+        self.__findText(False)

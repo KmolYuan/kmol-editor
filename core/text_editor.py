@@ -8,7 +8,9 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 import platform
+from typing import Tuple
 from core.QtModules import (
+    pyqtSignal,
     pyqtSlot,
     Qt,
     QApplication,
@@ -26,6 +28,8 @@ from core.QtModules import (
 class TextEditor(QsciScintilla):
     
     """QScintilla text editor."""
+    
+    currtWordChanged = pyqtSignal(str)
     
     def __init__(self, parent: QWidget):
         """UI settings."""
@@ -90,7 +94,7 @@ class TextEditor(QsciScintilla):
         #Indicator.
         self.indicatorDefine(QsciScintilla.BoxIndicator, 0)
         self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
-        self.cursorPositionChanged.connect(self.catchWords)
+        self.cursorPositionChanged.connect(self.__catchWords)
         
         #Widget size.
         self.setMinimumSize(400, 450)
@@ -101,14 +105,21 @@ class TextEditor(QsciScintilla):
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
     
+    def __currentWordPosition(self) -> Tuple[int, int]:
+        """Return pos of current word."""
+        pos = self.positionFromLineIndex(*self.getCursorPosition())
+        return (
+            self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True),
+            self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True),
+        )
+    
     @pyqtSlot(int, int)
-    def catchWords(self, line: int, index: int):
+    def __catchWords(self, line: int, index: int):
         """Catch words that is same with current word."""
         end_line, end_index = self.lineIndexFromPosition(self.length())
         self.clearIndicatorRange(0, 0, end_line, end_index, 0)
-        pos = self.positionFromLineIndex(line, index)
-        wpos_start = self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True)
-        wpos_end = self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True)
+        wpos_start, wpos_end = self.__currentWordPosition()
+        self.currtWordChanged.emit(self.text()[wpos_start:wpos_end])
         wpos_start_line, wpos_start_index = self.lineIndexFromPosition(wpos_start)
         wpos_end_line, wpos_end_index = self.lineIndexFromPosition(wpos_end)
         self.fillIndicatorRange(

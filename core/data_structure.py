@@ -12,11 +12,18 @@ from typing import (
     Iterator,
     Hashable,
 )
+from core.QtModules import (
+    pyqtSignal,
+    QObject,
+)
 
 
-class DataDict:
+class DataDict(QObject):
     
     """A wrapper class contain the data of nodes."""
+    
+    codeAdded = pyqtSignal(str)
+    codeDeleted = pyqtSignal(str)
     
     def __init__(self):
         self.__data = {}
@@ -36,6 +43,8 @@ class DataDict:
     
     def __setitem__(self, key: Hashable, context: str):
         """Set item."""
+        if key not in self.__data:
+            self.codeAdded.emit(str(key))
         old_context = self[key]
         self.__data[key] = context
         self.__saved[key] = old_context == context
@@ -45,6 +54,7 @@ class DataDict:
         if key in self.__data:
             del self.__data[key]
             del self.__saved[key]
+            self.codeDeleted.emit(str(key))
     
     def __len__(self) -> int:
         """Length."""

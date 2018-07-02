@@ -122,9 +122,6 @@
         </layout>
        </widget>
        <widget class="QTabWidget" name="panel_widget">
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
         <widget class="QWidget" name="console_tab">
          <attribute name="title">
           <string>Console</string>
@@ -149,38 +146,137 @@
          <attribute name="title">
           <string>Find and Replace</string>
          </attribute>
-        </widget>
-        <widget class="QWidget" name="deprecated_tab">
-         <attribute name="title">
-          <string>Deprecated</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QLabel" name="deprecated_label">
+             <widget class="QLineEdit" name="search_bar"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="find_next_button">
               <property name="text">
-               <string>The contents of deleted nodes.</string>
+               <string>Find Next</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="deprecated_clear">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+             <widget class="QPushButton" name="find_previous_button">
               <property name="text">
-               <string>Clear</string>
+               <string>Find Previous</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QListWidget" name="deprecated_list">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="match_case_option">
+              <property name="text">
+               <string>Match case</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="whole_word_option">
+              <property name="text">
+               <string>Whole word</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="re_option">
+              <property name="text">
+               <string>Regular expression</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="wrap_around">
+              <property name="text">
+               <string>Wrap around</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="find_project_button">
+              <property name="text">
+               <string>Find in Project</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLineEdit" name="replace_bar"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="replace_node_button">
+              <property name="text">
+               <string>Replace in Node</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="replace_project_button">
+              <property name="text">
+               <string>Rplace in Project</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="replace_select_all_button">
+              <property name="text">
+               <string>Select All</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="find_list">
+            <property name="verticalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
+            </property>
+            <column>
+             <property name="text">
+              <string>Position</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Text</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="deprecated_tab">
+         <attribute name="title">
+          <string>Pointers</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QListWidget" name="pointer_list">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -317,22 +413,6 @@
     <hint type="destinationlabel">
      <x>389</x>
      <y>343</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>deprecated_clear</sender>
-   <signal>clicked()</signal>
-   <receiver>deprecated_list</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>717</x>
-     <y>376</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>389</x>
-     <y>518</y>
     </hint>
    </hints>
   </connection>
