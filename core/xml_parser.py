@@ -100,26 +100,19 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
     tree_main.addTopLevelItem(root_node)
     data[int(root.attrib['code'])] = ""
     
+    parse_list = []
+    
     def addNode(node: Element, root: QTreeWidgetItem):
         """Add node in to tree widget."""
         attr = node.attrib
         sub = QTreeItem(attr['name'], attr['path'], attr['code'])
         root.addChild(sub)
-        
-        code = int(attr['code'])
         suffix = _suffix(attr['path'])
+        data[int(attr['code'])] = ""
         if suffix:
             filename = QDir(getpath(root)).filePath(QFileInfo(attr['path']).fileName())
-            if suffix == 'md':
-                parseMarkdown(filename, sub, code, data)
-            elif suffix == 'html':
-                #TODO: Need to parse HTML (reveal.js index.html)
-                parseText(filename, code, data)
-            else:
-                #Text files and Python scripts.
-                parseText(filename, code, data)
+            parse_list.append((filename, sub))
         else:
-            data[code] = ""
             for child in node:
                 if child.tag == 'node':
                     addNode(child, sub)
@@ -131,8 +124,20 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
                     data[int(d.attrib['code'])] = d.text or ""
         elif child.tag == 'node':
             addNode(child, root_node)
-    data.saveAll()
     
+    for filename, sub in parse_list:
+        suffix = _suffix(sub.text(1))
+        if suffix == 'md':
+            #Markdown
+            parseMarkdown(filename, sub, int(sub.text(2)), data)
+        elif suffix == 'html':
+            #TODO: Need to parse HTML (reveal.js index.html)
+            parseText(filename, int(sub.text(2)), data)
+        else:
+            #Text files and Python scripts.
+            parseText(filename, int(sub.text(2)), data)
+    
+    data.saveAll()
     print("Loaded: {}".format(projname))
 
 
@@ -214,7 +219,6 @@ def parseMarkdown(
             doc = string_list[line_num:titles_sorted[line + 1]]
         if level != buttom_level and line != titles_count:
             doc += ['', '@others', '']
-        #print(code, doc)
         data[code] = '\n'.join(doc)
         title = doc[0]
         if title.startswith("#"):

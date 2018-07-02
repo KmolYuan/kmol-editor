@@ -37,7 +37,7 @@ class TextEditor(QsciScintilla):
         
         #Set the default font.
         if platform.system().lower() == "windows":
-            font_name = 'Courier'
+            font_name = "Courier New"
         else:
             font_name = "Mono"
         self.font = QFont(font_name)
@@ -116,17 +116,16 @@ class TextEditor(QsciScintilla):
     @pyqtSlot(int, int)
     def __catchWords(self, line: int, index: int):
         """Catch words that is same with current word."""
-        end_line, end_index = self.lineIndexFromPosition(self.length())
-        self.clearIndicatorRange(0, 0, end_line, end_index, 0)
+        self.clearIndicatorRange(
+            0, 0,
+            *self.lineIndexFromPosition(self.length()),
+            0
+        )
         wpos_start, wpos_end = self.__currentWordPosition()
         self.currtWordChanged.emit(self.text()[wpos_start:wpos_end])
-        wpos_start_line, wpos_start_index = self.lineIndexFromPosition(wpos_start)
-        wpos_end_line, wpos_end_index = self.lineIndexFromPosition(wpos_end)
         self.fillIndicatorRange(
-            wpos_start_line,
-            wpos_start_index,
-            wpos_end_line,
-            wpos_end_index,
+            *self.lineIndexFromPosition(wpos_start),
+            *self.lineIndexFromPosition(wpos_end),
             0
         )
     
