@@ -10,6 +10,7 @@ __version__ = "18.06"
 
 from sys import version_info
 import platform
+import argparse
 from core.QtModules import (
     qVersion,
     PYQT_VERSION_STR,
@@ -26,3 +27,29 @@ INFO = (
     "Qt Version: {}".format(_Qt_Version),
     "PyQt Version: {}".format(_PyQt_Version)
 )
+
+_POWEREDBY = (
+    "Python IDE Eric 6",
+    "PyQt 5",
+    "QScintilla 2",
+)
+
+#--help arguments
+_parser = argparse.ArgumentParser(
+    description = ("Pyslvs - Open Source Planar Linkage Mechanism Simulation" +
+        "and Mechanical Synthesis System."),
+    epilog = "Powered by {}.".format(", ".join(_POWEREDBY))
+)
+_parser.add_argument(
+    '-f',
+    '--fusion',
+    action = 'store_true',
+    help = "run Pyslvs in Fusion style"
+)
+_parser.add_argument(
+    '-t',
+    '--test',
+    action = 'store_true',
+    help = "just test module states and exit"
+)
+ARGUMENTS = _parser.parse_args()

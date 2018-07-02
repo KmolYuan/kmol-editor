@@ -10,7 +10,9 @@ __email__ = "pyslvs@gmail.com"
 from typing import Optional
 from core.QtModules import (
     pyqtSlot,
+    Qt,
     QMainWindow,
+    QAction,
     QShortcut,
     QKeySequence,
     QTextCursor,
@@ -93,6 +95,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         find_next.activated.connect(self.find_next_button.click)
         find_previous = QShortcut(QKeySequence("F4"), self)
         find_previous.activated.connect(self.find_previous_button.click)
+        find_tab = QShortcut(QKeySequence("Ctrl+F"), self)
+        find_tab.activated.connect(lambda: self.panel_widget.setCurrentIndex(1))
+        find_project = QShortcut(QKeySequence("Ctrl+Shift+F"), self)
+        find_project.activated.connect(self.find_project_button.click)
+        
+        #Replacing function.
+        replace = QShortcut(QKeySequence("Ctrl+R"), self)
+        replace.activated.connect(self.replace_node_button.click)
+        replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
+        replace_project.activated.connect(self.replace_project_button.click)
         
         #Data
         self.data = DataDict()
@@ -380,3 +392,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_find_previous_button_clicked(self):
         """Find to previous."""
         self.__findText(False)
+    
+    @pyqtSlot()
+    def on_replace_node_button_clicked(self):
+        """Replace current text by replace bar."""
+        self.text_editor.replace(self.replace_bar.text())

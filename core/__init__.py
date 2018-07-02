@@ -9,12 +9,19 @@ __email__ = "pyslvs@gmail.com"
 
 from .QtModules import QApplication
 from core.mainwindow import MainWindow
+from core.info import ARGUMENTS
 
 __all__ = ['main']
 
 
 def main():
-    qApp = QApplication([])
+    """Startup function."""
+    if ARGUMENTS.test:
+        print("All module loaded successfully.")
+        exit(0)
+    QApp = QApplication([])
+    if ARGUMENTS.fusion:
+        QApp.setStyle('fusion')
     run = MainWindow()
     run.show()
-    exit(qApp.exec())
+    exit(QApp.exec())

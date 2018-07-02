@@ -5,7 +5,7 @@
 #license: AGPL
 #email: pyslvs@gmail.com
 
-all: build
+all: test
 
 build: launch_kmol.py
 	@echo ---Kmol Editor Build---
@@ -19,6 +19,15 @@ else
 	bash ./appimage_recipe.sh
 endif
 	@echo ---Done---
+
+test: build
+ifeq ($(OS),Windows_NT)
+	$(eval EXE = $(shell dir dist /b))
+	./dist/$(EXE) --test
+else
+	$(eval APPIMAGE = $(shell ls -1 out))
+	./out/$(APPIMAGE) --test
+endif
 
 clean:
 ifeq ($(OS),Windows_NT)
