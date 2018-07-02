@@ -22,10 +22,12 @@ class DataDict(QObject):
     
     """A wrapper class contain the data of nodes."""
     
-    codeAdded = pyqtSignal(str)
+    codeAdded = pyqtSignal(str, str)
+    codeChanged = pyqtSignal(str, str)
     codeDeleted = pyqtSignal(str)
     
     def __init__(self):
+        super(DataDict, self).__init__()
         self.__data = {}
         self.__saved = {}
     
@@ -44,10 +46,11 @@ class DataDict(QObject):
     def __setitem__(self, key: Hashable, context: str):
         """Set item."""
         if key not in self.__data:
-            self.codeAdded.emit(str(key))
+            self.codeAdded.emit(str(key), context)
         old_context = self[key]
         self.__data[key] = context
         self.__saved[key] = old_context == context
+        self.codeChanged.emit(str(key), context)
     
     def __delitem__(self, key: Hashable):
         """Delete the key and avoid raise error."""

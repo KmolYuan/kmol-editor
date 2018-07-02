@@ -48,6 +48,7 @@ cp ../../launch_kmol.py usr/bin/$LOWERAPP
 sed -i "1i\#!/usr/bin/env python" usr/bin/$LOWERAPP
 chmod a+x usr/bin/$LOWERAPP
 
+cp ../../icons_rc.py usr/bin
 cp -r ../../core usr/bin
 find . -type f -name '*.ui' -delete
 

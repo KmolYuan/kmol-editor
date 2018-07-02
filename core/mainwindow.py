@@ -10,9 +10,7 @@ __email__ = "pyslvs@gmail.com"
 from typing import Optional
 from core.QtModules import (
     pyqtSlot,
-    Qt,
     QMainWindow,
-    QAction,
     QShortcut,
     QKeySequence,
     QTextCursor,
@@ -20,6 +18,7 @@ from core.QtModules import (
     QTreeItem,
     QTreeRoot,
     QTreeWidgetItem,
+    QListWidgetItem,
     QHeaderView,
     QMessageBox,
     QDesktopServices,
@@ -27,7 +26,6 @@ from core.QtModules import (
     QFileDialog,
     QStandardPaths,
     QFileInfo,
-    QListWidgetItem,
     QDir,
     QSCIHIGHLIGHTERS,
 )
@@ -108,6 +106,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #Data
         self.data = DataDict()
+        self.data.codeAdded.connect(self.addToPointers)
+        self.data.codeChanged.connect(self.editPointers)
+        self.data.codeDeleted.connect(self.removeFromPointers)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
     
     @pyqtSlot(str)
@@ -120,7 +121,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(QPoint)
     def on_tree_widget_context_menu(self, point: QPoint):
         """Operations."""
-        self.__actionChange()
+        self.__actionChanged()
         self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
     
     @pyqtSlot()
@@ -265,6 +266,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item.removeChild(current_item)
         self.text_editor.clear()
     
+    @pyqtSlot(str, str)
+    def addToPointers(self, code: str, doc: str):
+        """Add pointer content by code."""
+        item = QListWidgetItem(code)
+        item.setToolTip(doc[:50])
+        self.pointer_list.addItem(item)
+    
+    @pyqtSlot(str, str)
+    def editPointers(self, code: str, doc: str):
+        """Edit pointer content by code."""
+        for row in range(self.pointer_list.count()):
+            item = self.pointer_list.item(row)
+            if code == item.text():
+                item.setToolTip(doc[:50])
+    
+    @pyqtSlot(str)
+    def removeFromPointers(self, code: str):
+        """Remove pointer by code."""
+        for row in range(self.pointer_list.count()):
+            if code == self.pointer_list.item(row).text():
+                self.pointer_list.takeItem(row)
+                return
+    
     @pyqtSlot()
     def closeFile(self):
         """Close project node."""
@@ -336,9 +360,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if current:
             self.text_editor.setText(self.data[int(current.text(2))])
         
-        self.__actionChange()
+        self.__actionChanged()
     
-    def __actionChange(self):
+    def __actionChanged(self):
         item = self.tree_main.currentItem()
         has_item = bool(item)
         is_root = (not item.parent()) if has_item else False

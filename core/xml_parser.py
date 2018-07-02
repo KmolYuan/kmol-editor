@@ -128,7 +128,7 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
         if child.tag == 'data-structure':
             for d in child:
                 if d.tag == 'data':
-                    data[int(d.attrib['code'])] = d.text if d.text else ""
+                    data[int(d.attrib['code'])] = d.text or ""
         elif child.tag == 'node':
             addNode(child, root_node)
     data.saveAll()
@@ -183,48 +183,44 @@ def parseMarkdown(
             if not line.startswith(string):
                 continue
             if len(set(line)) == 1 and previous_line:
-                #Merge under line with its title.
-                doc = previous_line + '\n' + line
-                line_num -= 1
-                string_list[line_num] = doc
-                titles[line_num] = level
-                titles_sorted.append(line_num)
-                del string_list[line_num + 1]
-        for level in range(1, 5):
-            if not line.startswith('#' * level + " "):
-                continue
-            titles[line_num] = level
+                #Under line with its title.
+                titles[line_num - 1] = level
+                titles_sorted.append(line_num - 1)
+        if line:
+            prefix = line.split(maxsplit=1)[0]
+            if set(prefix) == {'#'}:
+                titles[line_num] = len(prefix)
         previous_line = line
         line_num += 1
     
     #Joint nodes.
-    items = []
+    tree_items = []
+    titles_count = len(titles_sorted) - 1
+    buttom_level = max(titles.values())
     
-    def section_root(i: int) -> int:
-        """Level setting."""
-        for j, line_num_pre in reversed(tuple(enumerate(titles_sorted[:i]))):
-            if titles[line_num_pre] > titles[titles_sorted[i]]:
-                return j
-        return -1
+    def parent(line: int, level: int) -> QTreeWidgetItem:
+        """The parent of the title."""
+        for i, pre_line in enumerate(reversed(titles_sorted[:line])):
+            if titles[pre_line] == level - 1:
+                return tree_items[i]
+        return node
     
-    for i, line_num in enumerate(titles_sorted):
-        title = string_list[line_num]
-        if title.startswith('#'):
-            title = title.split(maxsplit=1)[-1]
+    for line, line_num in enumerate(titles_sorted):
+        level = titles[line_num]
+        code = data.newNum()
+        if line == titles_count:
+            doc = string_list[line_num:]
         else:
-            title = title.split('\n')[0]
-        
-        code_node = data.newNum()
-        
-        sub = QTreeItem(title, "", str(code_node))
-        items.append(sub)
-        root = section_root(i)
-        if root == -1:
-            node.addChild(sub)
-        else:
-            items[root].addChild(sub)
-        data[code_node] = '\n'.join(
-            string_list[line_num:]
-            if i + 1 == len(titles_sorted) else
-            string_list[line_num:titles_sorted[i + 1]]
-        )
+            doc = string_list[line_num:titles_sorted[line + 1]]
+        if level != buttom_level and line != titles_count:
+            doc += ['', '@others', '']
+        #print(code, doc)
+        data[code] = '\n'.join(doc)
+        title = doc[0]
+        if title.startswith("#"):
+            title = title.split(maxsplit=1)[1]
+        item = QTreeItem(title, '', str(code))
+        parent(line, level).addChild(item)
+        tree_items.append(item)
+    
+    del tree_items
