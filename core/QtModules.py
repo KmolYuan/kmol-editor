@@ -251,6 +251,11 @@ class QsciLexerCustomPython(QsciLexerPython):
             return "self True False"
         else:
             return QsciLexerPython.keywords(self, set)
+    
+    def setDefaultFont(self, font: QFont):
+        super(QsciLexerCustomPython, self).setDefaultFont(font)
+        self.setFont(font, QsciLexerPython.Comment)
+        self.setFont(font, QsciLexerPython.DoubleQuotedString)
 
 
 QSCIHIGHLIGHTERS = {

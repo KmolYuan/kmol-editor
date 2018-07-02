@@ -10,7 +10,10 @@ all: test
 build: launch_kmol.py
 	@echo ---Kmol Editor Build---
 ifeq ($(OS),Windows_NT)
-	pyinstaller -w -F $< -i ./icons/kmol.ico --hidden-import=PyQt5
+	pyinstaller -w -F $< -i ./icons/kmol.ico \
+--hidden-import=PyQt5 \
+--hidden-import=PyQt5.sip \
+--hidden-import=PyQt5.QtPrintSupport
 	$(eval VERSION = $(shell python -c "from core.info import __version__; print(__version__)"))
 	$(eval COMPILERVERSION = $(shell python -c "import platform; print(''.join(platform.python_compiler().split(\" \")[:2]).replace('.', '').lower())"))
 	$(eval SYSVERSION = $(shell python -c "import platform; print(platform.machine().lower())"))

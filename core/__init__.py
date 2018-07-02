@@ -7,9 +7,10 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
-from .QtModules import QApplication
+from sys import exit
 from core.mainwindow import MainWindow
 from core.info import ARGUMENTS
+from .QtModules import QApplication
 
 __all__ = ['main']
 

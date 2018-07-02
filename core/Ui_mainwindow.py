@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Y:\tmp\github\kmol-editor\core\mainwindow.ui'
+# Form implementation generated from reading ui file 'C:\Users\ahshoe\Desktop\kmol-editor\core\mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -90,6 +90,10 @@ class Ui_MainWindow(object):
         self.find_previous_button = QtWidgets.QPushButton(self.find_tab)
         self.find_previous_button.setObjectName("find_previous_button")
         self.horizontalLayout_2.addWidget(self.find_previous_button)
+        self.wrap_around = QtWidgets.QCheckBox(self.find_tab)
+        self.wrap_around.setChecked(True)
+        self.wrap_around.setObjectName("wrap_around")
+        self.horizontalLayout_2.addWidget(self.wrap_around)
         self.verticalLayout_6.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
@@ -102,10 +106,6 @@ class Ui_MainWindow(object):
         self.re_option = QtWidgets.QCheckBox(self.find_tab)
         self.re_option.setObjectName("re_option")
         self.horizontalLayout_4.addWidget(self.re_option)
-        self.wrap_around = QtWidgets.QCheckBox(self.find_tab)
-        self.wrap_around.setChecked(True)
-        self.wrap_around.setObjectName("wrap_around")
-        self.horizontalLayout_4.addWidget(self.wrap_around)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem1)
         self.find_project_button = QtWidgets.QPushButton(self.find_tab)
@@ -148,7 +148,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 779, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 779, 26))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -209,10 +209,10 @@ class Ui_MainWindow(object):
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.console_tab), _translate("MainWindow", "Console"))
         self.find_next_button.setText(_translate("MainWindow", "Find Next"))
         self.find_previous_button.setText(_translate("MainWindow", "Find Previous"))
+        self.wrap_around.setText(_translate("MainWindow", "Wrap around"))
         self.match_case_option.setText(_translate("MainWindow", "Match case"))
         self.whole_word_option.setText(_translate("MainWindow", "Whole word"))
         self.re_option.setText(_translate("MainWindow", "Regular expression"))
-        self.wrap_around.setText(_translate("MainWindow", "Wrap around"))
         self.find_project_button.setText(_translate("MainWindow", "Find in Project"))
         self.replace_node_button.setText(_translate("MainWindow", "Replace in Node"))
         self.replace_project_button.setText(_translate("MainWindow", "Rplace in Project"))

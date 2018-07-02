@@ -120,6 +120,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         moveLeftNode = QShortcut(QKeySequence("Ctrl+Left"), self)
         moveLeftNode.activated.connect(self.__moveLeftNode)
         
+        #Run script button.
+        run_sript = QShortcut(QKeySequence("F5"), self)
+        run_sript.activated.connect(self.exec_button.click)
+        
         #Data
         self.data = DataDict()
         self.data.codeAdded.connect(self.__addToPointers)

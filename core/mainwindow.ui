@@ -166,6 +166,16 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="wrap_around">
+              <property name="text">
+               <string>Wrap around</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
@@ -188,16 +198,6 @@
              <widget class="QCheckBox" name="re_option">
               <property name="text">
                <string>Regular expression</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="wrap_around">
-              <property name="text">
-               <string>Wrap around</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -299,7 +299,7 @@
      <x>0</x>
      <y>0</y>
      <width>779</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
