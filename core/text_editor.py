@@ -45,7 +45,7 @@ class TextEditor(QsciScintilla):
         self.font.setPointSize(14)
         self.setFont(self.font)
         self.setMarginsFont(self.font)
-        #self.zoomTo(0.5)
+        self.setUtf8(True)
         
         #Margin 0 is used for line numbers.
         fontmetrics = QFontMetrics(self.font)
