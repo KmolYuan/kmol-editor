@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-"""XML and tree widget transformer."""
+"""XML and tree widget transformer.
+
+TODO: Pointer problem.
+"""
 
 __author__ = "Yuan Chang"
 __copyright__ = "Copyright (C) 2018"
@@ -16,8 +19,6 @@ from xml.etree.ElementTree import (
 from xml.dom import minidom
 from core.QtModules import (
     QTreeItem,
-    QTreeRoot,
-    QTreeWidget,
     QTreeWidgetItem,
     QFileInfo,
     QDir,
@@ -39,7 +40,10 @@ def getpath(node: QTreeWidgetItem) -> str:
     path = node.text(1)
     parent = node.parent()
     if not parent:
-        return QFileInfo(path).absolutePath()
+        if _suffix(path) == 'kmol':
+            return QFileInfo(path).absolutePath()
+        else:
+            return path
     return QFileInfo(QDir(getpath(parent)), path + '/' if path else '').absolutePath()
 
 
@@ -118,16 +122,11 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
     return my_content_list
 
 
-def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
+def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
     """Parse in to tree widget."""
-    tree = ElementTree(file=projname)
+    tree = ElementTree(file=root_node.text(1))
     root = tree.getroot()
-    root_node = QTreeRoot(
-        QFileInfo(projname).baseName(),
-        projname,
-        root.attrib['code']
-    )
-    tree_main.addTopLevelItem(root_node)
+    root_node.setText(2, root.attrib['code'])
     data[int(root.attrib['code'])] = ""
     
     parse_list = []
@@ -158,21 +157,32 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
         parse(node, data)
     
     data.saveAll()
-    print("Loaded: {}".format(projname))
+    print("Loaded: {}".format(root_node.text(1)))
 
 
 def parse(node: QTreeWidgetItem, data: DataDict):
     """Parse file to tree format."""
     _clearNode(node)
-    filename = QDir(getpath(node.parent())).filePath(QFileInfo(node.text(1)).fileName())
-    suffix = _suffix(node.text(1))
-    code = int(node.text(2))
+    parent = node.parent()
+    if parent:
+        filename = QDir(getpath(parent)).filePath(QFileInfo(node.text(1)).fileName())
+    else:
+        filename = node.text(1)
+    suffix = _suffix(filename)
+    if node.text(2):
+        code = int(node.text(2))
+    else:
+        code = data.newNum()
+        node.setText(2, str(code))
     if suffix == 'md':
         #Markdown
         _parseMarkdown(filename, node, code, data)
     elif suffix == 'html':
         #TODO: Need to parse HTML (reveal.js index.html)
         _parseText(filename, code, data)
+    elif suffix == 'kmol':
+        #Kmol project
+        _tree_parse(node, data)
     else:
         #Text files and Python scripts.
         _parseText(filename, code, data)

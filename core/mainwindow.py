@@ -34,10 +34,7 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.xml_parser import (
-    tree_parse,
-    saveFile,
-)
+from core.xml_parser import parse, saveFile
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -173,7 +170,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filenames, ok = QFileDialog.getOpenFileNames(self,
             "Open Projects",
             self.env,
-            "Kmol Project (*.kmol)"
+            ';;'.join([
+                "Kmol Project (*.kmol)",
+                "Markdown (*.md)",
+                "HTML (*.html)",
+                "Python script (*.py)",
+                "Text file (*.txt)",
+                "All files (*.*)",
+            ])
         )
         if not ok:
             return
@@ -189,7 +193,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.env = QFileInfo(filename).absolutePath()
             index = in_widget(filename)
             if index == -1:
-                tree_parse(filename, self.tree_main, self.data)
+                root_node = QTreeRoot(
+                    QFileInfo(filename).baseName(),
+                    filename,
+                    ''
+                )
+                self.tree_main.addTopLevelItem(root_node)
+                parse(root_node, self.data)
             else:
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
         
@@ -316,6 +326,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node = self.tree_main.currentItem()
         if not node:
             return
+        tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
             #Is sub-node.
@@ -326,12 +337,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             parent.insertChild(index - 1, node)
         else:
             #Is root.
-            index = self.tree_main.indexOfTopLevelItem(node)
+            index = tree_main.indexOfTopLevelItem(node)
             if index == 0:
                 return
-            self.tree_main.takeTopLevelItem(index)
-            self.tree_main.insertTopLevelItem(index - 1, node)
-        self.tree_main.setCurrentItem(node)
+            tree_main.takeTopLevelItem(index)
+            tree_main.insertTopLevelItem(index - 1, node)
+        tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def __moveDownNode(self):
@@ -339,6 +350,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node = self.tree_main.currentItem()
         if not node:
             return
+        tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
             #Is sub-node.
@@ -349,12 +361,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             parent.insertChild(index + 1, node)
         else:
             #Is root.
-            index = self.tree_main.indexOfTopLevelItem(node)
-            if index == self.tree_main.topLevelItemCount() - 1:
+            index = tree_main.indexOfTopLevelItem(node)
+            if index == tree_main.topLevelItemCount() - 1:
                 return
-            self.tree_main.takeTopLevelItem(index)
-            self.tree_main.insertTopLevelItem(index + 1, node)
-        self.tree_main.setCurrentItem(node)
+            tree_main.takeTopLevelItem(index)
+            tree_main.insertTopLevelItem(index + 1, node)
+        tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def __moveRightNode(self):
@@ -362,6 +374,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node = self.tree_main.currentItem()
         if not node:
             return
+        tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
             #Is sub-node.
@@ -372,12 +385,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             parent.child(index - 1).addChild(node)
         else:
             #Is root.
-            index = self.tree_main.indexOfTopLevelItem(node)
+            index = tree_main.indexOfTopLevelItem(node)
             if index == 0:
                 return
-            self.tree_main.takeTopLevelItem(index)
-            self.tree_main.topLevelItem(index - 1).addChild(node)
-        self.tree_main.setCurrentItem(node)
+            tree_main.takeTopLevelItem(index)
+            tree_main.topLevelItem(index - 1).addChild(node)
+        tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def __moveLeftNode(self):
@@ -385,6 +398,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node = self.tree_main.currentItem()
         if not node:
             return
+        tree_main = node.treeWidget()
         parent = node.parent()
         if not parent:
             return
@@ -395,7 +409,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         index = grand_parent.indexOfChild(parent)
         parent.removeChild(node)
         grand_parent.insertChild(index + 1, node)
-        self.tree_main.setCurrentItem(node)
+        tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def on_action_about_qt_triggered(self):
