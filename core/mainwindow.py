@@ -56,6 +56,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     Main window of kmol editor.
     """
     
+    SUPPORTFORMAT = [
+        "Kmol Project (*.kmol)",
+        "Markdown (*.md)",
+        "HTML (*.html)",
+        "Python script (*.py)",
+        "Text file (*.txt)",
+        "All files (*.*)",
+    ]
+    
     def __init__(self):
         super(MainWindow, self).__init__(None)
         self.setupUi(self)
@@ -132,6 +141,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data.codeDeleted.connect(self.__removeFromPointers)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
     
+    def dragEnterEvent(self, event):
+        """Drag file in to our window."""
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+    
+    def dropEvent(self, event):
+        """Drop file in to our window."""
+        filename = event.mimeData().urls()[-1].toLocalFile()
+        root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
+        self.tree_main.addTopLevelItem(root_node)
+        parse(root_node, self.data)
+        event.acceptProposedAction()
+    
     @pyqtSlot(str)
     def __appendToConsole(self, log):
         """After inserted the text, move cursor to end."""
@@ -151,12 +173,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filename, suffix = QFileDialog.getSaveFileName(self,
             "New Project",
             self.env,
-            "Kmol Project (*.kmol)"
+            ';;'.join(self.SUPPORTFORMAT)
         )
         if not filename:
             return
-        if QFileInfo(filename).suffix() != 'kmol':
-            filename += '.kmol'
+        if suffix != "All files (*.*)":
+            suffix = suffix.split('.')[-1][:-1]
+            if QFileInfo(filename).suffix() != suffix:
+                filename += '.kmol'
         self.env = QFileInfo(filename).absolutePath()
         self.tree_main.addTopLevelItem(QTreeRoot(
             QFileInfo(filename).baseName(),
@@ -170,14 +194,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filenames, ok = QFileDialog.getOpenFileNames(self,
             "Open Projects",
             self.env,
-            ';;'.join([
-                "Kmol Project (*.kmol)",
-                "Markdown (*.md)",
-                "HTML (*.html)",
-                "Python script (*.py)",
-                "Text file (*.txt)",
-                "All files (*.*)",
-            ])
+            ';;'.join(self.SUPPORTFORMAT)
         )
         if not ok:
             return
@@ -193,11 +210,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.env = QFileInfo(filename).absolutePath()
             index = in_widget(filename)
             if index == -1:
-                root_node = QTreeRoot(
-                    QFileInfo(filename).baseName(),
-                    filename,
-                    ''
-                )
+                root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
                 self.tree_main.addTopLevelItem(root_node)
                 parse(root_node, self.data)
             else:
@@ -218,30 +231,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setPath(self):
         """Set file directory."""
         item = self.tree_main.currentItem()
-        if ((not item.parent()) if bool(item) else False):
-            filename, suffix = QFileDialog.getSaveFileName(self,
-                "Set Project",
-                self.env,
-                "Kmol Project (*.kmol)"
-            )
-            if filename:
-                filename += '.kmol'
-            else:
-                return
-        else:
-            filename, ok = QFileDialog.getOpenFileName(self,
-                "Open File",
-                self.env,
-                ';;'.join([
-                    "Markdown (*.md)",
-                    "HTML (*.html)",
-                    "Python script (*.py)",
-                    "Text file (*.txt)",
-                    "All files (*.*)",
-                ])
-            )
-            if not ok:
-                return
+        filename, ok = QFileDialog.getOpenFileName(self,
+            "Open File",
+            self.env,
+            ';;'.join(self.SUPPORTFORMAT)
+        )
+        if not ok:
+            return
         self.env = QFileInfo(filename).absolutePath()
         project_path = QDir(_get_root(item).text(1))
         project_path.cdUp()
