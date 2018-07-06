@@ -140,10 +140,7 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
         suffix = _suffix(attr['path'])
         data[int(attr['code'])] = ""
         if suffix:
-            parse_list.append((
-                QDir(getpath(root)).filePath(QFileInfo(attr['path']).fileName()),
-                sub
-            ))
+            parse_list.append(sub)
         else:
             for child in node:
                 if child.tag == 'node':
@@ -157,25 +154,37 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
         elif child.tag == 'node':
             addNode(child, root_node)
     
-    for filename, sub in parse_list:
-        parse(filename, sub, data)
+    for node in parse_list:
+        parse(node, data)
     
     data.saveAll()
     print("Loaded: {}".format(projname))
 
 
-def parse(filename: str, sub: QTreeWidgetItem, data: DataDict):
+def parse(node: QTreeWidgetItem, data: DataDict):
     """Parse file to tree format."""
-    suffix = _suffix(sub.text(1))
+    _clearNode(node)
+    filename = QDir(getpath(node.parent())).filePath(QFileInfo(node.text(1)).fileName())
+    suffix = _suffix(node.text(1))
+    code = int(node.text(2))
     if suffix == 'md':
         #Markdown
-        _parseMarkdown(filename, sub, int(sub.text(2)), data)
+        _parseMarkdown(filename, node, code, data)
     elif suffix == 'html':
         #TODO: Need to parse HTML (reveal.js index.html)
-        _parseText(filename, int(sub.text(2)), data)
+        _parseText(filename, code, data)
     else:
         #Text files and Python scripts.
-        _parseText(filename, int(sub.text(2)), data)
+        _parseText(filename, code, data)
+
+
+def _clearNode(node: QTreeWidgetItem):
+    """Clear the children of node."""
+    if node.childCount():
+        parent = node.parent()
+        tree_main = node.treeWidget()
+        tree_main.setCurrentItem(parent)
+        parent.removeChild(node)
 
 
 def _parseText(

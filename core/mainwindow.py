@@ -113,7 +113,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         replace_project.activated.connect(self.replace_project_button.click)
         
-        #Node edit.
+        #Node edit function. (Ctrl + ArrowKey)
+        #TODO: Undo redo for them.
         moveUpNode = QShortcut(QKeySequence("Ctrl+Up"), self)
         moveUpNode.activated.connect(self.__moveUpNode)
         moveDownNode = QShortcut(QKeySequence("Ctrl+Down"), self)
@@ -311,35 +312,90 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def __moveUpNode(self):
-        """TODO: Move up current node."""
-        currentItem = self.tree_main.currentItem()
-        if not currentItem:
+        """Move up current node."""
+        node = self.tree_main.currentItem()
+        if not node:
             return
-        print("Up")
+        parent = node.parent()
+        if parent:
+            #Is sub-node.
+            index = parent.indexOfChild(node)
+            if index == 0:
+                return
+            parent.removeChild(node)
+            parent.insertChild(index - 1, node)
+        else:
+            #Is root.
+            index = self.tree_main.indexOfTopLevelItem(node)
+            if index == 0:
+                return
+            self.tree_main.takeTopLevelItem(index)
+            self.tree_main.insertTopLevelItem(index - 1, node)
+        self.tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def __moveDownNode(self):
-        """TODO: Move down current node."""
-        currentItem = self.tree_main.currentItem()
-        if not currentItem:
+        """Move down current node."""
+        node = self.tree_main.currentItem()
+        if not node:
             return
-        print("Down")
+        parent = node.parent()
+        if parent:
+            #Is sub-node.
+            index = parent.indexOfChild(node)
+            if index == parent.childCount() - 1:
+                return
+            parent.removeChild(node)
+            parent.insertChild(index + 1, node)
+        else:
+            #Is root.
+            index = self.tree_main.indexOfTopLevelItem(node)
+            if index == self.tree_main.topLevelItemCount() - 1:
+                return
+            self.tree_main.takeTopLevelItem(index)
+            self.tree_main.insertTopLevelItem(index + 1, node)
+        self.tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def __moveRightNode(self):
-        """TODO: Move right current node."""
-        currentItem = self.tree_main.currentItem()
-        if not currentItem:
+        """Move right current node."""
+        node = self.tree_main.currentItem()
+        if not node:
             return
-        print("Right")
+        parent = node.parent()
+        if parent:
+            #Is sub-node.
+            index = parent.indexOfChild(node)
+            if index == 0:
+                return
+            parent.removeChild(node)
+            parent.child(index - 1).addChild(node)
+        else:
+            #Is root.
+            index = self.tree_main.indexOfTopLevelItem(node)
+            if index == 0:
+                return
+            self.tree_main.takeTopLevelItem(index)
+            self.tree_main.topLevelItem(index - 1).addChild(node)
+        self.tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def __moveLeftNode(self):
-        """TODO: Move left current node."""
-        currentItem = self.tree_main.currentItem()
-        if not currentItem:
+        """Move left current node."""
+        node = self.tree_main.currentItem()
+        if not node:
             return
-        print("Left")
+        parent = node.parent()
+        if not parent:
+            return
+        #Must be a sub-node.
+        grand_parent = parent.parent()
+        if not grand_parent:
+            return
+        index = grand_parent.indexOfChild(parent)
+        parent.removeChild(node)
+        grand_parent.insertChild(index + 1, node)
+        self.tree_main.setCurrentItem(node)
     
     @pyqtSlot()
     def on_action_about_qt_triggered(self):
