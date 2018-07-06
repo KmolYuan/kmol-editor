@@ -34,7 +34,10 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.xml_parser import getpath, tree_parse, tree_write
+from core.xml_parser import (
+    tree_parse,
+    saveFile,
+)
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -245,41 +248,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             item = self.tree_main.topLevelItem(index)
         self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
-        self.__saveFile(item)
+        saveFile(item, self.data)
         self.data.saveAll()
-    
-    def __saveFile(self, node: QTreeWidgetItem) -> str:
-        """Recursive to all the contents of nodes."""
-        data = []
-        for i in range(node.childCount()):
-            data.append(self.__saveFile(node.child(i)))
-        my_content_list = self.data[int(node.text(2))].splitlines()
-        for i in range(len(my_content_list)):
-            text = my_content_list[i]
-            if text.endswith("@others"):
-                preffix = text[:-len("@others")]
-                my_content_list[i] = '\n\n'.join(preffix + d for d in data)
-        my_content_list = '\n'.join(my_content_list)
-        path_text = QFileInfo(node.text(1)).fileName()
-        if path_text:
-            suffix = QFileInfo(path_text).suffix()
-            if suffix in ('md', 'html', 'py', 'txt'):
-                #Save text files.
-                filepath = QDir(QFileInfo(getpath(node)).absolutePath())
-                if not filepath.exists():
-                    filepath.mkpath('.')
-                    print("Create Folder: {}".format(filepath.absolutePath()))
-                filename = filepath.filePath(path_text)
-                #Add end new line.
-                if my_content_list[-1] != '\n':
-                    my_content_list += '\n'
-                with open(filename, 'w') as f:
-                    f.write(my_content_list)
-                print("Saved: {}".format(filename))
-            elif suffix == 'kmol':
-                #Save project.
-                tree_write(node.text(1), node, self.data)
-        return my_content_list
     
     @pyqtSlot()
     def deleteNode(self):

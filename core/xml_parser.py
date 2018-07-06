@@ -36,18 +36,14 @@ def _suffix(filename: str) -> str:
 
 def getpath(node: QTreeWidgetItem) -> str:
     """Get the path from parent."""
+    path = node.text(1)
     parent = node.parent()
-    if parent:
-        path = node.text(1)
-        return QFileInfo(
-            QDir(getpath(parent)),
-            path + '/' if path else ''
-        ).absolutePath()
-    else:
-        return QFileInfo(node.text(1)).absolutePath()
+    if not parent:
+        return QFileInfo(path).absolutePath()
+    return QFileInfo(QDir(getpath(parent)), path + '/' if path else '').absolutePath()
 
 
-def tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
+def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     """Write to XML file."""
     root = Element('kmolroot', {
         'version': __version__,
@@ -88,6 +84,40 @@ def tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     print("Saved: {}".format(projname))
 
 
+def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
+    """Recursive to all the contents of nodes."""
+    text_data = []
+    for i in range(node.childCount()):
+        text_data.append(saveFile(node.child(i), data))
+    my_content_list = data[int(node.text(2))].splitlines()
+    for i in range(len(my_content_list)):
+        text = my_content_list[i]
+        if text.endswith("@others"):
+            preffix = text[:-len("@others")]
+            my_content_list[i] = '\n\n'.join(preffix + t for t in text_data)
+    my_content_list = '\n'.join(my_content_list)
+    path_text = QFileInfo(node.text(1)).fileName()
+    if path_text:
+        suffix = QFileInfo(path_text).suffix()
+        if suffix in ('md', 'html', 'py', 'txt'):
+            #Save text files.
+            filepath = QDir(QFileInfo(getpath(node)).absolutePath())
+            if not filepath.exists():
+                filepath.mkpath('.')
+                print("Create Folder: {}".format(filepath.absolutePath()))
+            filename = filepath.filePath(path_text)
+            #Add end new line.
+            if my_content_list[-1] != '\n':
+                my_content_list += '\n'
+            with open(filename, 'w') as f:
+                f.write(my_content_list)
+            print("Saved: {}".format(filename))
+        elif suffix == 'kmol':
+            #Save project.
+            _tree_write(node.text(1), node, data)
+    return my_content_list
+
+
 def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
     """Parse in to tree widget."""
     tree = ElementTree(file=projname)
@@ -110,8 +140,10 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
         suffix = _suffix(attr['path'])
         data[int(attr['code'])] = ""
         if suffix:
-            filename = QDir(getpath(root)).filePath(QFileInfo(attr['path']).fileName())
-            parse_list.append((filename, sub))
+            parse_list.append((
+                QDir(getpath(root)).filePath(QFileInfo(attr['path']).fileName()),
+                sub
+            ))
         else:
             for child in node:
                 if child.tag == 'node':
@@ -126,22 +158,27 @@ def tree_parse(projname: str, tree_main: QTreeWidget, data: DataDict):
             addNode(child, root_node)
     
     for filename, sub in parse_list:
-        suffix = _suffix(sub.text(1))
-        if suffix == 'md':
-            #Markdown
-            parseMarkdown(filename, sub, int(sub.text(2)), data)
-        elif suffix == 'html':
-            #TODO: Need to parse HTML (reveal.js index.html)
-            parseText(filename, int(sub.text(2)), data)
-        else:
-            #Text files and Python scripts.
-            parseText(filename, int(sub.text(2)), data)
+        parse(filename, sub, data)
     
     data.saveAll()
     print("Loaded: {}".format(projname))
 
 
-def parseText(
+def parse(filename: str, sub: QTreeWidgetItem, data: DataDict):
+    """Parse file to tree format."""
+    suffix = _suffix(sub.text(1))
+    if suffix == 'md':
+        #Markdown
+        _parseMarkdown(filename, sub, int(sub.text(2)), data)
+    elif suffix == 'html':
+        #TODO: Need to parse HTML (reveal.js index.html)
+        _parseText(filename, int(sub.text(2)), data)
+    else:
+        #Text files and Python scripts.
+        _parseText(filename, int(sub.text(2)), data)
+
+
+def _parseText(
     filename: str,
     code: int,
     data: DataDict
@@ -158,7 +195,7 @@ def parseText(
     data[code] = doc
 
 
-def parseMarkdown(
+def _parseMarkdown(
     filename: str,
     node: QTreeWidgetItem,
     code: int,
@@ -177,10 +214,13 @@ def parseMarkdown(
     data[code] = "@others"
     
     #Read the first level of title mark.
-    #titles: {line_num: level}
-    #titles_sorted: [num: line_num]
-    titles = {}
-    titles_sorted = []
+    """
+    #titles = (
+        [0] line_num,
+        [1] level,
+    )
+    """
+    titles = []
     previous_line = ""
     line_num = 0
     for line in tuple(string_list):
@@ -189,36 +229,35 @@ def parseMarkdown(
                 continue
             if len(set(line)) == 1 and previous_line:
                 #Under line with its title.
-                titles[line_num - 1] = level
-                titles_sorted.append(line_num - 1)
+                titles.append((line_num - 1, level))
         if line:
             prefix = line.split(maxsplit=1)[0]
             if set(prefix) == {'#'}:
-                titles[line_num] = len(prefix)
+                titles.append((line_num, len(prefix) - 1))
         previous_line = line
         line_num += 1
     
     #Joint nodes.
     tree_items = []
-    titles_count = len(titles_sorted) - 1
-    buttom_level = max(titles.values())
     
     def parent(index: int, level: int) -> QTreeWidgetItem:
         """The parent of current title."""
-        for i, pre_index in reversed(tuple(enumerate(titles_sorted[:index]))):
-            if titles[pre_index] == level - 1:
+        for i, (pre_line, pre_level) in reversed(tuple(enumerate(titles[:index]))):
+            if pre_level < level:
                 return tree_items[i]
         return node
     
-    for index, line_num in enumerate(titles_sorted):
-        level = titles[line_num]
+    titles_count = len(titles) - 1
+    for index, (line_num, level) in enumerate(titles):
         code = data.newNum()
         if index == titles_count:
             doc = string_list[line_num:]
         else:
-            doc = string_list[line_num:titles_sorted[index + 1]]
-        if level != buttom_level and index != titles_count:
-            doc += ['@others', '']
+            doc = string_list[line_num:titles[index + 1][0]]
+            if titles[index + 1][1] > level:
+                #Has child.
+                doc.append('@others')
+                doc.append('')
         data[code] = '\n'.join(doc)
         title = doc[0]
         if title.startswith("#"):
