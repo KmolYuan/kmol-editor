@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""XML and tree widget transformer.
+"""Tree widget transformer.
 
-TODO: Pointer problem.
+Pointer problem: Hash value.
 """
 
 __author__ = "Yuan Chang"
@@ -162,7 +162,7 @@ def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
 
 def parse(node: QTreeWidgetItem, data: DataDict):
     """Parse file to tree format."""
-    _clearNode(node)
+    node.takeChildren()
     parent = node.parent()
     if parent:
         filename = QDir(getpath(parent)).filePath(QFileInfo(node.text(1)).fileName())
@@ -186,15 +186,6 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     else:
         #Text files and Python scripts.
         _parseText(filename, code, data)
-
-
-def _clearNode(node: QTreeWidgetItem):
-    """Clear the children of node."""
-    if node.childCount():
-        parent = node.parent()
-        tree_main = node.treeWidget()
-        tree_main.setCurrentItem(parent)
-        parent.removeChild(node)
 
 
 def _parseText(
@@ -230,14 +221,12 @@ def _parseMarkdown(
     with f:
         string_list = f.read().split('\n')
     
-    data[code] = "@others"
-    
     #Read the first level of title mark.
     """
-    #titles = (
+    #titles = [(
         [0] line_num,
         [1] level,
-    )
+    )]
     """
     titles = []
     previous_line = ""
@@ -257,6 +246,15 @@ def _parseMarkdown(
         line_num += 1
     
     #Joint nodes.
+    if not titles:
+        #Plain text.
+        data[code] = '\n'.join(string_list)
+        return
+    if titles[0][0] == 0:
+        #Start with line 0.
+        data[code] = "@others"
+    else:
+        data[code] = '\n'.join(string_list[:titles[0][0]])
     tree_items = []
     
     def parent(index: int, level: int) -> QTreeWidgetItem:
@@ -284,5 +282,3 @@ def _parseMarkdown(
         item = QTreeItem(title, '', str(code))
         parent(index, level).addChild(item)
         tree_items.append(item)
-    
-    del tree_items

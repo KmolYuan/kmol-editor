@@ -90,9 +90,9 @@ class DataDict(QObject):
     
     def newNum(self) -> int:
         """Get a unused number."""
-        i = 0
+        i = hash('kmol')
         while i in self.__data:
-            i += 1
+            i = hash(str(i))
         else:
             self[i] = ""
             return i

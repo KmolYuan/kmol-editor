@@ -34,7 +34,7 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.xml_parser import parse, saveFile
+from core.parser import parse, saveFile
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -180,7 +180,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if suffix != "All files (*.*)":
             suffix = suffix.split('.')[-1][:-1]
             if QFileInfo(filename).suffix() != suffix:
-                filename += '.kmol'
+                filename += '.' + suffix
         self.env = QFileInfo(filename).absolutePath()
         self.tree_main.addTopLevelItem(QTreeRoot(
             QFileInfo(filename).baseName(),
@@ -217,6 +217,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
         
         self.text_editor.clear()
+    
+    @pyqtSlot()
+    def refreshProj(self):
+        """Re-parse the file node."""
+        node = self.tree_main.currentItem()
+        if not node.text(1):
+            QMessageBox.warning(self,
+                "No path",
+                "Can only refresh from valid path."
+            )
+        parse(node, self.data)
+        self.text_editor.setText(self.data[int(node.text(2))])
     
     @pyqtSlot()
     def addNode(self):
@@ -441,7 +453,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Switch node function.
         
         + Auto collapse and expand function.
-        + Store the string data.
+        + Important: Store the string data.
         """
         self.tree_main.expandItem(current)
         self.tree_main.scrollToItem(current)
@@ -463,14 +475,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ):
             action.setVisible(is_root or not has_item)
         self.tree_close.setVisible(has_item and is_root)
-        for action in (
-            self.tree_add,
-            self.tree_path,
-        ):
-            action.setVisible(has_item)
+        self.tree_add.setVisible(has_item)
         for action in (
             self.tree_copy,
             self.tree_clone,
+            self.tree_path,
+            self.tree_refresh,
             self.tree_delete,
         ):
             action.setVisible(has_item and not is_root)
