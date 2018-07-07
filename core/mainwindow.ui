@@ -331,6 +331,10 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_new_project">
+   <property name="icon">
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>New Project</string>
    </property>
@@ -339,6 +343,10 @@
    </property>
   </action>
   <action name="action_open">
+   <property name="icon">
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>Open Project</string>
    </property>
@@ -347,6 +355,10 @@
    </property>
   </action>
   <action name="action_save">
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>Save Project</string>
    </property>
@@ -355,6 +367,10 @@
    </property>
   </action>
   <action name="action_close">
+   <property name="icon">
+    <iconset theme="window-close">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>Close</string>
    </property>
@@ -386,11 +402,19 @@
    </property>
   </action>
   <action name="action_New_Window">
+   <property name="icon">
+    <iconset theme="window-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>New Window</string>
    </property>
   </action>
   <action name="action_save_all">
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
    <property name="text">
     <string>Save All</string>
    </property>

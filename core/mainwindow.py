@@ -271,6 +271,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data.saveAll()
     
     @pyqtSlot()
+    def on_action_save_all_triggered(self):
+        """Save all project."""
+        self.saveProj(all = True)
+    
+    @pyqtSlot()
     def deleteNode(self):
         """Delete the current item."""
         current_item = self.tree_main.currentItem()
