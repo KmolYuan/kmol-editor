@@ -25,7 +25,7 @@ def setmenu(self):
     self.popMenu_tree.addAction(self.action_new_project)
     self.action_open.triggered.connect(self.openProj)
     self.popMenu_tree.addAction(self.action_open)
-    self.tree_add = QAction("&Add", self)
+    self.tree_add = QAction("&Add Node", self)
     self.tree_add.triggered.connect(self.addNode)
     self.tree_add.setShortcut("Ctrl+I")
     self.tree_add.setShortcutContext(Qt.WindowShortcut)

@@ -29,12 +29,12 @@ from core.QtModules import (
     QDir,
     QSCIHIGHLIGHTERS,
 )
-from core.info import INFO
+from core.info import INFO, ARGUMENTS
 from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.parser import parse, saveFile
+from core.parser import parse, saveFile, SUPPORT_FILE_FORMATS
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -55,15 +55,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """
     Main window of kmol editor.
     """
-    
-    SUPPORTFORMAT = [
-        "Kmol Project (*.kmol)",
-        "Markdown (*.md)",
-        "HTML (*.html)",
-        "Python script (*.py)",
-        "Text file (*.txt)",
-        "All files (*.*)",
-    ]
     
     def __init__(self):
         super(MainWindow, self).__init__(None)
@@ -140,6 +131,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data.codeChanged.connect(self.__editPointers)
         self.data.codeDeleted.connect(self.__removeFromPointers)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
+        
+        for filename in ARGUMENTS.r:
+            filename = QFileInfo(filename).canonicalFilePath()
+            if not filename:
+                return
+            root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
+            self.tree_main.addTopLevelItem(root_node)
+            parse(root_node, self.data)
     
     def dragEnterEvent(self, event):
         """Drag file in to our window."""
@@ -173,7 +172,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filename, suffix = QFileDialog.getSaveFileName(self,
             "New Project",
             self.env,
-            ';;'.join(self.SUPPORTFORMAT)
+            SUPPORT_FILE_FORMATS
         )
         if not filename:
             return
@@ -194,7 +193,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filenames, ok = QFileDialog.getOpenFileNames(self,
             "Open Projects",
             self.env,
-            ';;'.join(self.SUPPORTFORMAT)
+            SUPPORT_FILE_FORMATS
         )
         if not ok:
             return
@@ -233,11 +232,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def addNode(self):
         """Add a node at current item."""
-        self.tree_main.currentItem().addChild(QTreeItem(
+        node = self.tree_main.currentItem()
+        new_node = QTreeItem(
             "New node",
             "",
             str(self.data.newNum())
-        ))
+        )
+        if node.childCount() or node.text(1):
+            node.addChild(new_node)
+            return
+        parent = node.parent()
+        if parent:
+            parent.insertChild(parent.indexOfChild(node) + 1, new_node)
+            return
+        self.tree_main.indexOfTopLevelItem(
+            self.tree_main.indexOfTopLevelItem(node) + 1,
+            new_node
+        )
     
     @pyqtSlot()
     def setPath(self):
@@ -246,7 +257,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filename, ok = QFileDialog.getOpenFileName(self,
             "Open File",
             self.env,
-            ';;'.join(self.SUPPORTFORMAT)
+            SUPPORT_FILE_FORMATS
         )
         if not ok:
             return
@@ -278,10 +289,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def deleteNode(self):
         """Delete the current item."""
-        current_item = self.tree_main.currentItem()
-        parent = current_item.parent()
+        node = self.tree_main.currentItem()
+        code = int(node.text(2))
+        parent = node.parent()
         self.tree_main.setCurrentItem(parent)
-        parent.removeChild(current_item)
+        parent.removeChild(node)
+        del self.data[code]
     
     @pyqtSlot(str, str)
     def __addToPointers(self, code: str, doc: str):

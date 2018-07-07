@@ -27,7 +27,26 @@ from core.data_structure import DataDict
 from core.info import __version__
 
 
-SUPPORT_FILE_FORMATS = ['py', 'md', 'html']
+SUPPORT_FILE_SUFFIX = [
+    'kmol',
+    'md',
+    'html',
+    'py',
+    'txt',
+    '',
+]
+SUPPORTFORMAT = [
+    "Kmol Project",
+    "Markdown",
+    "HTML",
+    "Python script",
+    "Text file",
+    "All files",
+]
+SUPPORT_FILE_FORMATS = ';;'.join(
+    "{} (*.{})".format(name, suffix if suffix else '*')
+    for name, suffix in zip(SUPPORTFORMAT, SUPPORT_FILE_SUFFIX)
+)
 
 
 def _suffix(filename: str) -> str:
@@ -35,7 +54,7 @@ def _suffix(filename: str) -> str:
     return QFileInfo(filename).suffix()
 
 
-def getpath(node: QTreeWidgetItem) -> str:
+def _getpath(node: QTreeWidgetItem) -> str:
     """Get the path from parent."""
     path = node.text(1)
     parent = node.parent()
@@ -44,7 +63,7 @@ def getpath(node: QTreeWidgetItem) -> str:
             return QFileInfo(path).absolutePath()
         else:
             return path
-    return QFileInfo(QDir(getpath(parent)), path + '/' if path else '').absolutePath()
+    return QFileInfo(QDir(_getpath(parent)), path + '/' if path else '').absolutePath()
 
 
 def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
@@ -64,7 +83,7 @@ def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
             'code': node.text(2),
         }
         sub = SubElement(root, 'node', attr)
-        if _suffix(node.text(1)) in SUPPORT_FILE_FORMATS:
+        if _suffix(node.text(1)) in SUPPORT_FILE_SUFFIX:
             #Files do not need to make any copy.
             return
         codes.add(attr['code'])
@@ -105,7 +124,7 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
         suffix = QFileInfo(path_text).suffix()
         if suffix in ('md', 'html', 'py', 'txt'):
             #Save text files.
-            filepath = QDir(QFileInfo(getpath(node)).absolutePath())
+            filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
             if not filepath.exists():
                 filepath.mkpath('.')
                 print("Create Folder: {}".format(filepath.absolutePath()))
@@ -165,7 +184,7 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     node.takeChildren()
     parent = node.parent()
     if parent:
-        filename = QDir(getpath(parent)).filePath(QFileInfo(node.text(1)).fileName())
+        filename = QDir(_getpath(parent)).filePath(QFileInfo(node.text(1)).fileName())
     else:
         filename = node.text(1)
     suffix = _suffix(filename)

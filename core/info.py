@@ -47,6 +47,14 @@ _parser.add_argument(
     help = "run Pyslvs in Fusion style"
 )
 _parser.add_argument(
+    'r',
+    metavar = "file path",
+    default = (),
+    nargs = '*',
+    type = str,
+    help = "read file from the file path"
+)
+_parser.add_argument(
     '-t',
     '--test',
     action = 'store_true',
