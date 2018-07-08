@@ -267,6 +267,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item.setText(1, project_path.relativeFilePath(filename))
     
     @pyqtSlot()
+    def copyNode(self):
+        """Copy current node."""
+        node_origin = self.tree_main.currentItem()
+        parent = node_origin.parent()
+        node = node_origin.clone()
+        node.takeChildren()
+        code = self.data.newNum()
+        self.data[code] = self.data[int(node.text(2))]
+        node.setText(2, str(code))
+        parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
+    
+    @pyqtSlot()
+    def cloneNode(self):
+        """Copy current node with same pointer."""
+        node_origin = self.tree_main.currentItem()
+        parent = node_origin.parent()
+        node = node_origin.clone()
+        node.takeChildren()
+        parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
+    
+    @pyqtSlot()
+    def copyNodeRecursive(self):
+        """Copy current node and its subnodes."""
+        node_origin = self.tree_main.currentItem()
+        parent = node_origin.parent()
+        node = node_origin.clone()
+        
+        def new_pointer(node: QTreeWidgetItem):
+            """Give a new pointer code for node."""
+            code = self.data.newNum()
+            self.data[code] = self.data[int(node.text(2))]
+            node.setText(2, str(code))
+            for i in range(node.childCount()):
+                new_pointer(node.child(i))
+        
+        new_pointer(node)
+        parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
+    
+    @pyqtSlot()
+    def cloneNodeRecursive(self):
+        """Copy current node and its subnodes with same pointer."""
+        node_origin = self.tree_main.currentItem()
+        parent = node_origin.parent()
+        parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin.clone())
+    
+    @pyqtSlot()
     def saveProj(self, index: Optional[int] = None, *, all: bool = False):
         """Save project and files."""
         if all:
@@ -277,6 +323,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = _get_root(self.tree_main.currentItem())
         else:
             item = self.tree_main.topLevelItem(index)
+        #Save the current text of editor.
         self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
         saveFile(item, self.data)
         self.data.saveAll()

@@ -42,9 +42,17 @@ def setmenu(self):
     self.action_save.triggered.connect(self.saveProj)
     self.popMenu_tree.addAction(self.action_save)
     self.tree_copy = QAction("Co&py", self)
+    self.tree_copy.triggered.connect(self.copyNode)
     self.popMenu_tree.addAction(self.tree_copy)
     self.tree_clone = QAction("C&lone", self)
+    self.tree_clone.triggered.connect(self.cloneNode)
     self.popMenu_tree.addAction(self.tree_clone)
+    self.tree_copy_tree = QAction("Recursive Copy", self)
+    self.tree_copy_tree.triggered.connect(self.copyNodeRecursive)
+    self.popMenu_tree.addAction(self.tree_copy_tree)
+    self.tree_clone_tree = QAction("Recursive Clone", self)
+    self.tree_clone_tree.triggered.connect(self.cloneNodeRecursive)
+    self.popMenu_tree.addAction(self.tree_clone_tree)
     
     self.popMenu_tree.addSeparator()
     
