@@ -112,11 +112,6 @@
                 <string>Path</string>
                </property>
               </column>
-              <column>
-               <property name="text">
-                <string>Pointer</string>
-               </property>
-              </column>
              </widget>
             </item>
            </layout>
@@ -273,23 +268,6 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="deprecated_tab">
-         <attribute name="title">
-          <string>Pointers</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <widget class="QListWidget" name="pointer_list">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
        </widget>
       </widget>
      </widget>
@@ -302,7 +280,7 @@
      <x>0</x>
      <y>0</y>
      <width>779</width>
-     <height>30</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

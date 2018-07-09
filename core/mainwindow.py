@@ -18,7 +18,6 @@ from core.QtModules import (
     QTreeItem,
     QTreeRoot,
     QTreeWidgetItem,
-    QListWidgetItem,
     QHeaderView,
     QMessageBox,
     QDesktopServices,
@@ -127,9 +126,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #Data
         self.data = DataDict()
-        self.data.codeAdded.connect(self.__addToPointers)
-        self.data.codeChanged.connect(self.__editPointers)
-        self.data.codeDeleted.connect(self.__removeFromPointers)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
         
         for filename in ARGUMENTS.r:
@@ -342,29 +338,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.setCurrentItem(parent)
         parent.removeChild(node)
         del self.data[code]
-    
-    @pyqtSlot(str, str)
-    def __addToPointers(self, code: str, doc: str):
-        """Add pointer content by code."""
-        item = QListWidgetItem(code)
-        item.setToolTip(doc[:50])
-        self.pointer_list.addItem(item)
-    
-    @pyqtSlot(str, str)
-    def __editPointers(self, code: str, doc: str):
-        """Edit pointer content by code."""
-        for row in range(self.pointer_list.count()):
-            item = self.pointer_list.item(row)
-            if code == item.text():
-                item.setToolTip(doc[:50])
-    
-    @pyqtSlot(str)
-    def __removeFromPointers(self, code: str):
-        """Remove pointer by code."""
-        for row in range(self.pointer_list.count()):
-            if code == self.pointer_list.item(row).text():
-                self.pointer_list.takeItem(row)
-                return
     
     @pyqtSlot()
     def closeFile(self):

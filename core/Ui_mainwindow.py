@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/ahshoe/桌面/kmol-editor/core/mainwindow.ui'
+# Form implementation generated from reading ui file 'C:\Users\ahshoe\Desktop\kmol-editor\core\mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.10
+# Created by: PyQt5 UI code generator 5.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -133,23 +133,10 @@ class Ui_MainWindow(object):
         self.find_list.setObjectName("find_list")
         self.verticalLayout_6.addWidget(self.find_list)
         self.panel_widget.addTab(self.find_tab, "")
-        self.deprecated_tab = QtWidgets.QWidget()
-        self.deprecated_tab.setObjectName("deprecated_tab")
-        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.deprecated_tab)
-        self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.pointer_list = QtWidgets.QListWidget(self.deprecated_tab)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pointer_list.sizePolicy().hasHeightForWidth())
-        self.pointer_list.setSizePolicy(sizePolicy)
-        self.pointer_list.setObjectName("pointer_list")
-        self.verticalLayout_5.addWidget(self.pointer_list)
-        self.panel_widget.addTab(self.deprecated_tab, "")
         self.verticalLayout_4.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 779, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 779, 26))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -218,7 +205,6 @@ class Ui_MainWindow(object):
         self.exec_button.setText(_translate("MainWindow", "Execute Script"))
         self.tree_main.headerItem().setText(0, _translate("MainWindow", "Name"))
         self.tree_main.headerItem().setText(1, _translate("MainWindow", "Path"))
-        self.tree_main.headerItem().setText(2, _translate("MainWindow", "Pointer"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.console_tab), _translate("MainWindow", "Console"))
         self.find_next_button.setText(_translate("MainWindow", "Find Next"))
         self.find_previous_button.setText(_translate("MainWindow", "Find Previous"))
@@ -233,7 +219,6 @@ class Ui_MainWindow(object):
         self.find_list.headerItem().setText(0, _translate("MainWindow", "Position"))
         self.find_list.headerItem().setText(1, _translate("MainWindow", "Text"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.find_tab), _translate("MainWindow", "Find and Replace"))
-        self.panel_widget.setTabText(self.panel_widget.indexOf(self.deprecated_tab), _translate("MainWindow", "Pointers"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.action_new_project.setText(_translate("MainWindow", "New Project"))
