@@ -501,8 +501,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def on_exec_button_clicked(self):
         """Run the script in a new thread."""
+        
+        def run():
+            from os import chdir
+            node = self.tree_main.currentItem()
+            path = getpath(node) if node else ''
+            if QFileInfo(path).isDir():
+                chdir(path)
+            elif QFileInfo(path).isFile():
+                chdir(QFileInfo(path).absolutePath())
+            exec(self.text_editor.text())
+        
         from threading import Thread
-        Thread(target=exec, args=(self.text_editor.text(),)).start()
+        Thread(target=run).start()
     
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def on_tree_main_currentItemChanged(self,

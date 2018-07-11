@@ -56,7 +56,7 @@ def _suffix(filename: str) -> str:
 
 
 def _getpath(node: QTreeWidgetItem) -> str:
-    """Recursive path of the node."""
+    """Recursive return the path of the node."""
     path = node.text(1)
     parent = node.parent()
     if not parent:
@@ -68,11 +68,11 @@ def _getpath(node: QTreeWidgetItem) -> str:
 
 
 def getpath(node: QTreeWidgetItem) -> str:
-    """Get path of current node."""
+    """Get the path of current node."""
     parent = node.parent()
     filename = node.text(1)
     if parent:
-        return QDir(_getpath(parent)).filePath(filename)
+        return QFileInfo(QDir(_getpath(parent)).filePath(filename)).absoluteFilePath()
     return filename
 
 
@@ -135,7 +135,10 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
     path_text = QFileInfo(node.text(1)).fileName()
     if path_text and not all_saved:
         suffix = QFileInfo(path_text).suffix()
-        if suffix in SUPPORT_FILE_SUFFIX:
+        if suffix == 'kmol':
+            #Save project.
+            _tree_write(node.text(1), node, data)
+        elif suffix in SUPPORT_FILE_SUFFIX:
             #Save text files.
             filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
             if not filepath.exists():
@@ -148,9 +151,6 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
             with open(filename, 'w') as f:
                 f.write(my_content)
             print("Saved: {}".format(filename))
-        elif suffix == 'kmol':
-            #Save project.
-            _tree_write(node.text(1), node, data)
     return my_content, all_saved
 
 
