@@ -168,13 +168,22 @@ class TextEditor(QsciScintilla):
     def keyPressEvent(self, event):
         """Input key event."""
         key = event.key()
-        line, index = self.getCursorPosition()
+        text = self.selectedText()
+        
         parentheses = list(_parentheses)
         if self.lexer_option == "Markdown":
             parentheses.extend(_parentheses_markdown)
         elif self.lexer_option == "HTML":
             parentheses.extend(_parentheses_html)
+        
+        if text:
+            for match_key, t0, t1 in parentheses:
+                if key == match_key:
+                    self.replaceSelectedText(t0 + text + t1)
+                    return
+        
         super(TextEditor, self).keyPressEvent(event)
         for match_key, t0, t1 in parentheses:
             if key == match_key:
                 self.insert(t1)
+                return
