@@ -27,15 +27,15 @@ from core.data_structure import DataDict
 from core.info import __version__
 
 
-SUPPORT_FILE_SUFFIX = [
+SUPPORT_FILE_SUFFIX = (
     'kmol',
     'md',
     'html',
     'py',
     'tex',
     'txt',
-]
-SUPPORTFORMAT = [
+)
+SUPPORTFORMAT = (
     "Kmol Project",
     "Markdown",
     "HTML",
@@ -43,10 +43,10 @@ SUPPORTFORMAT = [
     "Latex",
     "Text file",
     "All files",
-]
+)
 SUPPORT_FILE_FORMATS = ';;'.join(
     "{} (*.{})".format(name, suffix if suffix else '*')
-    for name, suffix in zip(SUPPORTFORMAT, SUPPORT_FILE_SUFFIX + [''])
+    for name, suffix in zip(SUPPORTFORMAT, SUPPORT_FILE_SUFFIX + ('',))
 )
 
 
@@ -120,19 +120,22 @@ def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
 def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
     """Recursive to all the contents of nodes."""
     text_data = []
+    all_saved = data.is_saved(int(node.text(2)))
     for i in range(node.childCount()):
-        text_data.append(saveFile(node.child(i), data))
-    my_content_list = data[int(node.text(2))].splitlines()
-    for i in range(len(my_content_list)):
-        text = my_content_list[i]
+        doc, saved = saveFile(node.child(i), data)
+        text_data.append(doc)
+        all_saved &= saved
+    my_content = data[int(node.text(2))].splitlines()
+    for i in range(len(my_content)):
+        text = my_content[i]
         if text.endswith("@others"):
             preffix = text[:-len("@others")]
-            my_content_list[i] = '\n\n'.join(preffix + t for t in text_data)
-    my_content_list = '\n'.join(my_content_list)
+            my_content[i] = '\n\n'.join(preffix + t for t in text_data)
+    my_content = '\n'.join(my_content)
     path_text = QFileInfo(node.text(1)).fileName()
-    if path_text:
+    if path_text and not all_saved:
         suffix = QFileInfo(path_text).suffix()
-        if suffix in ('md', 'html', 'py', 'txt'):
+        if suffix in SUPPORT_FILE_SUFFIX:
             #Save text files.
             filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
             if not filepath.exists():
@@ -140,15 +143,15 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
                 print("Create Folder: {}".format(filepath.absolutePath()))
             filename = filepath.filePath(path_text)
             #Add end new line.
-            if my_content_list[-1] != '\n':
-                my_content_list += '\n'
+            if my_content and (my_content[-1] != '\n'):
+                my_content += '\n'
             with open(filename, 'w') as f:
-                f.write(my_content_list)
+                f.write(my_content)
             print("Saved: {}".format(filename))
         elif suffix == 'kmol':
             #Save project.
             _tree_write(node.text(1), node, data)
-    return my_content_list
+    return my_content, all_saved
 
 
 def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
