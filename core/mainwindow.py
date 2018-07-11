@@ -239,10 +239,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def openPath(self):
         """Open path of current node."""
         node = self.tree_main.currentItem()
-        parent = node.parent()
-        filename = node.text(1)
-        if parent:
-            filename = QDir(getpath(parent)).filePath(filename)
+        filename = getpath(node)
         QDesktopServices.openUrl(QUrl(filename))
         print("Open: {}".format(filename))
     
@@ -336,12 +333,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for row in range(self.tree_main.topLevelItemCount()):
                 self.saveProj(row)
             return
+        node = self.tree_main.currentItem()
+        if not node:
+            return
         if index is None:
-            item = _get_root(self.tree_main.currentItem())
+            item = _get_root(node)
         else:
             item = self.tree_main.topLevelItem(index)
         #Save the current text of editor.
-        self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
+        self.data[int(node.text(2))] = self.text_editor.text()
         saveFile(item, self.data)
         self.data.saveAll()
     
@@ -535,10 +535,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ):
             action.setVisible(is_root or not has_item)
         self.tree_close.setVisible(has_item and is_root)
-        self.tree_add.setVisible(has_item)
+        for action in (
+            self.tree_add,
+            self.tree_openurl,
+            self.action_save,
+        ):
+            action.setVisible(has_item)
         for action in (
             self.tree_copy,
             self.tree_clone,
+            self.tree_copy_tree,
+            self.tree_clone_tree,
             self.tree_path,
             self.tree_refresh,
             self.tree_delete,
