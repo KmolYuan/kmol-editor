@@ -32,7 +32,7 @@ SUPPORT_FILE_SUFFIX = [
     'md',
     'html',
     'py',
-    'bib',
+    'tex',
     'txt',
 ]
 SUPPORTFORMAT = [
@@ -40,7 +40,7 @@ SUPPORTFORMAT = [
     "Markdown",
     "HTML",
     "Python script",
-    "Bibtex",
+    "Latex",
     "Text file",
     "All files",
 ]
@@ -55,7 +55,7 @@ def _suffix(filename: str) -> str:
     return QFileInfo(filename).suffix()
 
 
-def _getpath(node: QTreeWidgetItem) -> str:
+def getpath(node: QTreeWidgetItem) -> str:
     """Get the path from parent."""
     path = node.text(1)
     parent = node.parent()
@@ -64,7 +64,7 @@ def _getpath(node: QTreeWidgetItem) -> str:
             return QFileInfo(path).absolutePath()
         else:
             return path
-    return QFileInfo(QDir(_getpath(parent)), path + '/' if path else '').absolutePath()
+    return QFileInfo(QDir(getpath(parent)), path + '/' if path else '').absolutePath()
 
 
 def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
@@ -84,11 +84,8 @@ def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
             'code': node.text(2),
         }
         sub = SubElement(root, 'node', attr)
-        if (
-            (_suffix(node.text(1)) in SUPPORT_FILE_SUFFIX) or
-            (QFileInfo(node.text(1)).fileName() == 'Makefile')
-        ):
-            #Files do not need to make any copy.
+        if QFileInfo(QDir(getpath(node.parent())).filePath(node.text(1))).isFile():
+            #Files do not need to make a copy.
             return
         codes.add(attr['code'])
         for i in range(node.childCount()):
@@ -128,7 +125,7 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
         suffix = QFileInfo(path_text).suffix()
         if suffix in ('md', 'html', 'py', 'txt'):
             #Save text files.
-            filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
+            filepath = QDir(QFileInfo(getpath(node)).absolutePath())
             if not filepath.exists():
                 filepath.mkpath('.')
                 print("Create Folder: {}".format(filepath.absolutePath()))
@@ -172,7 +169,7 @@ def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
         if child.tag == 'data-structure':
             for d in child:
                 if d.tag == 'data':
-                    data[int(d.attrib['code'])] = d.text or ""
+                    data[int(d.attrib['code'])] = d.text or ''
         elif child.tag == 'node':
             addNode(child, root_node)
     
@@ -186,10 +183,9 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     """Parse file to tree format."""
     node.takeChildren()
     parent = node.parent()
+    filename = node.text(1)
     if parent:
-        filename = QDir(_getpath(parent)).filePath(QFileInfo(node.text(1)).fileName())
-    else:
-        filename = node.text(1)
+        filename = QDir(getpath(parent)).filePath(filename)
     suffix = _suffix(filename)
     if node.text(2):
         code = int(node.text(2))

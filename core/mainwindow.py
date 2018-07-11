@@ -20,12 +20,12 @@ from core.QtModules import (
     QTreeWidgetItem,
     QHeaderView,
     QMessageBox,
-    QDesktopServices,
     QUrl,
     QFileDialog,
     QStandardPaths,
     QFileInfo,
     QDir,
+    QDesktopServices,
     QSCIHIGHLIGHTERS,
 )
 from core.info import INFO, ARGUMENTS
@@ -33,7 +33,12 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.parser import parse, saveFile, SUPPORT_FILE_FORMATS
+from core.parser import (
+    getpath,
+    parse,
+    saveFile,
+    SUPPORT_FILE_FORMATS,
+)
 from .Ui_mainwindow import Ui_MainWindow
 
 
@@ -229,6 +234,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
         parse(node, self.data)
         self.text_editor.setText(self.data[int(node.text(2))])
+    
+    @pyqtSlot()
+    def openPath(self):
+        """Open path of current node."""
+        node = self.tree_main.currentItem()
+        parent = node.parent()
+        filename = node.text(1)
+        if parent:
+            filename = QDir(getpath(parent)).filePath(filename)
+        QDesktopServices.openUrl(QUrl(filename))
+        print("Open: {}".format(filename))
     
     @pyqtSlot()
     def addNode(self):
