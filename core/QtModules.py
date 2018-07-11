@@ -258,6 +258,21 @@ class QsciLexerCustomPython(QsciLexerPython):
         super(QsciLexerCustomPython, self).setDefaultFont(font)
         self.setFont(font, QsciLexerPython.Comment)
         self.setFont(font, QsciLexerPython.DoubleQuotedString)
+        self.setFont(font, QsciLexerPython.UnclosedString)
+        self.setFont(font, QsciLexerPython.SingleQuotedString)
+
+
+class QsciLexerCustomMarkdown(QsciLexerMarkdown):
+    
+    """Custom Python highter."""
+    
+    def __init__(self, *args):
+        super(QsciLexerCustomMarkdown, self).__init__(*args)
+    
+    def setDefaultFont(self, font: QFont):
+        super(QsciLexerCustomMarkdown, self).setDefaultFont(font)
+        for i in range(22):
+            self.setFont(font, i)
 
 
 QSCIHIGHLIGHTERS = {
@@ -276,7 +291,7 @@ QSCIHIGHLIGHTERS = {
     "JSON": QsciLexerJSON,
     "Lua": QsciLexerLua,
     "Makefile": QsciLexerMakefile,
-    "Markdown": QsciLexerMarkdown,
+    "Markdown": QsciLexerCustomMarkdown,
     "Matlab": QsciLexerMatlab,
     "Python": QsciLexerCustomPython,
     "SQL": QsciLexerSQL,

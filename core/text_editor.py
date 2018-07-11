@@ -25,6 +25,24 @@ from core.QtModules import (
 )
 
 
+_parentheses = (
+    (Qt.Key_ParenLeft, '(', ')'),
+    (Qt.Key_BracketLeft, '[', ']'),
+    (Qt.Key_BraceLeft, '{', '}'),
+    (Qt.Key_QuoteDbl, '"', '"'),
+    (Qt.Key_Apostrophe, "'", "'"),
+)
+_parentheses_html = (
+    (Qt.Key_Less, '<', '>'),
+)
+_parentheses_markdown = (
+    (Qt.Key_Dollar, '$', '$'),
+    (Qt.Key_Asterisk, '*', '*'),
+    (Qt.Key_Underscore, '_', '_'),
+    _parentheses_html[0],
+)
+
+
 class TextEditor(QsciScintilla):
     
     """QScintilla text editor."""
@@ -101,6 +119,7 @@ class TextEditor(QsciScintilla):
     
     @pyqtSlot(str)
     def setHighlighter(self, option: str):
+        self.lexer_option = option
         lexer = QSCIHIGHLIGHTERS[option]()
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
@@ -137,6 +156,7 @@ class TextEditor(QsciScintilla):
         )
     
     def wheelEvent(self, event):
+        """Mouse wheel event."""
         if QApplication.keyboardModifiers() != Qt.ControlModifier:
             super(TextEditor, self).wheelEvent(event)
             return
@@ -144,3 +164,17 @@ class TextEditor(QsciScintilla):
             self.zoomIn()
         else:
             self.zoomOut()
+    
+    def keyPressEvent(self, event):
+        """Input key event."""
+        key = event.key()
+        line, index = self.getCursorPosition()
+        parentheses = list(_parentheses)
+        if self.lexer_option == "Markdown":
+            parentheses.extend(_parentheses_markdown)
+        elif self.lexer_option == "HTML":
+            parentheses.extend(_parentheses_html)
+        super(TextEditor, self).keyPressEvent(event)
+        for match_key, t0, t1 in parentheses:
+            if key == match_key:
+                self.insert(t1)
