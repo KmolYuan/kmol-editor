@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\ahshoe\Desktop\kmol-editor\core\mainwindow.ui'
+# Form implementation generated from reading ui file '/home/ahshoe/桌面/kmol-editor/core/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(779, 688)
+        MainWindow.resize(964, 829)
         MainWindow.setAcceptDrops(True)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icons/kmol.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -26,26 +26,37 @@ class Ui_MainWindow(object):
         self.v_splitter = QtWidgets.QSplitter(self.h_splitter)
         self.v_splitter.setOrientation(QtCore.Qt.Vertical)
         self.v_splitter.setObjectName("v_splitter")
-        self.verticalLayoutWidget = QtWidgets.QWidget(self.v_splitter)
-        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalWidget = QtWidgets.QWidget(self.v_splitter)
+        self.verticalWidget.setObjectName("verticalWidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.highlighter_label = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.highlighter_label = QtWidgets.QLabel(self.verticalWidget)
         self.highlighter_label.setObjectName("highlighter_label")
         self.horizontalLayout.addWidget(self.highlighter_label)
-        self.highlighter_option = QtWidgets.QComboBox(self.verticalLayoutWidget)
+        self.highlighter_option = QtWidgets.QComboBox(self.verticalWidget)
         self.highlighter_option.setObjectName("highlighter_option")
         self.horizontalLayout.addWidget(self.highlighter_option)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.exec_button = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.exec_button = QtWidgets.QPushButton(self.verticalWidget)
         self.exec_button.setObjectName("exec_button")
         self.horizontalLayout.addWidget(self.exec_button)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.tree_widget = QtWidgets.QWidget(self.verticalLayoutWidget)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.edge_line_option = QtWidgets.QCheckBox(self.verticalWidget)
+        self.edge_line_option.setObjectName("edge_line_option")
+        self.horizontalLayout_5.addWidget(self.edge_line_option)
+        self.auto_expand_option = QtWidgets.QCheckBox(self.verticalWidget)
+        self.auto_expand_option.setObjectName("auto_expand_option")
+        self.horizontalLayout_5.addWidget(self.auto_expand_option)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem1)
+        self.verticalLayout.addLayout(self.horizontalLayout_5)
+        self.tree_widget = QtWidgets.QWidget(self.verticalWidget)
         self.tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tree_widget.setObjectName("tree_widget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.tree_widget)
@@ -107,8 +118,8 @@ class Ui_MainWindow(object):
         self.re_option = QtWidgets.QCheckBox(self.find_tab)
         self.re_option.setObjectName("re_option")
         self.horizontalLayout_4.addWidget(self.re_option)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_4.addItem(spacerItem1)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem2)
         self.find_project_button = QtWidgets.QPushButton(self.find_tab)
         self.find_project_button.setObjectName("find_project_button")
         self.horizontalLayout_4.addWidget(self.find_project_button)
@@ -136,7 +147,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 779, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -203,6 +214,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Kmol editor"))
         self.highlighter_label.setText(_translate("MainWindow", "Highlighter:"))
         self.exec_button.setText(_translate("MainWindow", "Execute Script"))
+        self.edge_line_option.setText(_translate("MainWindow", "Edge Line"))
+        self.auto_expand_option.setText(_translate("MainWindow", "Auto Expand"))
         self.tree_main.headerItem().setText(0, _translate("MainWindow", "Name"))
         self.tree_main.headerItem().setText(1, _translate("MainWindow", "Path"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.console_tab), _translate("MainWindow", "Console"))

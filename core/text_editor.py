@@ -79,7 +79,7 @@ class TextEditor(QsciScintilla):
         self.setAutoCompletionThreshold(1)
         
         #Edge mode.
-        self.setEdgeMode(QsciScintilla.EdgeLine)
+        self.setEdgeMode(QsciScintilla.EdgeNone)
         self.setEdgeColumn(80)
         self.setEdgeColor(Qt.blue)
         
@@ -104,6 +104,13 @@ class TextEditor(QsciScintilla):
         lexer = QSCIHIGHLIGHTERS[option]()
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
+    
+    @pyqtSlot(bool)
+    def setEdgeMode(self, option: bool):
+        """Set edge mode option."""
+        super(TextEditor, self).setEdgeMode(
+            QsciScintilla.EdgeLine if option else QsciScintilla.EdgeNone
+        )
     
     def __currentWordPosition(self) -> Tuple[int, int]:
         """Return pos of current word."""
@@ -131,6 +138,7 @@ class TextEditor(QsciScintilla):
     
     def wheelEvent(self, event):
         if QApplication.keyboardModifiers() != Qt.ControlModifier:
+            super(TextEditor, self).wheelEvent(event)
             return
         if event.angleDelta().y() >= 0:
             self.zoomIn()

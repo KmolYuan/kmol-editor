@@ -71,9 +71,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.insertWidget(1, self.text_editor)
-        self.h_splitter.setStretchFactor(0, 10)
-        self.h_splitter.setStretchFactor(1, 20)
         self.text_editor.currtWordChanged.connect(self.search_bar.setPlaceholderText)
+        self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         
         #Highlighters
         self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
@@ -123,6 +122,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Run script button.
         run_sript = QShortcut(QKeySequence("F5"), self)
         run_sript.activated.connect(self.exec_button.click)
+        
+        #Splitter
+        self.h_splitter.setStretchFactor(0, 10)
+        self.h_splitter.setStretchFactor(1, 60)
+        self.v_splitter.setStretchFactor(0, 60)
+        self.v_splitter.setStretchFactor(1, 10)
         
         #Data
         self.data = DataDict()
@@ -493,7 +498,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         + Auto collapse and expand function.
         + Important: Store the string data.
         """
-        self.tree_main.expandItem(current)
+        if self.auto_expand_option.isChecked():
+            self.tree_main.expandItem(current)
         self.tree_main.scrollToItem(current)
         
         if previous:

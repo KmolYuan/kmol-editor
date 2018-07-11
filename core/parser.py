@@ -33,7 +33,6 @@ SUPPORT_FILE_SUFFIX = [
     'html',
     'py',
     'txt',
-    '',
 ]
 SUPPORTFORMAT = [
     "Kmol Project",
@@ -45,7 +44,7 @@ SUPPORTFORMAT = [
 ]
 SUPPORT_FILE_FORMATS = ';;'.join(
     "{} (*.{})".format(name, suffix if suffix else '*')
-    for name, suffix in zip(SUPPORTFORMAT, SUPPORT_FILE_SUFFIX)
+    for name, suffix in zip(SUPPORTFORMAT, SUPPORT_FILE_SUFFIX + [''])
 )
 
 
@@ -176,7 +175,6 @@ def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
         parse(node, data)
     
     data.saveAll()
-    print("Loaded: {}".format(root_node.text(1)))
 
 
 def parse(node: QTreeWidgetItem, data: DataDict):
@@ -205,6 +203,7 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     else:
         #Text files and Python scripts.
         _parseText(filename, code, data)
+    print("Loaded: {}".format(node.text(1)))
 
 
 def _parseText(
