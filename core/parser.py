@@ -32,6 +32,7 @@ SUPPORT_FILE_SUFFIX = [
     'md',
     'html',
     'py',
+    'bib',
     'txt',
 ]
 SUPPORTFORMAT = [
@@ -39,6 +40,7 @@ SUPPORTFORMAT = [
     "Markdown",
     "HTML",
     "Python script",
+    "Bibtex",
     "Text file",
     "All files",
 ]
@@ -82,7 +84,10 @@ def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
             'code': node.text(2),
         }
         sub = SubElement(root, 'node', attr)
-        if _suffix(node.text(1)) in SUPPORT_FILE_SUFFIX:
+        if (
+            (_suffix(node.text(1)) in SUPPORT_FILE_SUFFIX) or
+            (QFileInfo(node.text(1)).fileName() == 'Makefile')
+        ):
             #Files do not need to make any copy.
             return
         codes.add(attr['code'])
@@ -240,16 +245,16 @@ def _parseMarkdown(
         string_list = f.read().split('\n')
     
     #Read the first level of title mark.
-    """
-    #titles = [(
-        [0] line_num,
-        [1] level,
-    )]
-    """
+    #titles = [(line_num, level), ...]
     titles = []
     previous_line = ""
-    line_num = 0
-    for line in tuple(string_list):
+    in_code_block = False
+    for line_num, line in enumerate(string_list):
+        if line.startswith('```'):
+            in_code_block = not in_code_block
+        if in_code_block:
+            previous_line = line
+            continue
         for level, string in enumerate(['===', '---']):
             if not line.startswith(string):
                 continue
@@ -261,7 +266,6 @@ def _parseMarkdown(
             if set(prefix) == {'#'}:
                 titles.append((line_num, len(prefix) - 1))
         previous_line = line
-        line_num += 1
     
     #Joint nodes.
     if not titles:
