@@ -49,7 +49,7 @@ class DataDict(QObject):
         if key in self.__data:
             del self.__data[key]
             del self.__saved[key]
-            for m, code in self.__macros.items():
+            for m, code in tuple(self.__macros.items()):
                 if code == key:
                     del self.__macros[m]
     

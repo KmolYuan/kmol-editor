@@ -46,6 +46,20 @@
             <widget class="QComboBox" name="highlighter_option"/>
            </item>
            <item>
+            <widget class="QCheckBox" name="edge_line_option">
+             <property name="text">
+              <string>Edge Line</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="auto_expand_option">
+             <property name="text">
+              <string>Auto Expand</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -64,37 +78,6 @@
               <string>Execute Script</string>
              </property>
             </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QCheckBox" name="edge_line_option">
-             <property name="text">
-              <string>Edge Line</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="auto_expand_option">
-             <property name="text">
-              <string>Auto Expand</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </item>

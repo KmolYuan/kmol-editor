@@ -27,6 +27,8 @@ from core.QtModules import (
     QDir,
     QDesktopServices,
     QSCIHIGHLIGHTERS,
+    HIGHLIGHTER_SUFFIX,
+    HIGHLIGHTER_FILENAME,
 )
 from core.info import INFO, ARGUMENTS
 from core.text_editor import TextEditor
@@ -40,6 +42,7 @@ from core.parser import (
     SUPPORT_FILE_FORMATS,
 )
 from .Ui_mainwindow import Ui_MainWindow
+__veriables__ = {}
 
 
 def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
@@ -91,6 +94,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         
         #Console
+        self.console.setFont(self.text_editor.font)
         XStream.stdout().messageWritten.connect(self.__appendToConsole)
         XStream.stderr().messageWritten.connect(self.__appendToConsole)
         for info in INFO:
@@ -131,7 +135,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Splitter
         self.h_splitter.setStretchFactor(0, 10)
         self.h_splitter.setStretchFactor(1, 60)
-        self.v_splitter.setStretchFactor(0, 60)
+        self.v_splitter.setStretchFactor(0, 30)
         self.v_splitter.setStretchFactor(1, 10)
         
         #Data
@@ -343,10 +347,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             root = _get_root(node)
         else:
             root = self.tree_main.topLevelItem(index)
-        #Save the current text of editor.
-        self.data[int(node.text(2))] = self.text_editor.text()
+        self.__save_current()
         save_file(root, self.data)
         self.data.saveAll()
+    
+    def __save_current(self):
+        """Save the current text of editor."""
+        self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
     
     @pyqtSlot()
     def on_action_save_all_triggered(self):
@@ -416,6 +423,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tree_main.takeTopLevelItem(index)
             tree_main.insertTopLevelItem(index - 1, node)
         tree_main.setCurrentItem(node)
+        self.__root_unsaved()
     
     @pyqtSlot()
     def __moveDownNode(self):
@@ -440,6 +448,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tree_main.takeTopLevelItem(index)
             tree_main.insertTopLevelItem(index + 1, node)
         tree_main.setCurrentItem(node)
+        self.__root_unsaved()
     
     @pyqtSlot()
     def __moveRightNode(self):
@@ -464,6 +473,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tree_main.takeTopLevelItem(index)
             tree_main.topLevelItem(index - 1).addChild(node)
         tree_main.setCurrentItem(node)
+        self.__root_unsaved()
     
     @pyqtSlot()
     def __moveLeftNode(self):
@@ -483,6 +493,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.removeChild(node)
         grand_parent.insertChild(index + 1, node)
         tree_main.setCurrentItem(node)
+        self.__root_unsaved()
     
     @pyqtSlot()
     def on_action_about_qt_triggered(self):
@@ -511,20 +522,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def __exec_script(self, code: Union[int, str]):
         """Run a script in a new thread."""
-        script = self.data[code] if type(code) == int else code
+        self.__save_current()
         
-        def run():
-            from os import chdir
+        def run(script: str):
+            __veriables__.clear()
             node = self.tree_main.currentItem()
-            path = getpath(node) if node else ''
-            if QFileInfo(path).isDir():
-                chdir(path)
-            elif QFileInfo(path).isFile():
-                chdir(QFileInfo(path).absolutePath())
+            __veriables__['node'] = node
+            node_path = ''
+            if node:
+                root = _get_root(node)
+                __veriables__['root'] = root
+                root_path = QFileInfo(root.text(1)).absoluteFilePath()
+                __veriables__['root_path'] = root_path
+                node_path = getpath(node)
+                __veriables__['node_path'] = node_path
+            
+            def chdir(path: str):
+                from os import chdir
+                if QFileInfo(path).isDir():
+                    chdir(path)
+                elif QFileInfo(path).isFile():
+                    chdir(QFileInfo(path).absolutePath())
+            
+            __veriables__['chdir'] = chdir
             exec(script)
         
         from threading import Thread
-        Thread(target=run).start()
+        Thread(target=run, args=(self.data[code] if type(code) == int else code,)).start()
     
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
     def on_tree_main_currentItemChanged(self,
@@ -543,6 +567,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if previous:
             self.data[int(previous.text(2))] = self.text_editor.text()
         if current:
+            #Auto highlight.
+            path = current.text(1)
+            filename = QFileInfo(path).fileName()
+            suffix = QFileInfo(filename).suffix()
+            if current.text(0).startswith('@'):
+                self.highlighter_option.setCurrentText("Python")
+            else:
+                self.highlighter_option.setCurrentText("Markdown")
+            if path:
+                for name_m, suffix_m in HIGHLIGHTER_SUFFIX.items():
+                    if suffix in suffix_m:
+                        self.highlighter_option.setCurrentText(name_m)
+                        break
+                else:
+                    for name_m, filename_m in HIGHLIGHTER_FILENAME.items():
+                        if filename in filename_m:
+                            self.highlighter_option.setCurrentText(name_m)
+                            break
             self.text_editor.setText(self.data[int(current.text(2))])
         
         self.__actionChanged()
@@ -550,7 +592,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(QTreeWidgetItem, int)
     def on_tree_main_itemChanged(self, node: QTreeWidgetItem, column: int):
         """Mark edited node as unsaved."""
-        self.data.setSaved(int(node.text(2)), False)
+        name = node.text(0)
+        code = int(node.text(2))
+        if name.startswith('@'):
+            self.__add_macro(name[1:], code)
+        self.__root_unsaved()
+    
+    def __root_unsaved(self):
+        """Let tree to re-save."""
+        node = self.tree_main.currentItem()
+        if node:
+            self.data.setSaved(int(_get_root(node).text(2)), False)
     
     def __actionChanged(self):
         node = self.tree_main.currentItem()
@@ -580,14 +632,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             action.setVisible(has_item and not is_root)
     
     def __add_macros(self):
-        """Add macro buttons."""
-        for m, code in self.data.macros():
-            for action in self.macros_toolbar.actions():
-                if action.text() == m:
-                    break
-            else:
-                action = self.macros_toolbar.addAction(m)
-                action.triggered.connect(lambda: self.__exec_script(code))
+        """Add macro buttons from data structure."""
+        for name, code in self.data.macros():
+            self.__add_macro(name, code)
+    
+    def __add_macro(self, name: str, code: int):
+        """Add macro button."""
+        for action in self.macros_toolbar.actions():
+            if action.text() == name:
+                break
+        else:
+            action = self.macros_toolbar.addAction(name)
+            action.triggered.connect(lambda: self.__exec_script(code))
     
     def __findText(self, forward: bool) -> bool:
         """Find text by options."""

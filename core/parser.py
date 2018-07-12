@@ -264,12 +264,12 @@ def _parseMarkdown(
             previous_line = line
             continue
         for level, string in enumerate(['===', '---']):
-            if not line.startswith(string):
+            if not line.startswith(string) or previous_line.startswith(" "):
                 continue
             if len(set(line)) == 1 and previous_line:
                 #Under line with its title.
                 titles.append((line_num - 1, level))
-        if line:
+        if len(set(line)) > 1:
             prefix = line.split(maxsplit=1)[0]
             if set(prefix) == {'#'}:
                 titles.append((line_num, len(prefix) - 1))

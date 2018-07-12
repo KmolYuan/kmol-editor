@@ -299,3 +299,30 @@ QSCIHIGHLIGHTERS = {
     "XML": QsciLexerXML,
     "YAML": QsciLexerYAML,
 }
+
+HIGHLIGHTER_SUFFIX = {
+    "Bash": {'sh',},
+    "Batch": {'bat',},
+    "C++": {'c', 'cpp', 'h', 'hpp', 'cxx'},
+    "C#": {'cs',},
+    "CSS": {'css', 'bib'},
+    "Diff": {'diff',},
+    "Fortran": {'f90',},
+    "Fortran77": {'f77',},
+    "HTML": {'html',},
+    "Java": {'java',},
+    "JavaScript": {'js',},
+    "JSON": {'json',},
+    "Lua": {'lua',},
+    "Markdown": {'md',},
+    "Matlab": {'m',},
+    "Python": {'py',},
+    "SQL": {'sql',},
+    "Tex": {'tex',},
+    "XML": {'xml',},
+    "YAML": {'yml',},
+}
+HIGHLIGHTER_FILENAME = {
+    "CMake": {'CMakeList.txt',},
+    "Makefile": {'Makefile', 'Makefile.am', 'Makefile.in', 'Makefile.debug'},
+}
