@@ -267,7 +267,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def setPath(self):
         """Set file directory."""
-        item = self.tree_main.currentItem()
+        node = self.tree_main.currentItem()
         filename, ok = QFileDialog.getOpenFileName(self,
             "Open File",
             self.env,
@@ -276,9 +276,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not ok:
             return
         self.env = QFileInfo(filename).absolutePath()
-        project_path = QDir(_get_root(item).text(1))
+        project_path = QDir(_get_root(node).text(1))
         project_path.cdUp()
-        item.setText(1, project_path.relativeFilePath(filename))
+        node.setText(1, project_path.relativeFilePath(filename))
     
     @pyqtSlot()
     def copyNode(self):
@@ -337,12 +337,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not node:
             return
         if index is None:
-            item = _get_root(node)
+            root = _get_root(node)
         else:
-            item = self.tree_main.topLevelItem(index)
+            root = self.tree_main.topLevelItem(index)
         #Save the current text of editor.
         self.data[int(node.text(2))] = self.text_editor.text()
-        saveFile(item, self.data)
+        saveFile(root, self.data)
         self.data.saveAll()
     
     @pyqtSlot()
@@ -536,10 +536,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.__actionChanged()
     
+    @pyqtSlot(QTreeWidgetItem, int)
+    def on_tree_main_itemChanged(self, node: QTreeWidgetItem, column: int):
+        """Mark edited node as unsaved."""
+        self.data.setSaved(int(node.text(2)), False)
+    
     def __actionChanged(self):
-        item = self.tree_main.currentItem()
-        has_item = bool(item)
-        is_root = (not item.parent()) if has_item else False
+        node = self.tree_main.currentItem()
+        has_item = bool(node)
+        is_root = (not node.parent()) if has_item else False
         for action in (
             self.action_open,
             self.action_new_project,

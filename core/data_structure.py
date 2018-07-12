@@ -64,6 +64,10 @@ class DataDict(QObject):
         """Items of data."""
         return self.__data.items()
     
+    def setSaved(self, key: Hashable, saved: bool):
+        """Saved status adjustment."""
+        self.__saved[key] = saved
+    
     def is_saved(self, key: Hashable) -> bool:
         """Return saved status."""
         return self.__saved[key]
