@@ -41,6 +41,14 @@ _parentheses_markdown = (
     (Qt.Key_Underscore, '_', '_'),
     _parentheses_html[0],
 )
+_commas = (
+    Qt.Key_Comma,
+)
+_commas_markdown = (
+    Qt.Key_Semicolon,
+    Qt.Key_Colon,
+    Qt.Key_Period,
+)
 
 
 class TextEditor(QsciScintilla):
@@ -170,12 +178,17 @@ class TextEditor(QsciScintilla):
         key = event.key()
         text = self.selectedText()
         
+        #Commas and parentheses.
         parentheses = list(_parentheses)
+        commas = list(_commas)
         if self.lexer_option == "Markdown":
             parentheses.extend(_parentheses_markdown)
+            commas.extend(_commas_markdown)
         elif self.lexer_option == "HTML":
             parentheses.extend(_parentheses_html)
+            commas.extend(_commas_markdown)
         
+        #Wrap the selected text.
         if text:
             for match_key, t0, t1 in parentheses:
                 if key == match_key:
@@ -183,7 +196,17 @@ class TextEditor(QsciScintilla):
                     return
         
         super(TextEditor, self).keyPressEvent(event)
+        
+        #Auto close of parentheses.
         for match_key, t0, t1 in parentheses:
             if key == match_key:
                 self.insert(t1)
+                return
+        
+        #Add space for commas.
+        for co in commas:
+            if key == co:
+                self.insert(" ")
+                line, index = self.getCursorPosition()
+                self.setCursorPosition(line, index + 1)
                 return
