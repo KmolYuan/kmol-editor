@@ -8,6 +8,7 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import Optional, Union
+import re
 from core.QtModules import (
     pyqtSlot,
     QMainWindow,
@@ -18,6 +19,7 @@ from core.QtModules import (
     QTreeItem,
     QTreeRoot,
     QTreeWidgetItem,
+    QListWidgetItem,
     QHeaderView,
     QMessageBox,
     QUrl,
@@ -118,7 +120,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         replace_project.activated.connect(self.replace_project_button.click)
         
         #Node edit function. (Ctrl + ArrowKey)
-        #TODO: Undo redo for them.
         moveUpNode = QShortcut(QKeySequence("Ctrl+Up"), self)
         moveUpNode.activated.connect(self.__moveUpNode)
         moveDownNode = QShortcut(QKeySequence("Ctrl+Down"), self)
@@ -682,3 +683,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_replace_node_button_clicked(self):
         """Replace current text by replace bar."""
         self.text_editor.replace(self.replace_bar.text())
+        self.text_editor.findNext()
+    
+    @pyqtSlot()
+    def on_find_project_button_clicked(self):
+        """Find in all project."""
+        self.find_list.clear()
+        node = self.tree_main.currentItem()
+        if not node:
+            return
+        root = _get_root(node)
+        if not self.search_bar.text():
+            self.search_bar.setText(self.search_bar.placeholderText())
+        text = self.search_bar.text()
+        flags = re.MULTILINE
+        if not self.re_option.isChecked():
+            text = re.escape(text)
+        if self.whole_word_option.isChecked():
+            text = r'\b' + text + r'\b'
+        if not self.match_case_option.isChecked():
+            flags |= re.IGNORECASE
+        
+        def add_find_result(code: int, lastname: str, start: int, end: int):
+            """Add result to list."""
+            item = QListWidgetItem("{}: [{}, {}]".format(code, start, end))
+            item.setToolTip(lastname)
+            self.find_list.addItem(item)
+        
+        def find_in_nodes(node: QTreeWidgetItem, lastname: str = ''):
+            """Find the word in all nodes."""
+            lastname += node.text(0)
+            if node.childCount():
+                lastname += '->'
+            code = int(node.text(2))
+            doc = self.data[code]
+            pattern = re.compile(text, flags)
+            for m in pattern.finditer(doc):
+                add_find_result(code, lastname, *m.span())
+            for i in range(node.childCount()):
+                find_in_nodes(node.child(i), lastname)
+        
+        find_in_nodes(root)
+    
+    @pyqtSlot(QListWidgetItem, QListWidgetItem)
+    def on_find_list_currentItemChanged(self,
+        current: QListWidgetItem,
+        previous: QListWidgetItem
+    ):
+        """TODO: Switch to target node."""
+        raise NotImplementedError
