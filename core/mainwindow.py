@@ -7,7 +7,7 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
-from typing import Optional
+from typing import Optional, Union
 from core.QtModules import (
     pyqtSlot,
     QMainWindow,
@@ -36,7 +36,7 @@ from core.data_structure import DataDict
 from core.parser import (
     getpath,
     parse,
-    saveFile,
+    save_file,
     SUPPORT_FILE_FORMATS,
 )
 from .Ui_mainwindow import Ui_MainWindow
@@ -145,6 +145,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
             self.tree_main.addTopLevelItem(root_node)
             parse(root_node, self.data)
+        self.__add_macros()
     
     def dragEnterEvent(self, event):
         """Drag file in to our window."""
@@ -157,6 +158,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
         self.tree_main.addTopLevelItem(root_node)
         parse(root_node, self.data)
+        self.__add_macros()
         event.acceptProposedAction()
     
     @pyqtSlot(str)
@@ -218,6 +220,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
                 self.tree_main.addTopLevelItem(root_node)
                 parse(root_node, self.data)
+                self.__add_macros()
             else:
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
         
@@ -342,7 +345,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             root = self.tree_main.topLevelItem(index)
         #Save the current text of editor.
         self.data[int(node.text(2))] = self.text_editor.text()
-        saveFile(root, self.data)
+        save_file(root, self.data)
         self.data.saveAll()
     
     @pyqtSlot()
@@ -354,11 +357,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def deleteNode(self):
         """Delete the current item."""
         node = self.tree_main.currentItem()
-        code = int(node.text(2))
         parent = node.parent()
         self.tree_main.setCurrentItem(parent)
+        self.__delete_node_data(node)
         parent.removeChild(node)
-        del self.data[code]
+    
+    def __delete_node_data(self, node: QTreeWidgetItem):
+        """Delete data from data structure."""
+        name = node.text(0)
+        if name.startswith('@'):
+            for action in self.macros_toolbar.actions():
+                if action.text() == name[1:]:
+                    self.macros_toolbar.removeAction(action)
+        del self.data[int(node.text(2))]
+        for i in range(node.childCount()):
+            self.__delete_node_data(node.child(i))
     
     @pyqtSlot()
     def closeFile(self):
@@ -376,14 +389,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
         
         root = self.tree_main.currentItem()
-        
-        def clearData(node: QTreeWidgetItem):
-            """Delete data from data structure."""
-            del self.data[int(node.text(2))]
-            for i in range(node.childCount()):
-                clearData(node.child(i))
-        
-        clearData(root)
+        self.__delete_node_data(root)
         self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
         self.text_editor.clear()
     
@@ -500,7 +506,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     @pyqtSlot()
     def on_exec_button_clicked(self):
-        """Run the script in a new thread."""
+        """Run the script from current text editor."""
+        self.__exec_script(self.text_editor.text())
+    
+    def __exec_script(self, code: Union[int, str]):
+        """Run a script in a new thread."""
+        script = self.data[code] if type(code) == int else code
         
         def run():
             from os import chdir
@@ -510,7 +521,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 chdir(path)
             elif QFileInfo(path).isFile():
                 chdir(QFileInfo(path).absolutePath())
-            exec(self.text_editor.text())
+            exec(script)
         
         from threading import Thread
         Thread(target=run).start()
@@ -553,6 +564,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_close.setVisible(has_item and is_root)
         for action in (
             self.tree_add,
+            self.tree_refresh,
             self.tree_openurl,
             self.action_save,
         ):
@@ -563,10 +575,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tree_copy_tree,
             self.tree_clone_tree,
             self.tree_path,
-            self.tree_refresh,
             self.tree_delete,
         ):
             action.setVisible(has_item and not is_root)
+    
+    def __add_macros(self):
+        """Add macro buttons."""
+        for m, code in self.data.macros():
+            for action in self.macros_toolbar.actions():
+                if action.text() == m:
+                    break
+            else:
+                action = self.macros_toolbar.addAction(m)
+                action.triggered.connect(lambda: self.__exec_script(code))
     
     def __findText(self, forward: bool) -> bool:
         """Find text by options."""

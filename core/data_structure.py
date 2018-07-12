@@ -23,11 +23,13 @@ class DataDict(QObject):
         super(DataDict, self).__init__()
         self.__data = {}
         self.__saved = {}
+        self.__macros = {}
     
     def clear(self):
         """Clear data."""
         self.__data.clear()
         self.__saved.clear()
+        self.__macros.clear()
     
     def __getitem__(self, key: Hashable) -> str:
         """Get item string."""
@@ -47,6 +49,9 @@ class DataDict(QObject):
         if key in self.__data:
             del self.__data[key]
             del self.__saved[key]
+            for m, code in self.__macros.items():
+                if code == key:
+                    del self.__macros[m]
     
     def __len__(self) -> int:
         """Length."""
@@ -89,3 +94,13 @@ class DataDict(QObject):
         else:
             self[i] = ""
             return i
+    
+    def add_macro(self, name: str, key: Hashable):
+        """Add a macro."""
+        if key not in self.__data:
+            raise KeyError("{} is not in data.".format(key))
+        self.__macros[name] = key
+    
+    def macros(self) -> Iterator[Tuple[str, Hashable]]:
+        """Return macro scripts."""
+        return self.__macros.items()

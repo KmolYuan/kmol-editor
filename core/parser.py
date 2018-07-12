@@ -76,7 +76,7 @@ def getpath(node: QTreeWidgetItem) -> str:
     return filename
 
 
-def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
+def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     """Write to XML file."""
     root = Element('kmolroot', {
         'version': __version__,
@@ -117,12 +117,12 @@ def _tree_write(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     print("Saved: {}".format(projname))
 
 
-def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
+def save_file(node: QTreeWidgetItem, data: DataDict) -> str:
     """Recursive to all the contents of nodes."""
     text_data = []
     all_saved = data.is_saved(int(node.text(2)))
     for i in range(node.childCount()):
-        doc, saved = saveFile(node.child(i), data)
+        doc, saved = save_file(node.child(i), data)
         text_data.append(doc)
         all_saved &= saved
     my_content = data[int(node.text(2))].splitlines()
@@ -137,7 +137,7 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
         suffix = QFileInfo(path_text).suffix()
         if suffix == 'kmol':
             #Save project.
-            _tree_write(node.text(1), node, data)
+            _write_tree(node.text(1), node, data)
         elif suffix in SUPPORT_FILE_SUFFIX:
             #Save text files.
             filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
@@ -154,7 +154,7 @@ def saveFile(node: QTreeWidgetItem, data: DataDict) -> str:
     return my_content, all_saved
 
 
-def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
+def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
     """Parse in to tree widget."""
     tree = ElementTree(file=root_node.text(1))
     root = tree.getroot()
@@ -169,7 +169,10 @@ def _tree_parse(root_node: QTreeWidgetItem, data: DataDict):
         sub = QTreeItem(attr['name'], attr['path'], attr['code'])
         root.addChild(sub)
         suffix = _suffix(attr['path'])
-        data[int(attr['code'])] = ""
+        code = int(attr['code'])
+        data[code] = ""
+        if attr['name'].startswith('@'):
+            data.add_macro(attr['name'][1:], code)
         if suffix:
             parse_list.append(sub)
         else:
@@ -209,7 +212,7 @@ def parse(node: QTreeWidgetItem, data: DataDict):
         _parseText(filename, code, data)
     elif suffix == 'kmol':
         #Kmol project
-        _tree_parse(node, data)
+        _parse_tree(node, data)
     else:
         #Text files and Python scripts.
         _parseText(filename, code, data)
