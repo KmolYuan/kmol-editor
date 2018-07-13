@@ -247,6 +247,7 @@ class QsciLexerCustomPython(QsciLexerPython):
     
     def __init__(self, *args):
         super(QsciLexerCustomPython, self).__init__(*args)
+        self.setIndentationWarning(QsciLexerPython.Tabs)
     
     def keywords(self, set: int) -> str:
         if set == 2:
