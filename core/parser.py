@@ -111,7 +111,7 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     data.saveAll()
     
     xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent=" "*3)
-    with open(projname, 'w') as f:
+    with open(projname, 'w', encoding = 'utf8') as f:
         f.write(xmlstr)
     
     print("Saved: {}".format(projname))
@@ -148,7 +148,7 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> str:
             #Add end new line.
             if my_content and (my_content[-1] != '\n'):
                 my_content += '\n'
-            with open(filename, 'w') as f:
+            with open(filename, 'w', encoding = 'utf8') as f:
                 f.write(my_content)
             print("Saved: {}".format(filename))
     return my_content, all_saved
@@ -226,7 +226,7 @@ def _parseText(
 ):
     """Just store file content to data structure."""
     try:
-        f = open(filename, 'r')
+        f = open(filename, 'r', encoding = 'utf8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
@@ -244,7 +244,7 @@ def _parseMarkdown(
 ):
     """Parse Markdown file to tree nodes."""
     try:
-        f = open(filename, 'r')
+        f = open(filename, 'r', encoding = 'utf8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
