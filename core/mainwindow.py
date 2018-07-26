@@ -81,7 +81,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.insertWidget(1, self.text_editor)
-        self.text_editor.currtWordChanged.connect(self.search_bar.setPlaceholderText)
+        self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         
         #Highlighters

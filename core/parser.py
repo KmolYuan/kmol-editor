@@ -110,7 +110,7 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
         context_node.text = context
     data.saveAll()
     
-    xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent=" "*3)
+    xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent = " " * 4)
     with open(projname, 'w', encoding = 'utf8') as f:
         f.write(xmlstr)
     
