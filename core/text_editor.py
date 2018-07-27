@@ -27,19 +27,19 @@ from core.QtModules import (
 
 
 _parentheses = (
-    (Qt.Key_ParenLeft, '(', ')'),
-    (Qt.Key_BracketLeft, '[', ']'),
-    (Qt.Key_BraceLeft, '{', '}'),
-    (Qt.Key_QuoteDbl, '"', '"'),
-    (Qt.Key_Apostrophe, "'", "'"),
+    (Qt.Key_ParenLeft, Qt.Key_ParenRight, '(', ')'),
+    (Qt.Key_BracketLeft, Qt.Key_BracketRight, '[', ']'),
+    (Qt.Key_BraceLeft, Qt.Key_BraceRight, '{', '}'),
+    (Qt.Key_QuoteDbl, None, '"', '"'),
+    (Qt.Key_Apostrophe, None, "'", "'"),
 )
 _parentheses_html = (
-    (Qt.Key_Less, '<', '>'),
+    (Qt.Key_Less, Qt.Key_Greater, '<', '>'),
 )
 _parentheses_markdown = (
-    (Qt.Key_Dollar, '$', '$'),
-    (Qt.Key_Asterisk, '*', '*'),
-    (Qt.Key_Underscore, '_', '_'),
+    (Qt.Key_Dollar, Qt.Key_Dollar, '$', '$'),
+    (Qt.Key_Asterisk, Qt.Key_Asterisk, '*', '*'),
+    (Qt.Key_Underscore, Qt.Key_Underscore, '_', '_'),
     _parentheses_html[0],
 )
 _commas = (
@@ -125,6 +125,9 @@ class TextEditor(QsciScintilla):
         
         #Widget size.
         self.setMinimumSize(400, 450)
+        
+        #Remove trailing blanks.
+        self.__remove_trailing_blanks = True
     
     @pyqtSlot(str)
     def setHighlighter(self, option: str):
@@ -141,6 +144,11 @@ class TextEditor(QsciScintilla):
             QsciScintilla.EdgeLine if option else QsciScintilla.EdgeNone
         )
     
+    @pyqtSlot(bool)
+    def setRemoveTrailingBlanks(self, option: bool):
+        """Set remove trailing blanks during 'setText' method."""
+        self.__remove_trailing_blanks = option
+    
     def __clearAllIndicator(self):
         """Clear all indicator."""
         self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), 0)
@@ -148,9 +156,11 @@ class TextEditor(QsciScintilla):
     def __currentWordPosition(self) -> Tuple[int, int, str]:
         """Return pos of current word."""
         pos = self.positionFromLineIndex(*self.getCursorPosition())
-        wpos_start = self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True)
-        wpos_end = self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True)
-        return wpos_start, wpos_end, self.text()[wpos_start:wpos_end]
+        return (
+            self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True),
+            self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True),
+            self.wordAtLineIndex(*self.getCursorPosition())
+        )
     
     def __catchAllWords(self, text: str):
         """Catch all of words that is same with current word."""
@@ -165,7 +175,7 @@ class TextEditor(QsciScintilla):
                 break
             pos += new_pos
             
-            #Boundle check
+            #Boundary check (for whole word)
             start = doc[pos - 1] if pos else " "
             end = doc[pos + t_len] if (pos + t_len) != len(doc) else " "
             if len(escape(start)) != len(start) and len(escape(end)) != len(end):
@@ -200,6 +210,16 @@ class TextEditor(QsciScintilla):
         else:
             self.zoomOut()
     
+    def __cursorMoveNext(self):
+        """Move text cursor to next character."""
+        line, index = self.getCursorPosition()
+        self.setCursorPosition(line, index + 1)
+    
+    def __cursorNextChar(self) -> str:
+        """Next character of cursor."""
+        line, index = self.getCursorPosition()
+        return self.text(line, index + 1)
+    
     def keyPressEvent(self, event):
         """Input key event."""
         key = event.key()
@@ -215,18 +235,24 @@ class TextEditor(QsciScintilla):
             parentheses.extend(_parentheses_html)
             commas.extend(_commas_markdown)
         
+        #Skip the closed parentheses.
+        for k1, k2, t0, t1 in parentheses:
+            if key == k2:
+                self.__cursorMoveNext()
+                return
+        
         #Wrap the selected text.
         if text:
-            for match_key, t0, t1 in parentheses:
-                if key == match_key:
+            for k1, k2, t0, t1 in parentheses:
+                if key == k1:
                     self.replaceSelectedText(t0 + text + t1)
                     return
         
         super(TextEditor, self).keyPressEvent(event)
         
         #Auto close of parentheses.
-        for match_key, t0, t1 in parentheses:
-            if key == match_key:
+        for k1, k2, t0, t1 in parentheses:
+            if key == k1:
                 self.insert(t1)
                 return
         
@@ -234,6 +260,18 @@ class TextEditor(QsciScintilla):
         for co in commas:
             if key == co:
                 self.insert(" ")
-                line, index = self.getCursorPosition()
-                self.setCursorPosition(line, index + 1)
+                self.__cursorMoveNext()
                 return
+    
+    def __removeTrailingBlanks(self):
+        """Remove trailing blanks in text editor."""
+        doc = ""
+        for line in self.text().splitlines():
+            doc += line.rstrip() + '\n'
+        super(TextEditor, self).setText(doc)
+    
+    def setText(self, doc: str):
+        """Remove trailing blanks in text editor."""
+        super(TextEditor, self).setText(doc)
+        if self.__remove_trailing_blanks:
+            self.__removeTrailingBlanks()

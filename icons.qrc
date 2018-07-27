@@ -3,5 +3,6 @@
 <qresource>
     <file>icons/kmol.png</file>
     <file>icons/Logo_Qt.png</file>
+    <file>icons/text-x-python.png</file>
 </qresource>
 </RCC>

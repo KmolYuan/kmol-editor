@@ -11,6 +11,7 @@ from typing import Optional, Union
 import re
 from core.QtModules import (
     pyqtSlot,
+    Qt,
     QMainWindow,
     QShortcut,
     QKeySequence,
@@ -28,6 +29,8 @@ from core.QtModules import (
     QFileInfo,
     QDir,
     QDesktopServices,
+    QIcon,
+    QPixmap,
     QSCIHIGHLIGHTERS,
     HIGHLIGHTER_SUFFIX,
     HIGHLIGHTER_FILENAME,
@@ -80,9 +83,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #Text editor
         self.text_editor = TextEditor(self)
-        self.h_splitter.insertWidget(1, self.text_editor)
+        self.h_splitter.addWidget(self.text_editor)
         self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
+        self.trailing_blanks_option.toggled.connect(self.text_editor.setRemoveTrailingBlanks)
         
         #Highlighters
         self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
@@ -132,6 +136,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Run script button.
         run_sript = QShortcut(QKeySequence("F5"), self)
         run_sript.activated.connect(self.exec_button.click)
+        self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         
         #Splitter
         self.h_splitter.setStretchFactor(0, 10)
@@ -643,7 +648,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if action.text() == name:
                 break
         else:
-            action = self.macros_toolbar.addAction(name)
+            action = self.macros_toolbar.addAction(QIcon(QPixmap(":icons/text-x-python.png")), name)
             action.triggered.connect(lambda: self.__exec_script(code))
     
     def __findText(self, forward: bool) -> bool:
@@ -731,4 +736,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         previous: QListWidgetItem
     ):
         """TODO: Switch to target node."""
-        raise NotImplementedError
+        print("Not Implemented.")

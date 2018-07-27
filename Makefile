@@ -7,7 +7,7 @@
 
 all: test
 
-build: launch_kmol.py
+build: launch_kmol.py core/*.py
 	@echo ---Kmol Editor Build---
 ifeq ($(OS),Windows_NT)
 	pyinstaller -w -F $< -i ./icons/kmol.ico \
