@@ -12,12 +12,18 @@ from typing import (
     Iterator,
     Hashable,
 )
-from core.QtModules import QObject
+from core.QtModules import (
+    pyqtSignal,
+    QObject,
+)
 
 
 class DataDict(QObject):
     
     """A wrapper class contain the data of nodes."""
+    
+    not_saved = pyqtSignal()
+    all_saved = pyqtSignal()
     
     def __init__(self):
         super(DataDict, self).__init__()
@@ -43,6 +49,8 @@ class DataDict(QObject):
         old_context = self[key]
         self.__data[key] = context
         self.__saved[key] = old_context == context
+        if not self.__saved[key]:
+            self.not_saved.emit()
     
     def __delitem__(self, key: Hashable):
         """Delete the key and avoid raise error."""
@@ -85,6 +93,7 @@ class DataDict(QObject):
         """Change all saved status."""
         for key in self.__data:
             self.__saved[key] = True
+        self.all_saved.emit()
     
     def newNum(self) -> int:
         """Get a unused number."""

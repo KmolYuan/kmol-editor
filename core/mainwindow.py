@@ -64,9 +64,7 @@ def _grand_parent(node: QTreeWidgetItem) -> QTreeWidgetItem:
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     
-    """
-    Main window of kmol editor.
-    """
+    """Main window of kmol editor."""
     
     def __init__(self):
         super(MainWindow, self).__init__(None)
@@ -85,6 +83,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor = TextEditor(self)
         self.h_splitter.addWidget(self.text_editor)
         self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
+        self.text_editor.textChanged.connect(self.__setNotSavedTitle)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.setRemoveTrailingBlanks)
         
@@ -146,6 +145,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #Data
         self.data = DataDict()
+        self.data.not_saved.connect(self.__setNotSavedTitle)
+        self.data.all_saved.connect(self.__setSavedTitle)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
         
         for filename in ARGUMENTS.r:
@@ -170,6 +171,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parse(root_node, self.data)
         self.__add_macros()
         event.acceptProposedAction()
+    
+    @pyqtSlot()
+    def __setNotSavedTitle(self):
+        """Show star sign on window title."""
+        if '*' not in self.windowTitle():
+            self.setWindowTitle(self.windowTitle() + '*')
+    
+    @pyqtSlot()
+    def __setSavedTitle(self):
+        """Remove star sign on window title."""
+        self.setWindowTitle(self.windowTitle().replace('*', ''))
     
     @pyqtSlot(str)
     def __appendToConsole(self, log):
