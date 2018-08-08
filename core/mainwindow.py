@@ -196,7 +196,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__actionChanged()
         self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
     
-    @pyqtSlot()
+    @pyqtSlot(name='on_action_new_project_triggered')
     def newProj(self):
         """New file."""
         filename, suffix = QFileDialog.getSaveFileName(self,
@@ -217,7 +217,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             str(self.data.newNum())
         ))
     
-    @pyqtSlot()
+    @pyqtSlot(name='on_action_open_triggered')
     def openProj(self):
         """Open file."""
         filenames, ok = QFileDialog.getOpenFileNames(self,
@@ -247,6 +247,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
         
         self.text_editor.clear()
+    
+    @pyqtSlot(name='on_action_open_from_dir_triggered')
+    def openDir(self):
+        """TODO: Open dir as project."""
     
     @pyqtSlot()
     def refreshProj(self):
@@ -528,13 +532,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "License: " + __license__,
         )))
     
-    @pyqtSlot()
-    def on_action_mde_tw_triggered(self):
+    @pyqtSlot(name='on_action_mde_tw_triggered')
+    def __mde_tw(self):
         """Mde website."""
         QDesktopServices.openUrl(QUrl("http://mde.tw"))
     
-    @pyqtSlot()
-    def on_exec_button_clicked(self):
+    @pyqtSlot(name='on_exec_button_clicked')
+    def __exec(self):
         """Run the script from current text editor."""
         self.__exec_script(self.text_editor.text())
     
@@ -568,8 +572,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         from threading import Thread
         Thread(target=run, args=(self.data[code] if type(code) == int else code,)).start()
     
-    @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem)
-    def on_tree_main_currentItemChanged(self,
+    @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem, name='on_tree_main_currentItemChanged')
+    def __switchData(self,
         current: QTreeWidgetItem,
         previous: QTreeWidgetItem
     ):
@@ -607,8 +611,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.__actionChanged()
     
-    @pyqtSlot(QTreeWidgetItem, int)
-    def on_tree_main_itemChanged(self, node: QTreeWidgetItem, column: int):
+    @pyqtSlot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')
+    def __reloadNodes(self, node: QTreeWidgetItem, column: int):
         """Mark edited node as unsaved."""
         name = node.text(0)
         code = int(node.text(2))
@@ -686,24 +690,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
             )
     
-    @pyqtSlot()
-    def on_find_next_button_clicked(self):
+    @pyqtSlot(name='on_find_next_button_clicked')
+    def __findNext(self):
         """Find to next."""
         self.__findText(True)
     
-    @pyqtSlot()
-    def on_find_previous_button_clicked(self):
+    @pyqtSlot(name='on_find_previous_button_clicked')
+    def __findPrevious(self):
         """Find to previous."""
         self.__findText(False)
     
-    @pyqtSlot()
-    def on_replace_node_button_clicked(self):
+    @pyqtSlot(name='on_replace_node_button_clicked')
+    def __replace(self):
         """Replace current text by replace bar."""
         self.text_editor.replace(self.replace_bar.text())
         self.text_editor.findNext()
     
-    @pyqtSlot()
-    def on_find_project_button_clicked(self):
+    @pyqtSlot(name='on_find_project_button_clicked')
+    def __findProject(self):
         """Find in all project."""
         self.find_list.clear()
         node = self.tree_main.currentItem()
@@ -742,8 +746,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         find_in_nodes(root)
     
-    @pyqtSlot(QListWidgetItem, QListWidgetItem)
-    def on_find_list_currentItemChanged(self,
+    @pyqtSlot(QListWidgetItem, QListWidgetItem, name='on_find_list_currentItemChanged')
+    def __findResults(self,
         current: QListWidgetItem,
         previous: QListWidgetItem
     ):

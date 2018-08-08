@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Y:\tmp\github\kmol-editor\core\mainwindow.ui'
+# Form implementation generated from reading ui file 'Y:\kmol-editor\core\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.2
 #
@@ -191,8 +191,11 @@ class Ui_MainWindow(object):
         self.action_save_all = QtWidgets.QAction(MainWindow)
         self.action_save_all.setIcon(icon1)
         self.action_save_all.setObjectName("action_save_all")
+        self.action_open_from_dir = QtWidgets.QAction(MainWindow)
+        self.action_open_from_dir.setObjectName("action_open_from_dir")
         self.menu_File.addAction(self.action_new_project)
         self.menu_File.addAction(self.action_open)
+        self.menu_File.addAction(self.action_open_from_dir)
         self.menu_File.addAction(self.action_save)
         self.menu_File.addAction(self.action_save_all)
         self.menu_File.addSeparator()
@@ -247,6 +250,7 @@ class Ui_MainWindow(object):
         self.action_New_Window.setText(_translate("MainWindow", "New Window"))
         self.action_save_all.setText(_translate("MainWindow", "Save All"))
         self.action_save_all.setShortcut(_translate("MainWindow", "Ctrl+Shift+S"))
+        self.action_open_from_dir.setText(_translate("MainWindow", "Open from Directory"))
 
 import icons_rc
 
