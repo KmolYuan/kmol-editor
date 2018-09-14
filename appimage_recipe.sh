@@ -20,7 +20,7 @@ cd ENV/$APP.AppDir/
 mkdir -p usr
 virtualenv --always-copy --python=python3 ./usr
 
-#Copy other modules.
+# Copy other modules.
 cp /usr/lib/python3.5/ssl.py ./usr/lib/python3.5/ssl.py
 
 source usr/bin/activate
@@ -31,7 +31,7 @@ wget -q https://raw.githubusercontent.com/AppImage/AppImages/master/functions.sh
 
 mkdir -p usr/bin/
 
-#Show python and pip versions
+# Show python and pip versions
 python --version
 pip --version
 

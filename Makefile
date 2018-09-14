@@ -1,9 +1,9 @@
-#Pyslvs Makefile
+# Pyslvs Makefile
 
-#author: Yuan Chang
-#copyright: Copyright (C) 2016-2018
-#license: AGPL
-#email: pyslvs@gmail.com
+# author: Yuan Chang
+# copyright: Copyright (C) 2016-2018
+# license: AGPL
+# email: pyslvs@gmail.com
 
 all: test
 

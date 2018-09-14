@@ -83,7 +83,7 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
         'code': root_node.text(2),
     })
     
-    #The strings that need to save.
+    # The strings that need to save.
     codes = set()
     
     def addNode(node: QTreeWidgetItem, root: Element):
@@ -94,7 +94,7 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
         }
         sub = SubElement(root, 'node', attr)
         if QFileInfo(QDir(_getpath(node.parent())).filePath(node.text(1))).isFile():
-            #Files do not need to make a copy.
+            # Files do not need to make a copy.
             return
         codes.add(attr['code'])
         for i in range(node.childCount()):
@@ -136,16 +136,16 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> str:
     if path_text and not all_saved:
         suffix = QFileInfo(path_text).suffix()
         if suffix == 'kmol':
-            #Save project.
+            # Save project.
             _write_tree(node.text(1), node, data)
         elif suffix in SUPPORT_FILE_SUFFIX:
-            #Save text files.
+            # Save text files.
             filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
             if not filepath.exists():
                 filepath.mkpath('.')
                 print("Create Folder: {}".format(filepath.absolutePath()))
             filename = filepath.filePath(path_text)
-            #Add end new line.
+            # Add end new line.
             if my_content and (my_content[-1] != '\n'):
                 my_content += '\n'
             with open(filename, 'w', encoding = 'utf8') as f:
@@ -205,16 +205,16 @@ def parse(node: QTreeWidgetItem, data: DataDict):
         code = data.newNum()
         node.setText(2, str(code))
     if suffix == 'md':
-        #Markdown
+        # Markdown
         _parseMarkdown(filename, node, code, data)
     elif suffix == 'html':
-        #TODO: Need to parse HTML (reveal.js index.html)
+        # TODO: Need to parse HTML (reveal.js index.html)
         _parseText(filename, code, data)
     elif suffix == 'kmol':
-        #Kmol project
+        # Kmol project
         _parse_tree(node, data)
     else:
-        #Text files and Python scripts.
+        # Text files and Python scripts.
         _parseText(filename, code, data)
     print("Loaded: {}".format(node.text(1)))
 
@@ -252,8 +252,8 @@ def _parseMarkdown(
     with f:
         string_list = f.read().split('\n')
     
-    #Read the first level of title mark.
-    #titles = [(line_num, level), ...]
+    # Read the first level of title mark.
+    # titles = [(line_num, level), ...]
     titles = []
     previous_line = ""
     in_code_block = False
@@ -267,7 +267,7 @@ def _parseMarkdown(
             if not line.startswith(string) or previous_line.startswith(" "):
                 continue
             if len(set(line)) == 1 and previous_line:
-                #Under line with its title.
+                # Under line with its title.
                 titles.append((line_num - 1, level))
         if len(set(line)) > 1:
             prefix = line.split(maxsplit=1)[0]
@@ -275,13 +275,13 @@ def _parseMarkdown(
                 titles.append((line_num, len(prefix) - 1))
         previous_line = line
     
-    #Joint nodes.
+    # Joint nodes.
     if not titles:
-        #Plain text.
+        # Plain text.
         data[code] = '\n'.join(string_list)
         return
     if titles[0][0] == 0:
-        #Start with line 0.
+        # Start with line 0.
         data[code] = "@others"
     else:
         data[code] = '\n'.join(string_list[:titles[0][0]])
@@ -302,7 +302,7 @@ def _parseMarkdown(
         else:
             doc = string_list[line_num:titles[index + 1][0]]
             if titles[index + 1][1] > level:
-                #Has child.
+                # Has child.
                 doc.append('@others')
                 doc.append('')
         data[code] = '\n'.join(doc)

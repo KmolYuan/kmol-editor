@@ -111,12 +111,12 @@ out/
 # mypy
 .mypy_cache/
 
-#logging
+# logging
 *.log
 
-#Eric cache
+# Eric cache
 .eric6project/
 _eric6project/
 
-#PyCharm cache
+# PyCharm cache
 .idea/

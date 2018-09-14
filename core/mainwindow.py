@@ -70,7 +70,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(None)
         self.setupUi(self)
         
-        #Start new window.
+        # Start new window.
         @pyqtSlot()
         def newMainWindow():
             XStream.back()
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.action_New_Window.triggered.connect(newMainWindow)
         
-        #Text editor
+        # Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.addWidget(self.text_editor)
         self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
@@ -87,18 +87,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.setRemoveTrailingBlanks)
         
-        #Highlighters
+        # Highlighters
         self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
         self.highlighter_option.setCurrentText("Markdown")
         self.highlighter_option.currentTextChanged.connect(
             self.text_editor.setHighlighter
         )
         
-        #Tree widget
+        # Tree widget
         setmenu(self)
         self.tree_main.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         
-        #Console
+        # Console
         self.console.setFont(self.text_editor.font)
         XStream.stdout().messageWritten.connect(self.__appendToConsole)
         XStream.stderr().messageWritten.connect(self.__appendToConsole)
@@ -106,7 +106,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print(info)
         print('-' * 7)
         
-        #Searching function.
+        # Searching function.
         find_next = QShortcut(QKeySequence("F3"), self)
         find_next.activated.connect(self.find_next_button.click)
         find_previous = QShortcut(QKeySequence("F4"), self)
@@ -116,13 +116,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         find_project = QShortcut(QKeySequence("Ctrl+Shift+F"), self)
         find_project.activated.connect(self.find_project_button.click)
         
-        #Replacing function.
+        # Replacing function.
         replace = QShortcut(QKeySequence("Ctrl+R"), self)
         replace.activated.connect(self.replace_node_button.click)
         replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         replace_project.activated.connect(self.replace_project_button.click)
         
-        #Node edit function. (Ctrl + ArrowKey)
+        # Node edit function. (Ctrl + ArrowKey)
         moveUpNode = QShortcut(QKeySequence("Ctrl+Up"), self)
         moveUpNode.activated.connect(self.__moveUpNode)
         moveDownNode = QShortcut(QKeySequence("Ctrl+Down"), self)
@@ -132,18 +132,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         moveLeftNode = QShortcut(QKeySequence("Ctrl+Left"), self)
         moveLeftNode.activated.connect(self.__moveLeftNode)
         
-        #Run script button.
+        # Run script button.
         run_sript = QShortcut(QKeySequence("F5"), self)
         run_sript.activated.connect(self.exec_button.click)
         self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         
-        #Splitter
+        # Splitter
         self.h_splitter.setStretchFactor(0, 10)
         self.h_splitter.setStretchFactor(1, 60)
         self.v_splitter.setStretchFactor(0, 30)
         self.v_splitter.setStretchFactor(1, 10)
         
-        #Data
+        # Data
         self.data = DataDict()
         self.data.not_saved.connect(self.__setNotSavedTitle)
         self.data.all_saved.connect(self.__setSavedTitle)
@@ -431,14 +431,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
-            #Is sub-node.
+            # Is sub-node.
             index = parent.indexOfChild(node)
             if index == 0:
                 return
             parent.removeChild(node)
             parent.insertChild(index - 1, node)
         else:
-            #Is root.
+            # Is root.
             index = tree_main.indexOfTopLevelItem(node)
             if index == 0:
                 return
@@ -456,14 +456,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
-            #Is sub-node.
+            # Is sub-node.
             index = parent.indexOfChild(node)
             if index == parent.childCount() - 1:
                 return
             parent.removeChild(node)
             parent.insertChild(index + 1, node)
         else:
-            #Is root.
+            # Is root.
             index = tree_main.indexOfTopLevelItem(node)
             if index == tree_main.topLevelItemCount() - 1:
                 return
@@ -481,14 +481,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
-            #Is sub-node.
+            # Is sub-node.
             index = parent.indexOfChild(node)
             if index == 0:
                 return
             parent.removeChild(node)
             parent.child(index - 1).addChild(node)
         else:
-            #Is root.
+            # Is root.
             index = tree_main.indexOfTopLevelItem(node)
             if index == 0:
                 return
@@ -507,7 +507,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent = node.parent()
         if not parent:
             return
-        #Must be a sub-node.
+        # Must be a sub-node.
         grand_parent = parent.parent()
         if not grand_parent:
             return
@@ -589,7 +589,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if previous:
             self.data[int(previous.text(2))] = self.text_editor.text()
         if current:
-            #Auto highlight.
+            # Auto highlight.
             path = current.text(1)
             filename = QFileInfo(path).fileName()
             suffix = QFileInfo(filename).suffix()

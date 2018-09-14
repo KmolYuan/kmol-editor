@@ -19,9 +19,9 @@ from core.QtModules import (
     QFont,
     QFontMetrics,
     QColor,
-    #QScintilla widget
+    # QScintilla widget
     QsciScintilla,
-    #Other highlighters
+    # Other highlighters
     QSCIHIGHLIGHTERS,
 )
 
@@ -62,7 +62,7 @@ class TextEditor(QsciScintilla):
         """UI settings."""
         super(TextEditor, self).__init__(parent)
         
-        #Set the default font.
+        # Set the default font.
         if platform.system().lower() == "windows":
             font_name = "Courier New"
         else:
@@ -74,21 +74,22 @@ class TextEditor(QsciScintilla):
         self.setMarginsFont(self.font)
         self.setUtf8(True)
         
-        #Margin 0 is used for line numbers.
-        fontmetrics = QFontMetrics(self.font)
+        # Margin 0 is used for line numbers.
+        font_metrics = QFontMetrics(self.font)
         self.setMarginsFont(self.font)
-        self.setMarginWidth(0, fontmetrics.width("0000") + 4)
+        self.setMarginWidth(0, font_metrics.width("0000") + 4)
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
         
-        #Brace matching.
+        # Brace matching.
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
         
-        #Current line visible with special background color.
+        # Current line visible with special background color.
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
         
-        #Set lexer.
+        # Set lexer.
+        self.lexer_option = "Markdown"
         self.setHighlighter("Markdown")
         self.SendScintilla(
             QsciScintilla.SCI_STYLESETFONT,
@@ -96,21 +97,21 @@ class TextEditor(QsciScintilla):
             font_name.encode('utf-8')
         )
         
-        #Don't want to see the horizontal scrollbar at all.
+        # Don't want to see the horizontal scrollbar at all.
         self.setWrapMode(QsciScintilla.WrapWord)
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
         
-        #Auto completion.
+        # Auto completion.
         self.setAutoCompletionCaseSensitivity(True)
         self.setAutoCompletionSource(QsciScintilla.AcsDocument)
         self.setAutoCompletionThreshold(1)
         
-        #Edge mode.
+        # Edge mode.
         self.setEdgeMode(QsciScintilla.EdgeNone)
         self.setEdgeColumn(80)
         self.setEdgeColor(Qt.blue)
         
-        #Indentations.
+        # Indentations.
         self.setAutoIndent(True)
         self.setIndentationsUseTabs(False)
         self.setTabWidth(4)
@@ -118,15 +119,15 @@ class TextEditor(QsciScintilla):
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
         
-        #Indicator.
+        # Indicator.
         self.indicatorDefine(QsciScintilla.BoxIndicator, 0)
         self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
         self.cursorPositionChanged.connect(self.__catchWord)
         
-        #Widget size.
+        # Widget size.
         self.setMinimumSize(400, 450)
         
-        #Remove trailing blanks.
+        # Remove trailing blanks.
         self.__remove_trailing_blanks = True
     
     @pyqtSlot(str)
@@ -175,7 +176,7 @@ class TextEditor(QsciScintilla):
                 break
             pos += new_pos
             
-            #Boundary check (for whole word)
+            # Boundary check (for whole word)
             start = doc[pos - 1] if pos else " "
             end = doc[pos + t_len] if (pos + t_len) != len(doc) else " "
             if len(escape(start)) != len(start) and len(escape(end)) != len(end):
@@ -190,6 +191,7 @@ class TextEditor(QsciScintilla):
     @pyqtSlot(int, int)
     def __catchWord(self, line: int, index: int):
         """Catch and indicate current word."""
+        del line, index
         self.__clearAllIndicator()
         wpos_start, wpos_end, text = self.__currentWordPosition()
         self.currentWordChanged.emit(text)
@@ -225,7 +227,7 @@ class TextEditor(QsciScintilla):
         key = event.key()
         text = self.selectedText()
         
-        #Commas and parentheses.
+        # Commas and parentheses.
         parentheses = list(_parentheses)
         commas = list(_commas)
         if self.lexer_option == "Markdown":
@@ -235,13 +237,13 @@ class TextEditor(QsciScintilla):
             parentheses.extend(_parentheses_html)
             commas.extend(_commas_markdown)
         
-        #Skip the closed parentheses.
+        # Skip the closed parentheses.
         for k1, k2, t0, t1 in parentheses:
             if key == k2:
                 self.__cursorMoveNext()
                 return
         
-        #Wrap the selected text.
+        # Wrap the selected text.
         if text:
             for k1, k2, t0, t1 in parentheses:
                 if key == k1:
@@ -250,13 +252,13 @@ class TextEditor(QsciScintilla):
         
         super(TextEditor, self).keyPressEvent(event)
         
-        #Auto close of parentheses.
+        # Auto close of parentheses.
         for k1, k2, t0, t1 in parentheses:
             if key == k1:
                 self.insert(t1)
                 return
         
-        #Add space for commas.
+        # Add space for commas.
         for co in commas:
             if key == co:
                 self.insert(" ")
