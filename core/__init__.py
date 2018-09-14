@@ -8,6 +8,7 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from sys import exit
+import platform
 from .mainwindow import MainWindow
 from .info import ARGUMENTS
 from .QtModules import QApplication
@@ -21,6 +22,8 @@ def main():
         print("All module loaded successfully.")
         exit(0)
     QApp = QApplication([])
+    if platform.system() == 'Darwin':
+        ARGUMENTS.fusion = True
     if ARGUMENTS.fusion:
         QApp.setStyle('fusion')
     run = MainWindow()
