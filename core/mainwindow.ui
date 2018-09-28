@@ -292,6 +292,47 @@
           </item>
          </layout>
         </widget>
+        <widget class="QWidget" name="dict_tab">
+         <attribute name="title">
+          <string>Dictionary</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QPushButton" name="dict_button">
+              <property name="text">
+               <string>Search Reference</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="copy_refer_button">
+              <property name="text">
+               <string>Copy</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QListWidget" name="dict_list"/>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -304,7 +345,7 @@
      <x>0</x>
      <y>0</y>
      <width>964</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

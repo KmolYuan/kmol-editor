@@ -218,6 +218,8 @@ __all__ = [
     'QsciScintilla',
     'QSCIHIGHLIGHTERS',
     'Qt',
+    'HIGHLIGHTER_SUFFIX',
+    'HIGHLIGHTER_FILENAME',
 ]
 
 

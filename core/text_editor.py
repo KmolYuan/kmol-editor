@@ -193,14 +193,14 @@ class TextEditor(QsciScintilla):
         """Catch and indicate current word."""
         del line, index
         self.__clearAllIndicator()
-        wpos_start, wpos_end, text = self.__currentWordPosition()
-        self.currentWordChanged.emit(text)
+        wpos_start, wpos_end, word = self.__currentWordPosition()
+        self.currentWordChanged.emit(word)
         self.fillIndicatorRange(
             *self.lineIndexFromPosition(wpos_start),
             *self.lineIndexFromPosition(wpos_end),
             0
         )
-        self.__catchAllWords(text)
+        self.__catchAllWords(word)
     
     def wheelEvent(self, event):
         """Mouse wheel event."""

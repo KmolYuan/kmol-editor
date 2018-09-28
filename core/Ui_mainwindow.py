@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Y:\kmol-editor\core\mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.2
 #
@@ -145,10 +145,29 @@ class Ui_MainWindow(object):
         self.find_list.setObjectName("find_list")
         self.verticalLayout_6.addWidget(self.find_list)
         self.panel_widget.addTab(self.find_tab, "")
+        self.dict_tab = QtWidgets.QWidget()
+        self.dict_tab.setObjectName("dict_tab")
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.dict_tab)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.dict_button = QtWidgets.QPushButton(self.dict_tab)
+        self.dict_button.setObjectName("dict_button")
+        self.horizontalLayout_7.addWidget(self.dict_button)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem3)
+        self.copy_refer_button = QtWidgets.QPushButton(self.dict_tab)
+        self.copy_refer_button.setObjectName("copy_refer_button")
+        self.horizontalLayout_7.addWidget(self.copy_refer_button)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_7)
+        self.dict_list = QtWidgets.QListWidget(self.dict_tab)
+        self.dict_list.setObjectName("dict_list")
+        self.verticalLayout_5.addWidget(self.dict_list)
+        self.panel_widget.addTab(self.dict_tab, "")
         self.verticalLayout_4.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 31))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -233,6 +252,9 @@ class Ui_MainWindow(object):
         self.replace_node_button.setText(_translate("MainWindow", "Replace in Node"))
         self.replace_project_button.setText(_translate("MainWindow", "Rplace in Project"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.find_tab), _translate("MainWindow", "Find and Replace"))
+        self.dict_button.setText(_translate("MainWindow", "Search Reference"))
+        self.copy_refer_button.setText(_translate("MainWindow", "Copy"))
+        self.panel_widget.setTabText(self.panel_widget.indexOf(self.dict_tab), _translate("MainWindow", "Dictionary"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))
         self.macros_toolbar.setWindowTitle(_translate("MainWindow", "Macro toolbar"))
@@ -253,13 +275,3 @@ class Ui_MainWindow(object):
         self.action_open_from_dir.setText(_translate("MainWindow", "Open from Directory"))
 
 import icons_rc
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
-
