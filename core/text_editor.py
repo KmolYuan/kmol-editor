@@ -63,7 +63,7 @@ class TextEditor(QsciScintilla):
         super(TextEditor, self).__init__(parent)
         
         # Set the default font.
-        if platform.system().lower() == "windows":
+        if platform.system() == "Windows":
             font_name = "Courier New"
         else:
             font_name = "Mono"
@@ -118,12 +118,7 @@ class TextEditor(QsciScintilla):
         self.setTabIndents(True)
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
-        
-        # Indicator.
-        self.indicatorDefine(QsciScintilla.BoxIndicator, 0)
-        self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
-        self.cursorPositionChanged.connect(self.__catchWord)
-        
+
         # Widget size.
         self.setMinimumSize(400, 450)
         
@@ -149,59 +144,7 @@ class TextEditor(QsciScintilla):
     def setRemoveTrailingBlanks(self, option: bool):
         """Set remove trailing blanks during 'setText' method."""
         self.__remove_trailing_blanks = option
-    
-    def __clearAllIndicator(self):
-        """Clear all indicator."""
-        self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), 0)
-    
-    def __currentWordPosition(self) -> Tuple[int, int, str]:
-        """Return pos of current word."""
-        pos = self.positionFromLineIndex(*self.getCursorPosition())
-        return (
-            self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True),
-            self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True),
-            self.wordAtLineIndex(*self.getCursorPosition())
-        )
-    
-    def __catchAllWords(self, text: str):
-        """Catch all of words that is same with current word."""
-        t_len = len(text)
-        if not t_len:
-            return
-        doc = self.text()
-        pos = 0
-        while True:
-            new_pos = doc[pos:].find(text)
-            if new_pos == -1:
-                break
-            pos += new_pos
-            
-            # Boundary check (for whole word)
-            start = doc[pos - 1] if pos else " "
-            end = doc[pos + t_len] if (pos + t_len) != len(doc) else " "
-            if len(escape(start)) != len(start) and len(escape(end)) != len(end):
-                self.fillIndicatorRange(
-                    *self.lineIndexFromPosition(pos),
-                    *self.lineIndexFromPosition(pos + t_len),
-                    0
-                )
-            
-            pos += t_len
-    
-    @pyqtSlot(int, int)
-    def __catchWord(self, line: int, index: int):
-        """Catch and indicate current word."""
-        del line, index
-        self.__clearAllIndicator()
-        wpos_start, wpos_end, word = self.__currentWordPosition()
-        self.currentWordChanged.emit(word)
-        self.fillIndicatorRange(
-            *self.lineIndexFromPosition(wpos_start),
-            *self.lineIndexFromPosition(wpos_end),
-            0
-        )
-        self.__catchAllWords(word)
-    
+
     def wheelEvent(self, event):
         """Mouse wheel event."""
         if QApplication.keyboardModifiers() != Qt.ControlModifier:
