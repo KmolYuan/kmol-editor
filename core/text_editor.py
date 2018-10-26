@@ -8,8 +8,6 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 import platform
-from typing import Tuple
-from re import escape
 from core.QtModules import (
     pyqtSignal,
     pyqtSlot,
@@ -90,7 +88,7 @@ class TextEditor(QsciScintilla):
 
         # Set lexer.
         self.lexer_option = "Markdown"
-        self.setHighlighter("Markdown")
+        self.set_highlighter("Markdown")
         self.SendScintilla(
             QsciScintilla.SCI_STYLESETFONT,
             1,
@@ -123,10 +121,10 @@ class TextEditor(QsciScintilla):
         self.setMinimumSize(400, 450)
 
         # Remove trailing blanks.
-        self.__remove_trailing_blanks = True
+        self.__no_trailing_blanks = True
 
     @pyqtSlot(str)
-    def setHighlighter(self, option: str):
+    def set_highlighter(self, option: str):
         """Set highlighter by list."""
         self.lexer_option = option
         lexer = QSCIHIGHLIGHTERS[option]()
@@ -141,9 +139,9 @@ class TextEditor(QsciScintilla):
         )
 
     @pyqtSlot(bool)
-    def setRemoveTrailingBlanks(self, option: bool):
+    def set_remove_trailing_blanks(self, option: bool):
         """Set remove trailing blanks during 'setText' method."""
-        self.__remove_trailing_blanks = option
+        self.__no_trailing_blanks = option
 
     def wheelEvent(self, event):
         """Mouse wheel event."""
@@ -155,15 +153,15 @@ class TextEditor(QsciScintilla):
         else:
             self.zoomOut()
 
-    def __cursorMoveNext(self):
+    def __cursor_move_next(self):
         """Move text cursor to next character."""
         line, index = self.getCursorPosition()
         self.setCursorPosition(line, index + 1)
 
-    def __cursorNextChar(self) -> str:
+    def __cursor_next_char(self) -> str:
         """Next character of cursor."""
-        line, index = self.getCursorPosition()
-        return self.text(line, index + 1)
+        pos = self.positionFromLineIndex(*self.getCursorPosition())
+        return self.text(pos, pos + 1)
 
     def keyPressEvent(self, event):
         """Input key event."""
@@ -183,8 +181,9 @@ class TextEditor(QsciScintilla):
         # Skip the closed parentheses.
         for k1, k2, t0, t1 in parentheses:
             if key == k2:
-                self.__cursorMoveNext()
-                return
+                if self.__cursor_next_char() == t1:
+                    self.__cursor_move_next()
+                    return
 
         # Wrap the selected text.
         if text:
@@ -205,10 +204,10 @@ class TextEditor(QsciScintilla):
         for co in commas:
             if key == co:
                 self.insert(" ")
-                self.__cursorMoveNext()
+                self.__cursor_move_next()
                 return
 
-    def __removeTrailingBlanks(self):
+    def __remove_trailing_blanks(self):
         """Remove trailing blanks in text editor."""
         doc = ""
         for line in self.text().splitlines():
@@ -218,5 +217,5 @@ class TextEditor(QsciScintilla):
     def setText(self, doc: str):
         """Remove trailing blanks in text editor."""
         super(TextEditor, self).setText(doc)
-        if self.__remove_trailing_blanks:
-            self.__removeTrailingBlanks()
+        if self.__no_trailing_blanks:
+            self.__remove_trailing_blanks()

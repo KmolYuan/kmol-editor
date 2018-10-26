@@ -92,13 +92,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor.currentWordChanged.connect(self.__set_refer)
         self.text_editor.textChanged.connect(self.__set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
-        self.trailing_blanks_option.toggled.connect(self.text_editor.setRemoveTrailingBlanks)
+        self.trailing_blanks_option.toggled.connect(self.text_editor.set_remove_trailing_blanks)
 
         # Highlighters
         self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
         self.highlighter_option.setCurrentText("Markdown")
         self.highlighter_option.currentTextChanged.connect(
-            self.text_editor.setHighlighter
+            self.text_editor.set_highlighter
         )
 
         # Tree widget
