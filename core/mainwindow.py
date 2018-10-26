@@ -89,8 +89,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor = TextEditor(self)
         self.h_splitter.addWidget(self.text_editor)
         self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
-        self.text_editor.currentWordChanged.connect(self.__setRefer)
-        self.text_editor.textChanged.connect(self.__setNotSavedTitle)
+        self.text_editor.currentWordChanged.connect(self.__set_refer)
+        self.text_editor.textChanged.connect(self.__set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.setRemoveTrailingBlanks)
 
@@ -107,8 +107,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Console
         self.console.setFont(self.text_editor.font)
-        XStream.stdout().messageWritten.connect(self.__appendToConsole)
-        XStream.stderr().messageWritten.connect(self.__appendToConsole)
+        XStream.stdout().messageWritten.connect(self.__append_to_console)
+        XStream.stderr().messageWritten.connect(self.__append_to_console)
         for info in INFO:
             print(info)
         print('-' * 7)
@@ -131,13 +131,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Node edit function. (Ctrl + ArrowKey)
         move_up_node = QShortcut(QKeySequence("Ctrl+Up"), self)
-        move_up_node.activated.connect(self.__moveUpNode)
+        move_up_node.activated.connect(self.__move_up_node)
         move_down_node = QShortcut(QKeySequence("Ctrl+Down"), self)
-        move_down_node.activated.connect(self.__moveDownNode)
+        move_down_node.activated.connect(self.__move_down_node)
         move_right_node = QShortcut(QKeySequence("Ctrl+Right"), self)
-        move_right_node.activated.connect(self.__moveRightNode)
+        move_right_node.activated.connect(self.__move_right_node)
         move_left_node = QShortcut(QKeySequence("Ctrl+Left"), self)
-        move_left_node.activated.connect(self.__moveLeftNode)
+        move_left_node.activated.connect(self.__move_left_node)
 
         # Run script button.
         run_sript = QShortcut(QKeySequence("F5"), self)
@@ -152,8 +152,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Data
         self.data = DataDict()
-        self.data.not_saved.connect(self.__setNotSavedTitle)
-        self.data.all_saved.connect(self.__setSavedTitle)
+        self.data.not_saved.connect(self.__set_not_saved_title)
+        self.data.all_saved.connect(self.__set_saved_title)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
 
         for filename in ARGUMENTS.r:
@@ -176,23 +176,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
         self.tree_main.addTopLevelItem(root_node)
         parse(root_node, self.data)
+        self.tree_main.setCurrentItem(root_node)
         self.__add_macros()
         event.acceptProposedAction()
 
     @pyqtSlot(str)
-    def __setRefer(self, word: str):
+    def __set_refer(self, word: str):
         """Set word reference."""
         self.refer = word
 
     @pyqtSlot(name='on_dict_button_clicked')
-    def __setDictionary(self):
+    def __set_dictionary(self):
         """Show word references."""
         self.dict_list.clear()
         for refer in sorted(_spell.candidates(self.refer)):
             self.dict_list.addItem(QListWidgetItem(refer))
 
     @pyqtSlot(name='on_copy_refer_button_clicked')
-    def __copyRefer(self):
+    def __copy_refer(self):
         """Copy word references."""
         item: Optional[QListWidgetItem] = self.dict_list.currentItem()
         if item is None:
@@ -200,18 +201,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QApplication.clipboard().setText(item.text())
 
     @pyqtSlot()
-    def __setNotSavedTitle(self):
+    def __set_not_saved_title(self):
         """Show star sign on window title."""
         if '*' not in self.windowTitle():
             self.setWindowTitle(self.windowTitle() + '*')
 
     @pyqtSlot()
-    def __setSavedTitle(self):
+    def __set_saved_title(self):
         """Remove star sign on window title."""
         self.setWindowTitle(self.windowTitle().replace('*', ''))
 
     @pyqtSlot(str)
-    def __appendToConsole(self, log):
+    def __append_to_console(self, log):
         """After inserted the text, move cursor to end."""
         self.console.moveCursor(QTextCursor.End)
         self.console.insertPlainText(log)
@@ -220,11 +221,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(QPoint)
     def on_tree_widget_context_menu(self, point: QPoint):
         """Operations."""
-        self.__actionChanged()
+        self.__action_changed()
         self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
 
     @pyqtSlot(name='on_action_new_project_triggered')
-    def newProj(self):
+    def new_proj(self):
         """New file."""
         filename, suffix = QFileDialog.getSaveFileName(
             self,
@@ -246,9 +247,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ))
 
     @pyqtSlot(name='on_action_open_triggered')
-    def openProj(self):
+    def open_proj(self):
         """Open file."""
-        filenames, ok = QFileDialog.getOpenFileNames(
+        file_names, ok = QFileDialog.getOpenFileNames(
             self,
             "Open Projects",
             self.env,
@@ -264,13 +265,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return i
             return -1
 
-        for filename in filenames:
-            self.env = QFileInfo(filename).absolutePath()
-            index = in_widget(filename)
+        for file_name in file_names:
+            self.env = QFileInfo(file_name).absolutePath()
+            index = in_widget(file_name)
             if index == -1:
-                root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
+                root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
                 self.tree_main.addTopLevelItem(root_node)
                 parse(root_node, self.data)
+                self.tree_main.setCurrentItem(root_node)
                 self.__add_macros()
             else:
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
@@ -278,11 +280,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor.clear()
 
     @pyqtSlot(name='on_action_open_from_dir_triggered')
-    def openDir(self):
+    def open_dir(self):
         """TODO: Open dir as project."""
 
     @pyqtSlot()
-    def refreshProj(self):
+    def refresh_proj(self):
         """Re-parse the file node."""
         node = self.tree_main.currentItem()
         if not node.text(1):
@@ -292,10 +294,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 "Can only refresh from valid path."
             )
         parse(node, self.data)
+        self.tree_main.setCurrentItem(node)
         self.text_editor.setText(self.data[int(node.text(2))])
 
     @pyqtSlot()
-    def openPath(self):
+    def open_path(self):
         """Open path of current node."""
         node = self.tree_main.currentItem()
         filename = getpath(node)
@@ -303,7 +306,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("Open: {}".format(filename))
 
     @pyqtSlot()
-    def addNode(self):
+    def add_node(self):
         """Add a node at current item."""
         node = self.tree_main.currentItem()
         new_node = QTreeItem(
@@ -324,7 +327,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
     @pyqtSlot()
-    def setPath(self):
+    def set_path(self):
         """Set file directory."""
         node = self.tree_main.currentItem()
         filename, ok = QFileDialog.getOpenFileName(
@@ -341,7 +344,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node.setText(1, project_path.relativeFilePath(filename))
 
     @pyqtSlot()
-    def copyNode(self):
+    def copy_node(self):
         """Copy current node."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -353,7 +356,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
     @pyqtSlot()
-    def cloneNode(self):
+    def clone_node(self):
         """Copy current node with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -362,11 +365,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
     @pyqtSlot()
-    def copyNodeRecursive(self):
+    def copy_node_recursive(self):
         """Copy current node and its sub-nodes."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
-        node = node_origin.clone()
+        node_origin_copy = node_origin.clone()
 
         def new_pointer(node: QTreeWidgetItem):
             """Give a new pointer code for node."""
@@ -376,22 +379,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for i in range(node.childCount()):
                 new_pointer(node.child(i))
 
-        new_pointer(node)
-        parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
+        new_pointer(node_origin_copy)
+        parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin_copy)
 
     @pyqtSlot()
-    def cloneNodeRecursive(self):
+    def clone_node_recursive(self):
         """Copy current node and its sub-nodes with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin.clone())
 
     @pyqtSlot()
-    def saveProj(self, index: Optional[int] = None, *, all: bool = False):
+    def save_proj(self, index: Optional[int] = None, *, for_all: bool = False):
         """Save project and files."""
-        if all:
+        if for_all:
             for row in range(self.tree_main.topLevelItemCount()):
-                self.saveProj(row)
+                self.save_proj(row)
             return
         node = self.tree_main.currentItem()
         if not node:
@@ -411,10 +414,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def on_action_save_all_triggered(self):
         """Save all project."""
-        self.saveProj(all=True)
+        self.save_proj(for_all=True)
 
     @pyqtSlot()
-    def deleteNode(self):
+    def delete_node(self):
         """Delete the current item."""
         node = self.tree_main.currentItem()
         parent = node.parent()
@@ -434,7 +437,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.__delete_node_data(node.child(i))
 
     @pyqtSlot()
-    def closeFile(self):
+    def close_file(self):
         """Close project node."""
         if not self.data.is_all_saved():
             reply = QMessageBox.question(
@@ -445,7 +448,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.Save
             )
             if reply == QMessageBox.Save:
-                self.saveProj()
+                self.save_proj()
             elif reply == QMessageBox.Cancel:
                 return
 
@@ -455,7 +458,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor.clear()
 
     @pyqtSlot()
-    def __moveUpNode(self):
+    def __move_up_node(self):
         """Move up current node."""
         node = self.tree_main.currentItem()
         if not node:
@@ -480,7 +483,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__root_unsaved()
 
     @pyqtSlot()
-    def __moveDownNode(self):
+    def __move_down_node(self):
         """Move down current node."""
         node = self.tree_main.currentItem()
         if not node:
@@ -505,7 +508,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__root_unsaved()
 
     @pyqtSlot()
-    def __moveRightNode(self):
+    def __move_right_node(self):
         """Move right current node."""
         node = self.tree_main.currentItem()
         if not node:
@@ -530,7 +533,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__root_unsaved()
 
     @pyqtSlot()
-    def __moveLeftNode(self):
+    def __move_left_node(self):
         """Move left current node."""
         node = self.tree_main.currentItem()
         if not node:
@@ -583,7 +586,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             __variables__.clear()
             node = self.tree_main.currentItem()
             __variables__['node'] = node
-            node_path = ''
             if node:
                 root = _get_root(node)
                 __variables__['root'] = root
@@ -606,7 +608,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Thread(target=run, args=(self.data[code] if type(code) == int else code,)).start()
 
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem, name='on_tree_main_currentItemChanged')
-    def __switchData(
+    def __switch_data(
         self,
         current: QTreeWidgetItem,
         previous: QTreeWidgetItem
@@ -643,10 +645,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             break
             self.text_editor.setText(self.data[int(current.text(2))])
 
-        self.__actionChanged()
+        self.__action_changed()
 
     @pyqtSlot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')
-    def __reloadNodes(self, node: QTreeWidgetItem, column: int):
+    def __reload_nodes(self, node: QTreeWidgetItem, _: int):
         """Mark edited node as unsaved."""
         name = node.text(0)
         code = int(node.text(2))
@@ -660,7 +662,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if node:
             self.data.setSaved(int(_get_root(node).text(2)), False)
 
-    def __actionChanged(self):
+    def __action_changed(self):
         node = self.tree_main.currentItem()
         has_item = bool(node)
         is_root = (not node.parent()) if has_item else False
@@ -701,7 +703,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             action = self.macros_toolbar.addAction(QIcon(QPixmap(":icons/text-x-python.png")), name)
             action.triggered.connect(lambda: self.__exec_script(code))
 
-    def __findText(self, forward: bool):
+    def __find_text(self, forward: bool):
         """Find text by options."""
         if not self.search_bar.text():
             self.search_bar.setText(self.search_bar.placeholderText())
@@ -726,14 +728,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
 
     @pyqtSlot(name='on_find_next_button_clicked')
-    def __findNext(self):
+    def __find_next(self):
         """Find to next."""
-        self.__findText(True)
+        self.__find_text(True)
 
     @pyqtSlot(name='on_find_previous_button_clicked')
-    def __findPrevious(self):
+    def __find_previous(self):
         """Find to previous."""
-        self.__findText(False)
+        self.__find_text(False)
 
     @pyqtSlot(name='on_replace_node_button_clicked')
     def __replace(self):
@@ -742,13 +744,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor.findNext()
 
     @pyqtSlot(name='on_find_project_button_clicked')
-    def __findProject(self):
+    def __find_project(self):
         """Find in all project."""
         self.find_list.clear()
-        node = self.tree_main.currentItem()
-        if not node:
+        node_current = self.tree_main.currentItem()
+        if not node_current:
             return
-        root = _get_root(node)
+        root = _get_root(node_current)
         if not self.search_bar.text():
             self.search_bar.setText(self.search_bar.placeholderText())
         text = self.search_bar.text()
@@ -760,24 +762,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.match_case_option.isChecked():
             flags |= re.IGNORECASE
 
-        def add_find_result(code: int, lastname: str, start: int, end: int):
+        def add_find_result(code: int, last_name: str, start: int, end: int):
             """Add result to list."""
             item = QListWidgetItem("{}: [{}, {}]".format(code, start, end))
-            item.setToolTip(lastname)
+            item.setToolTip(last_name)
             self.find_list.addItem(item)
 
-        def find_in_nodes(node: QTreeWidgetItem, lastname: str = ''):
+        def find_in_nodes(node: QTreeWidgetItem, last_name: str = ''):
             """Find the word in all nodes."""
-            lastname += node.text(0)
+            last_name += node.text(0)
             if node.childCount():
-                lastname += '->'
+                last_name += '->'
             code = int(node.text(2))
             doc = self.data[code]
             pattern = re.compile(text, flags)
             for m in pattern.finditer(doc):
-                add_find_result(code, lastname, *m.span())
+                add_find_result(code, last_name, *m.span())
             for i in range(node.childCount()):
-                find_in_nodes(node.child(i), lastname)
+                find_in_nodes(node.child(i), last_name)
 
         find_in_nodes(root)
 
@@ -785,10 +787,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QListWidgetItem,
         QListWidgetItem,
         name='on_find_list_currentItemChanged')
-    def __findResults(
-        self,
-        current: QListWidgetItem,
-        previous: QListWidgetItem
-    ):
+    def __find_results(self, *_: QListWidgetItem):
         """TODO: Switch to target node."""
         print("Not Implemented.")
