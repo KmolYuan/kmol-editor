@@ -53,15 +53,15 @@ _commas_markdown = (
 
 
 class TextEditor(QsciScintilla):
-    
+
     """QScintilla text editor."""
-    
+
     currentWordChanged = pyqtSignal(str)
-    
+
     def __init__(self, parent: QWidget):
         """UI settings."""
         super(TextEditor, self).__init__(parent)
-        
+
         # Set the default font.
         if platform.system() == "Windows":
             font_name = "Courier New"
@@ -73,21 +73,21 @@ class TextEditor(QsciScintilla):
         self.setFont(self.font)
         self.setMarginsFont(self.font)
         self.setUtf8(True)
-        
+
         # Margin 0 is used for line numbers.
         font_metrics = QFontMetrics(self.font)
         self.setMarginsFont(self.font)
         self.setMarginWidth(0, font_metrics.width("0000") + 4)
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
-        
+
         # Brace matching.
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
-        
+
         # Current line visible with special background color.
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
-        
+
         # Set lexer.
         self.lexer_option = "Markdown"
         self.setHighlighter("Markdown")
@@ -96,21 +96,21 @@ class TextEditor(QsciScintilla):
             1,
             font_name.encode('utf-8')
         )
-        
+
         # Don't want to see the horizontal scrollbar at all.
         self.setWrapMode(QsciScintilla.WrapWord)
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
-        
+
         # Auto completion.
         self.setAutoCompletionCaseSensitivity(True)
         self.setAutoCompletionSource(QsciScintilla.AcsDocument)
         self.setAutoCompletionThreshold(1)
-        
+
         # Edge mode.
         self.setEdgeMode(QsciScintilla.EdgeNone)
         self.setEdgeColumn(80)
         self.setEdgeColor(Qt.blue)
-        
+
         # Indentations.
         self.setAutoIndent(True)
         self.setIndentationsUseTabs(False)
@@ -121,10 +121,10 @@ class TextEditor(QsciScintilla):
 
         # Widget size.
         self.setMinimumSize(400, 450)
-        
+
         # Remove trailing blanks.
         self.__remove_trailing_blanks = True
-    
+
     @pyqtSlot(str)
     def setHighlighter(self, option: str):
         """Set highlighter by list."""
@@ -132,14 +132,14 @@ class TextEditor(QsciScintilla):
         lexer = QSCIHIGHLIGHTERS[option]()
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
-    
+
     @pyqtSlot(bool)
     def setEdgeMode(self, option: bool):
         """Set edge mode option."""
         super(TextEditor, self).setEdgeMode(
             QsciScintilla.EdgeLine if option else QsciScintilla.EdgeNone
         )
-    
+
     @pyqtSlot(bool)
     def setRemoveTrailingBlanks(self, option: bool):
         """Set remove trailing blanks during 'setText' method."""
@@ -154,22 +154,22 @@ class TextEditor(QsciScintilla):
             self.zoomIn()
         else:
             self.zoomOut()
-    
+
     def __cursorMoveNext(self):
         """Move text cursor to next character."""
         line, index = self.getCursorPosition()
         self.setCursorPosition(line, index + 1)
-    
+
     def __cursorNextChar(self) -> str:
         """Next character of cursor."""
         line, index = self.getCursorPosition()
         return self.text(line, index + 1)
-    
+
     def keyPressEvent(self, event):
         """Input key event."""
         key = event.key()
         text = self.selectedText()
-        
+
         # Commas and parentheses.
         parentheses = list(_parentheses)
         commas = list(_commas)
@@ -179,42 +179,42 @@ class TextEditor(QsciScintilla):
         elif self.lexer_option == "HTML":
             parentheses.extend(_parentheses_html)
             commas.extend(_commas_markdown)
-        
+
         # Skip the closed parentheses.
         for k1, k2, t0, t1 in parentheses:
             if key == k2:
                 self.__cursorMoveNext()
                 return
-        
+
         # Wrap the selected text.
         if text:
             for k1, k2, t0, t1 in parentheses:
                 if key == k1:
                     self.replaceSelectedText(t0 + text + t1)
                     return
-        
+
         super(TextEditor, self).keyPressEvent(event)
-        
+
         # Auto close of parentheses.
         for k1, k2, t0, t1 in parentheses:
             if key == k1:
                 self.insert(t1)
                 return
-        
+
         # Add space for commas.
         for co in commas:
             if key == co:
                 self.insert(" ")
                 self.__cursorMoveNext()
                 return
-    
+
     def __removeTrailingBlanks(self):
         """Remove trailing blanks in text editor."""
         doc = ""
         for line in self.text().splitlines():
             doc += line.rstrip() + '\n'
         super(TextEditor, self).setText(doc)
-    
+
     def setText(self, doc: str):
         """Remove trailing blanks in text editor."""
         super(TextEditor, self).setText(doc)

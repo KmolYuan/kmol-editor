@@ -82,10 +82,10 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
         'version': __version__,
         'code': root_node.text(2),
     })
-    
+
     # The strings that need to save.
     codes = set()
-    
+
     def addNode(node: QTreeWidgetItem, root: Element):
         attr = {
             'name': node.text(0),
@@ -99,7 +99,7 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
         codes.add(attr['code'])
         for i in range(node.childCount()):
             addNode(node.child(i), sub)
-    
+
     for i in range(root_node.childCount()):
         addNode(root_node.child(i), root)
     data_node = SubElement(root, 'data-structure')
@@ -109,11 +109,11 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
         context_node = SubElement(data_node, 'data', {'code': str(code)})
         context_node.text = context
     data.saveAll()
-    
+
     xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent = " " * 4)
     with open(projname, 'w', encoding = 'utf8') as f:
         f.write(xmlstr)
-    
+
     print("Saved: {}".format(projname))
 
 
@@ -160,9 +160,9 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
     root = tree.getroot()
     root_node.setText(2, root.attrib['code'])
     data[int(root.attrib['code'])] = ""
-    
+
     parse_list = []
-    
+
     def addNode(node: Element, root: QTreeWidgetItem):
         """Add node in to tree widget."""
         attr = node.attrib
@@ -179,7 +179,7 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
             for child in node:
                 if child.tag == 'node':
                     addNode(child, sub)
-    
+
     for child in root:
         if child.tag == 'data-structure':
             for d in child:
@@ -187,10 +187,10 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
                     data[int(d.attrib['code'])] = d.text or ''
         elif child.tag == 'node':
             addNode(child, root_node)
-    
+
     for node in parse_list:
         parse(node, data)
-    
+
     data.saveAll()
 
 
@@ -230,7 +230,7 @@ def _parseText(
     except FileNotFoundError as e:
         data[code] = str(e)
         return
-    
+
     with f:
         doc = f.read()
     data[code] = doc
@@ -248,10 +248,10 @@ def _parseMarkdown(
     except FileNotFoundError as e:
         data[code] = str(e)
         return
-    
+
     with f:
         string_list = f.read().split('\n')
-    
+
     # Read the first level of title mark.
     # titles = [(line_num, level), ...]
     titles = []
@@ -274,7 +274,7 @@ def _parseMarkdown(
             if set(prefix) == {'#'}:
                 titles.append((line_num, len(prefix) - 1))
         previous_line = line
-    
+
     # Joint nodes.
     if not titles:
         # Plain text.
@@ -286,14 +286,14 @@ def _parseMarkdown(
     else:
         data[code] = '\n'.join(string_list[:titles[0][0]])
     tree_items = []
-    
+
     def parent(index: int, level: int) -> QTreeWidgetItem:
         """The parent of current title."""
         for i, (pre_line, pre_level) in reversed(tuple(enumerate(titles[:index]))):
             if pre_level < level:
                 return tree_items[i]
         return node
-    
+
     titles_count = len(titles) - 1
     for index, (line_num, level) in enumerate(titles):
         code = data.newNum()

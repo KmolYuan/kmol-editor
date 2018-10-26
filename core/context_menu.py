@@ -29,9 +29,9 @@ def setmenu(self):
     self.tree_add.setShortcut("Ctrl+I")
     self.tree_add.setShortcutContext(Qt.WindowShortcut)
     self.popMenu_tree.addAction(self.tree_add)
-    
+
     self.popMenu_tree.addSeparator()
-    
+
     self.tree_path = QAction("Set &Path", self)
     self.tree_path.triggered.connect(self.setPath)
     self.popMenu_tree.addAction(self.tree_path)
@@ -55,9 +55,9 @@ def setmenu(self):
     self.tree_clone_tree = QAction("Recursive Clone", self)
     self.tree_clone_tree.triggered.connect(self.cloneNodeRecursive)
     self.popMenu_tree.addAction(self.tree_clone_tree)
-    
+
     self.popMenu_tree.addSeparator()
-    
+
     self.tree_delete = QAction("&Delete", self)
     self.tree_delete.triggered.connect(self.deleteNode)
     self.popMenu_tree.addAction(self.tree_delete)

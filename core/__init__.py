@@ -21,11 +21,11 @@ def main():
     if ARGUMENTS.test:
         print("All module loaded successfully.")
         exit(0)
-    QApp = QApplication([])
+    qapp = QApplication([])
     if platform.system() == 'Darwin':
         ARGUMENTS.fusion = True
     if ARGUMENTS.fusion:
-        QApp.setStyle('fusion')
+        qapp.setStyle('fusion')
     run = MainWindow()
     run.show()
-    exit(QApp.exec())
+    exit(qapp.exec())

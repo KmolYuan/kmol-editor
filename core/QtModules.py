@@ -225,7 +225,7 @@ __all__ = [
 
 def QTreeItem(name: str, path: str, code: str) -> QTreeWidgetItem:
     """Add a normal tree item.
-    
+
     + Editable
     """
     item = QTreeWidgetItem([name, path, code])
@@ -235,7 +235,7 @@ def QTreeItem(name: str, path: str, code: str) -> QTreeWidgetItem:
 
 def QTreeRoot(name: str, path: str, code: str) -> QTreeWidgetItem:
     """Add a root tree item.
-    
+
     + Drag disabled
     """
     item = QTreeWidgetItem([name, path, code])
@@ -244,19 +244,19 @@ def QTreeRoot(name: str, path: str, code: str) -> QTreeWidgetItem:
 
 
 class QsciLexerCustomPython(QsciLexerPython):
-    
+
     """Custom Python highter."""
-    
+
     def __init__(self, *args):
         super(QsciLexerCustomPython, self).__init__(*args)
         self.setIndentationWarning(QsciLexerPython.Tabs)
-    
+
     def keywords(self, set: int) -> str:
         if set == 2:
             return "self True False"
         else:
             return QsciLexerPython.keywords(self, set)
-    
+
     def setDefaultFont(self, font: QFont):
         super(QsciLexerCustomPython, self).setDefaultFont(font)
         self.setFont(font, QsciLexerPython.Comment)
@@ -266,12 +266,12 @@ class QsciLexerCustomPython(QsciLexerPython):
 
 
 class QsciLexerCustomMarkdown(QsciLexerMarkdown):
-    
+
     """Custom Python highter."""
-    
+
     def __init__(self, *args):
         super(QsciLexerCustomMarkdown, self).__init__(*args)
-    
+
     def setDefaultFont(self, font: QFont):
         super(QsciLexerCustomMarkdown, self).setDefaultFont(font)
         for i in range(22):
