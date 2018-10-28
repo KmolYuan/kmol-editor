@@ -37,7 +37,6 @@ _parentheses_html = (
 _parentheses_markdown = (
     (Qt.Key_Dollar, Qt.Key_Dollar, '$', '$'),
     (Qt.Key_Asterisk, Qt.Key_Asterisk, '*', '*'),
-    (Qt.Key_Underscore, Qt.Key_Underscore, '_', '_'),
     _parentheses_html[0],
 )
 _commas = (
