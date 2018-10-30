@@ -9,7 +9,6 @@ __email__ = "pyslvs@gmail.com"
 
 from typing import Hashable, Optional, Union
 import re
-from spellchecker import SpellChecker
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -50,7 +49,6 @@ from core.parser import (
 )
 from .Ui_mainwindow import Ui_MainWindow
 __variables__ = {}
-_spell = SpellChecker()
 
 
 def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
