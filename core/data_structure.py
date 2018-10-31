@@ -9,7 +9,7 @@ __email__ = "pyslvs@gmail.com"
 
 from typing import (
     Tuple,
-    Iterator,
+    Iterable,
     Hashable,
 )
 from core.QtModules import (
@@ -73,11 +73,11 @@ class DataDict(QObject):
         """Return True if index is in the data."""
         return key in self.__data
 
-    def items(self) -> Iterator[Tuple[int, str]]:
+    def items(self) -> Iterable[Tuple[int, str]]:
         """Items of data."""
         return self.__data.items()
 
-    def setSaved(self, key: Hashable, saved: bool):
+    def set_saved(self, key: Hashable, saved: bool):
         """Saved status adjustment."""
         self.__saved[key] = saved
 
@@ -89,13 +89,13 @@ class DataDict(QObject):
         """Return True if all saved."""
         return all(self.is_saved(key) for key in self.__data)
 
-    def saveAll(self):
+    def save_all(self):
         """Change all saved status."""
         for key in self.__data:
             self.__saved[key] = True
         self.all_saved.emit()
 
-    def newNum(self) -> int:
+    def new_num(self) -> int:
         """Get a unused number."""
         i = hash('kmol')
         while i in self.__data:
@@ -110,6 +110,6 @@ class DataDict(QObject):
             raise KeyError("{} is not in data.".format(key))
         self.__macros[name] = key
 
-    def macros(self) -> Iterator[Tuple[str, Hashable]]:
+    def macros(self) -> Iterable[Tuple[str, Hashable]]:
         """Return macro scripts."""
         return self.__macros.items()

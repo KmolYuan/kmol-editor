@@ -225,7 +225,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.addTopLevelItem(QTreeRoot(
             QFileInfo(filename).baseName(),
             filename,
-            str(self.data.newNum())
+            str(self.data.new_num())
         ))
 
     @pyqtSlot(name='on_action_open_triggered')
@@ -294,7 +294,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         new_node = QTreeItem(
             "New node",
             "",
-            str(self.data.newNum())
+            str(self.data.new_num())
         )
         if node.childCount() or node.text(1):
             node.addChild(new_node)
@@ -332,7 +332,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent = node_origin.parent()
         node = node_origin.clone()
         node.takeChildren()
-        code = self.data.newNum()
+        code = self.data.new_num()
         self.data[code] = self.data[int(node.text(2))]
         node.setText(2, str(code))
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
@@ -355,7 +355,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         def new_pointer(node: QTreeWidgetItem):
             """Give a new pointer code for node."""
-            code = self.data.newNum()
+            code = self.data.new_num()
             self.data[code] = self.data[int(node.text(2))]
             node.setText(2, str(code))
             for i in range(node.childCount()):
@@ -387,7 +387,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             root = self.tree_main.topLevelItem(index)
         self.__save_current()
         save_file(root, self.data)
-        self.data.saveAll()
+        self.data.save_all()
 
     def __save_current(self):
         """Save the current text of editor."""
@@ -642,7 +642,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Let tree to re-save."""
         node = self.tree_main.currentItem()
         if node:
-            self.data.setSaved(int(_get_root(node).text(2)), False)
+            self.data.set_saved(int(_get_root(node).text(2)), False)
 
     def __action_changed(self):
         node = self.tree_main.currentItem()

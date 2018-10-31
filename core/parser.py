@@ -10,6 +10,7 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+from typing import Tuple
 from xml.etree.ElementTree import (
     ElementTree,
     Element,
@@ -25,7 +26,6 @@ from core.QtModules import (
 )
 from core.data_structure import DataDict
 from core.info import __version__
-
 
 SUPPORT_FILE_SUFFIX = (
     'kmol',
@@ -86,38 +86,38 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     # The strings that need to save.
     codes = set()
 
-    def addNode(node: QTreeWidgetItem, root: Element):
+    def add_node(node: QTreeWidgetItem, n_root: Element):
         attr = {
             'name': node.text(0),
             'path': node.text(1),
             'code': node.text(2),
         }
-        sub = SubElement(root, 'node', attr)
+        sub = SubElement(n_root, 'node', attr)
         if QFileInfo(QDir(_getpath(node.parent())).filePath(node.text(1))).isFile():
             # Files do not need to make a copy.
             return
         codes.add(attr['code'])
-        for i in range(node.childCount()):
-            addNode(node.child(i), sub)
+        for j in range(node.childCount()):
+            add_node(node.child(j), sub)
 
     for i in range(root_node.childCount()):
-        addNode(root_node.child(i), root)
+        add_node(root_node.child(i), root)
     data_node = SubElement(root, 'data-structure')
     for code, context in data.items():
         if str(code) not in codes:
             continue
         context_node = SubElement(data_node, 'data', {'code': str(code)})
         context_node.text = context
-    data.saveAll()
+    data.save_all()
 
-    xmlstr = minidom.parseString(tostring(root)).toprettyxml(indent = " " * 4)
-    with open(projname, 'w', encoding = 'utf8') as f:
-        f.write(xmlstr)
+    xml_str = minidom.parseString(tostring(root)).toprettyxml(indent=" " * 4)
+    with open(projname, 'w', encoding='utf8') as f:
+        f.write(xml_str)
 
     print("Saved: {}".format(projname))
 
 
-def save_file(node: QTreeWidgetItem, data: DataDict) -> str:
+def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
     """Recursive to all the contents of nodes."""
     text_data = []
     all_saved = data.is_saved(int(node.text(2)))
@@ -148,7 +148,7 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> str:
             # Add end new line.
             if my_content and (my_content[-1] != '\n'):
                 my_content += '\n'
-            with open(filename, 'w', encoding = 'utf8') as f:
+            with open(filename, 'w', encoding='utf8') as f:
                 f.write(my_content)
             print("Saved: {}".format(filename))
     return my_content, all_saved
@@ -163,11 +163,11 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
 
     parse_list = []
 
-    def addNode(node: Element, root: QTreeWidgetItem):
+    def add_node(n_node: Element, item_root: QTreeWidgetItem):
         """Add node in to tree widget."""
-        attr = node.attrib
+        attr = n_node.attrib
         sub = QTreeItem(attr['name'], attr['path'], attr['code'])
-        root.addChild(sub)
+        item_root.addChild(sub)
         suffix = _suffix(attr['path'])
         code = int(attr['code'])
         data[code] = ""
@@ -176,9 +176,9 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
         if suffix:
             parse_list.append(sub)
         else:
-            for child in node:
-                if child.tag == 'node':
-                    addNode(child, sub)
+            for n_child in n_node:
+                if n_child.tag == 'node':
+                    add_node(n_child, sub)
 
     for child in root:
         if child.tag == 'data-structure':
@@ -186,12 +186,12 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
                 if d.tag == 'data':
                     data[int(d.attrib['code'])] = d.text or ''
         elif child.tag == 'node':
-            addNode(child, root_node)
+            add_node(child, root_node)
 
     for node in parse_list:
         parse(node, data)
 
-    data.saveAll()
+    data.save_all()
 
 
 def parse(node: QTreeWidgetItem, data: DataDict):
@@ -202,31 +202,31 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     if node.text(2):
         code = int(node.text(2))
     else:
-        code = data.newNum()
+        code = data.new_num()
         node.setText(2, str(code))
     if suffix == 'md':
         # Markdown
-        _parseMarkdown(filename, node, code, data)
+        _parse_markdown(filename, node, code, data)
     elif suffix == 'html':
         # TODO: Need to parse HTML (reveal.js index.html)
-        _parseText(filename, code, data)
+        _parse_text(filename, code, data)
     elif suffix == 'kmol':
         # Kmol project
         _parse_tree(node, data)
     else:
         # Text files and Python scripts.
-        _parseText(filename, code, data)
+        _parse_text(filename, code, data)
     print("Loaded: {}".format(node.text(1)))
 
 
-def _parseText(
+def _parse_text(
     filename: str,
     code: int,
     data: DataDict
 ):
     """Just store file content to data structure."""
     try:
-        f = open(filename, 'r', encoding = 'utf8')
+        f = open(filename, 'r', encoding='utf8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
@@ -236,7 +236,7 @@ def _parseText(
     data[code] = doc
 
 
-def _parseMarkdown(
+def _parse_markdown(
     filename: str,
     node: QTreeWidgetItem,
     code: int,
@@ -244,7 +244,7 @@ def _parseMarkdown(
 ):
     """Parse Markdown file to tree nodes."""
     try:
-        f = open(filename, 'r', encoding = 'utf8')
+        f = open(filename, 'r', encoding='utf8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
@@ -287,16 +287,16 @@ def _parseMarkdown(
         data[code] = '\n'.join(string_list[:titles[0][0]])
     tree_items = []
 
-    def parent(index: int, level: int) -> QTreeWidgetItem:
+    def parent(t_index: int, t_level: int) -> QTreeWidgetItem:
         """The parent of current title."""
-        for i, (pre_line, pre_level) in reversed(tuple(enumerate(titles[:index]))):
-            if pre_level < level:
+        for i, (pre_line, pre_level) in reversed(tuple(enumerate(titles[:t_index]))):
+            if pre_level < t_level:
                 return tree_items[i]
         return node
 
     titles_count = len(titles) - 1
     for index, (line_num, level) in enumerate(titles):
-        code = data.newNum()
+        code = data.new_num()
         if index == titles_count:
             doc = string_list[line_num:]
         else:
