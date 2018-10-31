@@ -18,6 +18,7 @@ from xml.etree.ElementTree import (
     tostring,
 )
 from xml.dom import minidom
+import yaml
 from core.QtModules import (
     QTreeItem,
     QTreeWidgetItem,
@@ -67,15 +68,6 @@ def _getpath(node: QTreeWidgetItem) -> str:
     return QDir(_getpath(parent)).filePath(path)
 
 
-def getpath(node: QTreeWidgetItem) -> str:
-    """Get the path of current node."""
-    parent = node.parent()
-    filename = node.text(1)
-    if parent:
-        return QFileInfo(QDir(_getpath(parent)).filePath(filename)).absoluteFilePath()
-    return filename
-
-
 def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     """Write to XML file."""
     root = Element('kmolroot', {
@@ -117,43 +109,6 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     print("Saved: {}".format(projname))
 
 
-def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
-    """Recursive to all the contents of nodes."""
-    text_data = []
-    all_saved = data.is_saved(int(node.text(2)))
-    for i in range(node.childCount()):
-        doc, saved = save_file(node.child(i), data)
-        text_data.append(doc)
-        all_saved &= saved
-    my_content = data[int(node.text(2))].splitlines()
-    for i in range(len(my_content)):
-        text = my_content[i]
-        if text.endswith("@others"):
-            preffix = text[:-len("@others")]
-            my_content[i] = '\n\n'.join(preffix + t for t in text_data)
-    my_content = '\n'.join(my_content)
-    path_text = QFileInfo(node.text(1)).fileName()
-    if path_text and not all_saved:
-        suffix = QFileInfo(path_text).suffix()
-        if suffix == 'kmol':
-            # Save project.
-            _write_tree(node.text(1), node, data)
-        elif suffix in SUPPORT_FILE_SUFFIX:
-            # Save text files.
-            filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
-            if not filepath.exists():
-                filepath.mkpath('.')
-                print("Create Folder: {}".format(filepath.absolutePath()))
-            filename = filepath.filePath(path_text)
-            # Add end new line.
-            if my_content and (my_content[-1] != '\n'):
-                my_content += '\n'
-            with open(filename, 'w', encoding='utf8') as f:
-                f.write(my_content)
-            print("Saved: {}".format(filename))
-    return my_content, all_saved
-
-
 def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
     """Parse in to tree widget."""
     tree = ElementTree(file=root_node.text(1))
@@ -192,31 +147,6 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
         parse(node, data)
 
     data.save_all()
-
-
-def parse(node: QTreeWidgetItem, data: DataDict):
-    """Parse file to tree format."""
-    node.takeChildren()
-    filename = getpath(node)
-    suffix = _suffix(filename)
-    if node.text(2):
-        code = int(node.text(2))
-    else:
-        code = data.new_num()
-        node.setText(2, str(code))
-    if suffix == 'md':
-        # Markdown
-        _parse_markdown(filename, node, code, data)
-    elif suffix == 'html':
-        # TODO: Need to parse HTML (reveal.js index.html)
-        _parse_text(filename, code, data)
-    elif suffix == 'kmol':
-        # Kmol project
-        _parse_tree(node, data)
-    else:
-        # Text files and Python scripts.
-        _parse_text(filename, code, data)
-    print("Loaded: {}".format(node.text(1)))
 
 
 def _parse_text(
@@ -312,3 +242,74 @@ def _parse_markdown(
         item = QTreeItem(title, '', str(code))
         parent(index, level).addChild(item)
         tree_items.append(item)
+
+
+def getpath(node: QTreeWidgetItem) -> str:
+    """Get the path of current node."""
+    parent = node.parent()
+    filename = node.text(1)
+    if parent:
+        return QFileInfo(QDir(_getpath(parent)).filePath(filename)).absoluteFilePath()
+    return filename
+
+
+def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
+    """Recursive to all the contents of nodes."""
+    text_data = []
+    all_saved = data.is_saved(int(node.text(2)))
+    for i in range(node.childCount()):
+        doc, saved = save_file(node.child(i), data)
+        text_data.append(doc)
+        all_saved &= saved
+    my_content = data[int(node.text(2))].splitlines()
+    for i in range(len(my_content)):
+        text = my_content[i]
+        if text.endswith("@others"):
+            preffix = text[:-len("@others")]
+            my_content[i] = '\n\n'.join(preffix + t for t in text_data)
+    my_content = '\n'.join(my_content)
+    path_text = QFileInfo(node.text(1)).fileName()
+    if path_text and not all_saved:
+        suffix = QFileInfo(path_text).suffix()
+        if suffix == 'kmol':
+            # Save project.
+            _write_tree(node.text(1), node, data)
+        elif suffix in SUPPORT_FILE_SUFFIX:
+            # Save text files.
+            filepath = QDir(QFileInfo(_getpath(node)).absolutePath())
+            if not filepath.exists():
+                filepath.mkpath('.')
+                print("Create Folder: {}".format(filepath.absolutePath()))
+            filename = filepath.filePath(path_text)
+            # Add end new line.
+            if my_content and (my_content[-1] != '\n'):
+                my_content += '\n'
+            with open(filename, 'w', encoding='utf8') as f:
+                f.write(my_content)
+            print("Saved: {}".format(filename))
+    return my_content, all_saved
+
+
+def parse(node: QTreeWidgetItem, data: DataDict):
+    """Parse file to tree format."""
+    node.takeChildren()
+    filename = getpath(node)
+    suffix = _suffix(filename)
+    if node.text(2):
+        code = int(node.text(2))
+    else:
+        code = data.new_num()
+        node.setText(2, str(code))
+    if suffix == 'md':
+        # Markdown
+        _parse_markdown(filename, node, code, data)
+    elif suffix == 'html':
+        # TODO: Need to parse HTML (reveal.js index.html)
+        _parse_text(filename, code, data)
+    elif suffix == 'kmol':
+        # Kmol project
+        _parse_tree(node, data)
+    else:
+        # Text files and Python scripts.
+        _parse_text(filename, code, data)
+    print("Loaded: {}".format(node.text(1)))
