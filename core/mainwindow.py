@@ -80,14 +80,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.action_New_Window.triggered.connect(new_main_window)
 
-        # Dictionary function.
-        self.refer = ""
-
         # Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.addWidget(self.text_editor)
         self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
-        self.text_editor.currentWordChanged.connect(self.__set_refer)
         self.text_editor.textChanged.connect(self.__set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.set_remove_trailing_blanks)
@@ -177,18 +173,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.setCurrentItem(root_node)
         self.__add_macros()
         event.acceptProposedAction()
-
-    @pyqtSlot(str)
-    def __set_refer(self, word: str):
-        """Set word reference."""
-        self.refer = word
-
-    @pyqtSlot(name='on_dict_button_clicked')
-    def __set_dictionary(self):
-        """Show word references."""
-        self.dict_list.clear()
-        for refer in sorted(_spell.candidates(self.refer)):
-            self.dict_list.addItem(QListWidgetItem(refer))
 
     @pyqtSlot(name='on_copy_refer_button_clicked')
     def __copy_refer(self):
