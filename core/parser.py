@@ -68,8 +68,8 @@ def _getpath(node: QTreeWidgetItem) -> str:
     return QDir(_getpath(parent)).filePath(path)
 
 
-def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
-    """Write to XML file."""
+def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
+    """Write to YAML file."""
     root = Element('kmolroot', {
         'version': __version__,
         'code': root_node.text(2),
@@ -103,10 +103,10 @@ def _write_tree(projname: str, root_node: QTreeWidgetItem, data: DataDict):
     data.save_all()
 
     xml_str = minidom.parseString(tostring(root)).toprettyxml(indent=" " * 4)
-    with open(projname, 'w', encoding='utf8') as f:
+    with open(proj_name, 'w') as f:
         f.write(xml_str)
 
-    print("Saved: {}".format(projname))
+    print("Saved: {}".format(proj_name))
 
 
 def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
@@ -156,7 +156,7 @@ def _parse_text(
 ):
     """Just store file content to data structure."""
     try:
-        f = open(filename, 'r', encoding='utf8')
+        f = open(filename, 'r')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
@@ -174,7 +174,7 @@ def _parse_markdown(
 ):
     """Parse Markdown file to tree nodes."""
     try:
-        f = open(filename, 'r', encoding='utf8')
+        f = open(filename, 'r')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
