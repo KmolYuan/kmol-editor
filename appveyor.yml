@@ -6,18 +6,18 @@ platform:
 
 environment:
   matrix:
-  - PYTHON_DIR: C:\Python36-x64
-    MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
+  - MINGW_DIR: &mingw C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin
+    PYTHON_DIR: C:\Python36-x64
 
-  - PYTHON_DIR: C:\Python37-x64
-    MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
+  - MINGW_DIR: *mingw
+    PYTHON_DIR: C:\Python37-x64
 
 install:
 
 # Environment variables.
 - set Path=%PYTHON_DIR%;%Path%
 - set Path=%PYTHON_DIR%\Scripts;%Path%
-- set Path=%MINGW_DIR%\mingw64\bin;%Path%
+- set Path=%MINGW_DIR%;%Path%
 
 # Show Python.
 - python --version
