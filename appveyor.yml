@@ -39,16 +39,16 @@ build_script:
 test: off
 
 artifacts:
-- path: dist/pyslvs-*.exe
-  name: pyslvs
+- path: dist/kmol-editor-*.exe
+  name: kmol-editor
 
 deploy:
-- release: Pyslvs $(APPVEYOR_REPO_TAG_NAME)
+- release: Kmol Editor $(APPVEYOR_REPO_TAG_NAME)
   tag: $(APPVEYOR_REPO_TAG_NAME)
   description: ""
   provider: GitHub
   auth_token: $(APPVEYOR_TOKEN)
-  artifacts: pyslvs
+  artifacts: kmol-editor
   force_update: true
   on:
     appveyor_repo_tag: true

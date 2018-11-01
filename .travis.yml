@@ -17,7 +17,7 @@ matrix:
       provider: releases
       api_key: $TRAVIS_TOKEN
       file_glob: true
-      file: out/pyslvs-*.AppImage
+      file: out/kmol-editor-*.AppImage
       skip_cleanup: true
       on:
         tags: true
@@ -34,7 +34,7 @@ matrix:
       provider: releases
       api_key: $TRAVIS_TOKEN
       file_glob: true
-      file: dist/pyslvs-*.app.zip
+      file: dist/kmol-editor-*.app.zip
       skip_cleanup: true
       on:
         tags: true
