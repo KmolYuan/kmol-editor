@@ -19,7 +19,7 @@ install:
 - python --version
 - pip --version
 
-# Set Python compiler to Msys2.
+# Upgrade setuptools
 - pip install setuptools -U
 
 # Install modules.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # This is a very simple example on how to bundle a Python application as an AppImage
 # using virtualenv and AppImageKit using Ubuntu
 # NOTE: Please test the resulting AppImage on your target systems and copy in any additional
@@ -16,6 +17,8 @@ cd ENV/$APP.AppDir/
 ########################################################################
 # Create a virtualenv inside the AppDir
 ########################################################################
+
+MY_APPDIR=${PWD}
 
 mkdir -p usr
 virtualenv --always-copy --python=python3 ./usr
@@ -37,6 +40,57 @@ pip --version
 
 # Install python dependencies into the virtualenv
 pip install -r ../../requirements.txt
+
+# Copy all built-in scripts.
+PYVER=$(python -c "from distutils import sysconfig;print(sysconfig.get_config_var('VERSION'))")
+PYDIR=$(python -c "from distutils import sysconfig;print(sysconfig.get_config_var('DESTLIB'))")
+MY_PYDIR=${MY_APPDIR}/usr/lib/python${PYVER}
+
+echo "Remove venv distutils ..."
+rm -fr -v ${MY_PYDIR}/distutils
+
+echo "Copy built-in script patch from '${PYDIR}' to '${MY_PYDIR}' ..."
+cd ${PYDIR}
+for f in *; do
+    if [ ${f} == "__pycache__" ] || [ ${f} == "test" ] \
+        || [ ${f} == "venv" ] || [ ${f} == "idlelib" ]; then continue; fi
+
+    if [[ ${f} == *.py ]]; then
+        cp -n -v ${f} ${MY_PYDIR}
+    fi
+
+    if [ ! -d ${f} ]; then continue; fi
+
+    echo "Create '${MY_PYDIR}/${f}'"
+    mkdir -p ${MY_PYDIR}/${f}
+    cp -n -v ${f}/*.py ${MY_PYDIR}/${f}
+
+    cd ${f}
+
+    for sub_f in *; do
+        if [ ${sub_f} == "__pycache__" ]; then continue; fi
+
+        if [[ ${sub_f} == *.py ]]; then
+            cp -n -v ${sub_f} ${MY_PYDIR}/${f}
+        fi
+
+        if [ ! -d ${sub_f} ]; then continue; fi
+
+        echo "Create '${MY_PYDIR}/${f}/${sub_f}'"
+        mkdir -p ${MY_PYDIR}/${f}/${sub_f}
+        cp -n -v ${sub_f}/*.py ${MY_PYDIR}/${f}/${sub_f}
+    done
+
+    cd ..
+done
+cd ${MY_APPDIR}
+
+
+# Python libraries.
+SCRIPTDIR=$(python -c "from distutils import sysconfig;print(sysconfig.get_config_var('SCRIPTDIR'))")
+for f in ${SCRIPTDIR}/libpython3*.so*; do
+    cp -n -v ${f} ./usr/lib
+done
 
 deactivate
 
