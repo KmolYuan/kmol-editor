@@ -7,13 +7,17 @@ platform:
 environment:
   matrix:
   - PYTHON_DIR: C:\Python36-x64
+    MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
+
   - PYTHON_DIR: C:\Python37-x64
+    MINGW_DIR: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0
 
 install:
 
 # Environment variables.
 - set Path=%PYTHON_DIR%;%Path%
 - set Path=%PYTHON_DIR%\Scripts;%Path%
+- set Path=%MINGW_DIR%\mingw64\bin;%Path%
 
 # Show Python.
 - python --version
@@ -28,6 +32,7 @@ install:
 
 # Show tool kits.
 - pyinstaller --version
+- mingw32-make --version
 
 before_build:
 # Clone submodules.
