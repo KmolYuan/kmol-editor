@@ -1,0 +1,55 @@
+# AppVeyor for Kmol editor
+image: Visual Studio 2017
+
+platform:
+- x64
+
+environment:
+  matrix:
+  - PYTHON_DIR: C:\Python36-x64
+  - PYTHON_DIR: C:\Python37-x64
+
+install:
+
+# Environment variables.
+- set Path=%PYTHON_DIR%;%Path%
+- set Path=%PYTHON_DIR%\Scripts;%Path%
+
+# Show Python.
+- python --version
+- pip --version
+
+# Set Python compiler to Msys2.
+- pip install setuptools -U
+
+# Install modules.
+- pip install -r requirements.txt
+- pip install pyinstaller
+
+# Show tool kits.
+- pyinstaller --version
+
+before_build:
+# Clone submodules.
+- git submodule update --init --recursive
+
+build_script:
+- mingw32-make SHELL=cmd
+
+test: off
+
+artifacts:
+- path: dist/pyslvs-*.exe
+  name: pyslvs
+
+deploy:
+- release: Pyslvs $(APPVEYOR_REPO_TAG_NAME)
+  tag: $(APPVEYOR_REPO_TAG_NAME)
+  description: ""
+  provider: GitHub
+  auth_token: $(APPVEYOR_TOKEN)
+  artifacts: pyslvs
+  force_update: true
+  on:
+    appveyor_repo_tag: true
+    PYTHON_DIR: C:\Python37-x64

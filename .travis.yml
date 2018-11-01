@@ -1,4 +1,4 @@
-# Travis-Ci
+# Travis-Ci for Kmol editor
 language: python
 
 matrix:
