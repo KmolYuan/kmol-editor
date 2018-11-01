@@ -101,8 +101,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Console
         self.console.setFont(self.text_editor.font)
-        XStream.stdout().messageWritten.connect(self.__append_to_console)
-        XStream.stderr().messageWritten.connect(self.__append_to_console)
+        if not ARGUMENTS.debug_mode:
+            XStream.stdout().messageWritten.connect(self.__append_to_console)
+            XStream.stderr().messageWritten.connect(self.__append_to_console)
         for info in INFO:
             print(info)
         print('-' * 7)

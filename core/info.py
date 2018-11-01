@@ -34,30 +34,36 @@ _POWEREDBY = (
     "QScintilla 2",
 )
 
-#--help arguments
+# --help arguments
 _parser = argparse.ArgumentParser(
-    description = ("Pyslvs - Open Source Planar Linkage Mechanism Simulation" +
-        "and Mechanical Synthesis System."),
-    epilog = "Powered by {}.".format(", ".join(_POWEREDBY))
+    description=("Pyslvs - Open Source Planar Linkage Mechanism Simulation" +
+                 "and Mechanical Synthesis System."),
+    epilog="Powered by {}.".format(", ".join(_POWEREDBY))
 )
 _parser.add_argument(
     '-f',
     '--fusion',
-    action = 'store_true',
-    help = "run Pyslvs in Fusion style"
+    action='store_true',
+    help="run Pyslvs in Fusion style"
 )
 _parser.add_argument(
     'r',
-    metavar = "file path",
-    default = (),
-    nargs = '*',
-    type = str,
-    help = "read file from the file path"
+    metavar="file path",
+    default=(),
+    nargs='*',
+    type=str,
+    help="read file from the file path"
 )
 _parser.add_argument(
     '-t',
     '--test',
-    action = 'store_true',
-    help = "just test module states and exit"
+    action='store_true',
+    help="just test module states and exit"
+)
+_parser.add_argument(
+    '-d',
+    '--debug-mode',
+    action='store_true',
+    help="do not connect to GUI console when opening"
 )
 ARGUMENTS = _parser.parse_args()

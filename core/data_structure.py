@@ -11,6 +11,7 @@ from typing import (
     Tuple,
     Iterable,
     Hashable,
+    Dict,
 )
 from core.QtModules import (
     pyqtSignal,
@@ -72,6 +73,11 @@ class DataDict(QObject):
     def __contains__(self, key: Hashable) -> bool:
         """Return True if index is in the data."""
         return key in self.__data
+
+    def update(self, target: Dict[Hashable, str]):
+        """Update data."""
+        for key, context in target.items():
+            self[key] = context
 
     def items(self) -> Iterable[Tuple[int, str]]:
         """Items of data."""
