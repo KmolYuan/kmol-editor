@@ -10,6 +10,7 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+from typing import Type
 from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
@@ -102,6 +103,7 @@ from PyQt5.QtGui import (
 )
 from PyQt5.Qsci import (
     QsciScintilla,
+    QsciLexer,
     QsciLexerBash,
     QsciLexerBatch,
     QsciLexerCMake,
@@ -224,58 +226,78 @@ __all__ = [
 
 
 def QTreeItem(name: str, path: str, code: str) -> QTreeWidgetItem:
-    """Add a normal tree item.
-
-    + Editable
-    """
+    """Add a normal tree item. (editable)"""
     item = QTreeWidgetItem([name, path, code])
     item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable)
     return item
 
 
 def QTreeRoot(name: str, path: str, code: str) -> QTreeWidgetItem:
-    """Add a root tree item.
-
-    + Drag disabled
-    """
+    """Add a root tree item. (drag disabled)"""
     item = QTreeWidgetItem([name, path, code])
     item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
     return item
 
 
+def _default_font_override(lexer: Type[QsciLexer]) -> Type[QsciLexer]:
+    """Decorator to add default font method."""
+
+    class NewLexer(lexer):
+
+        __doc__ = lexer.__doc__
+
+        def __init__(self, *args):
+            super(NewLexer, self).__init__(*args)
+
+        def setDefaultFont(self, font: QFont):
+            super(NewLexer, self).setDefaultFont(font)
+            m = 0
+            for v in lexer.__bases__[-1].__dict__.values():
+                if type(v) == int and v > m:
+                    m = v
+            for i in range(m):
+                style_font: QFont = self.font(i)
+                style_font.setFamily(font.family())
+                style_font.setPointSizeF(font.pointSizeF())
+                self.setFont(style_font, i)
+
+    return NewLexer
+
+
+@_default_font_override
 class QsciLexerCustomPython(QsciLexerPython):
 
-    """Custom Python highter."""
+    """Custom Python highlighter."""
 
     def __init__(self, *args):
-        super(QsciLexerCustomPython, self).__init__(*args)
+        QsciLexerPython.__init__(self, *args)
         self.setIndentationWarning(QsciLexerPython.Tabs)
 
-    def keywords(self, set: int) -> str:
-        if set == 2:
+    def keywords(self, order: int) -> str:
+        if order == 2:
             return "self True False"
         else:
-            return QsciLexerPython.keywords(self, set)
-
-    def setDefaultFont(self, font: QFont):
-        super(QsciLexerCustomPython, self).setDefaultFont(font)
-        self.setFont(font, QsciLexerPython.Comment)
-        self.setFont(font, QsciLexerPython.DoubleQuotedString)
-        self.setFont(font, QsciLexerPython.UnclosedString)
-        self.setFont(font, QsciLexerPython.SingleQuotedString)
+            return QsciLexerPython.keywords(self, order)
 
 
+@_default_font_override
 class QsciLexerCustomMarkdown(QsciLexerMarkdown):
+    """Custom Markdown highlighter."""
 
-    """Custom Python highter."""
 
-    def __init__(self, *args):
-        super(QsciLexerCustomMarkdown, self).__init__(*args)
+@_default_font_override
+class QsciLexerCustomYAML(QsciLexerYAML):
+    """Custom YAML highlighter."""
 
-    def setDefaultFont(self, font: QFont):
-        super(QsciLexerCustomMarkdown, self).setDefaultFont(font)
-        for i in range(22):
-            self.setFont(font, i)
+
+@_default_font_override
+class QsciLexerCustomHTML(QsciLexerHTML):
+    """Custom HTML highlighter."""
+
+
+@_default_font_override
+class QsciLexerCustomLua(QsciLexerLua):
+    """Custom Lua highlighter."""
 
 
 QSCIHIGHLIGHTERS = {
@@ -288,11 +310,11 @@ QSCIHIGHLIGHTERS = {
     "Diff": QsciLexerDiff,
     "Fortran": QsciLexerFortran,
     "Fortran77": QsciLexerFortran77,
-    "HTML": QsciLexerHTML,
+    "HTML": QsciLexerCustomHTML,
     "Java": QsciLexerJava,
     "JavaScript": QsciLexerJavaScript,
     "JSON": QsciLexerJSON,
-    "Lua": QsciLexerLua,
+    "Lua": QsciLexerCustomLua,
     "Makefile": QsciLexerMakefile,
     "Markdown": QsciLexerCustomMarkdown,
     "Matlab": QsciLexerMatlab,
@@ -300,32 +322,32 @@ QSCIHIGHLIGHTERS = {
     "SQL": QsciLexerSQL,
     "Tex": QsciLexerTeX,
     "XML": QsciLexerXML,
-    "YAML": QsciLexerYAML,
+    "YAML": QsciLexerCustomYAML,
 }
 
 HIGHLIGHTER_SUFFIX = {
-    "Bash": {'sh',},
-    "Batch": {'bat',},
+    "Bash": {'sh'},
+    "Batch": {'bat'},
     "C++": {'c', 'cpp', 'h', 'hpp', 'cxx'},
-    "C#": {'cs',},
+    "C#": {'cs'},
     "CSS": {'css', 'bib'},
-    "Diff": {'diff',},
-    "Fortran": {'f90',},
-    "Fortran77": {'f77',},
-    "HTML": {'html',},
-    "Java": {'java',},
-    "JavaScript": {'js',},
-    "JSON": {'json',},
-    "Lua": {'lua',},
-    "Markdown": {'md',},
-    "Matlab": {'m',},
-    "Python": {'py',},
-    "SQL": {'sql',},
-    "Tex": {'tex',},
-    "XML": {'xml',},
-    "YAML": {'yml',},
+    "Diff": {'diff'},
+    "Fortran": {'f90'},
+    "Fortran77": {'f77'},
+    "HTML": {'html'},
+    "Java": {'java'},
+    "JavaScript": {'js'},
+    "JSON": {'json'},
+    "Lua": {'lua'},
+    "Markdown": {'md'},
+    "Matlab": {'m'},
+    "Python": {'py'},
+    "SQL": {'sql'},
+    "Tex": {'tex'},
+    "XML": {'xml'},
+    "YAML": {'yml'},
 }
 HIGHLIGHTER_FILENAME = {
-    "CMake": {'CMakeList.txt',},
+    "CMake": {'CMakeList.txt'},
     "Makefile": {'Makefile', 'Makefile.am', 'Makefile.in', 'Makefile.debug'},
 }

@@ -114,7 +114,7 @@ def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
 def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
     """Parse in to tree widget."""
     try:
-        with open(root_node.text(1)) as f:
+        with open(root_node.text(1), encoding='utf-8') as f:
             yml_data: YMLData = yaml.load(f)
     except FileNotFoundError:
         return
@@ -155,7 +155,7 @@ def _parse_text(
 ):
     """Just store file content to data structure."""
     try:
-        f = open(filename, 'r', encoding='utf-8')
+        f = open(filename, encoding='utf-8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
@@ -173,7 +173,7 @@ def _parse_markdown(
 ):
     """Parse Markdown file to tree nodes."""
     try:
-        f = open(filename, 'r', encoding='utf-8')
+        f = open(filename, encoding='utf-8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
@@ -283,7 +283,7 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
             # Add end new line.
             if my_content and (my_content[-1] != '\n'):
                 my_content += '\n'
-            with open(filename, 'w', encoding='utf8') as f:
+            with open(filename, 'w', encoding='utf-8') as f:
                 f.write(my_content)
             print("Saved: {}".format(filename))
     return my_content, all_saved
