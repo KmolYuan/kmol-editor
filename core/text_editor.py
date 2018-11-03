@@ -90,15 +90,11 @@ class TextEditor(QsciScintilla):
         # Set lexer.
         self.lexer_option = "Markdown"
         self.set_highlighter("Markdown")
-        self.SendScintilla(
-            QsciScintilla.SCI_STYLESETFONT,
-            1,
-            font_name.encode('utf-8')
-        )
+        self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, font_name.encode('utf-8'))
 
         # Don't want to see the horizontal scrollbar at all.
         self.setWrapMode(QsciScintilla.WrapWord)
-        self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+        self.setHorizontalScrollBar(None)
 
         # Auto completion.
         self.setAutoCompletionCaseSensitivity(True)
@@ -211,15 +207,17 @@ class TextEditor(QsciScintilla):
                 self.__cursor_move_next()
                 return
 
-    def __remove_trailing_blanks(self):
+    def remove_trailing_blanks(self):
         """Remove trailing blanks in text editor."""
+        line, index = self.getCursorPosition()
         doc = ""
-        for line in self.text().splitlines():
-            doc += line.rstrip() + '\n'
+        for line_str in self.text().splitlines():
+            doc += line_str.rstrip() + '\n'
         super(TextEditor, self).setText(doc)
+        self.setCursorPosition(line, self.lineLength(line) - 1)
 
     def setText(self, doc: str):
         """Remove trailing blanks in text editor."""
         super(TextEditor, self).setText(doc)
         if self.__no_trailing_blanks:
-            self.__remove_trailing_blanks()
+            self.remove_trailing_blanks()
