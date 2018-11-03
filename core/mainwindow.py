@@ -41,7 +41,7 @@ from core.text_editor import TextEditor
 from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
-from core.parser import (
+from core.parsers import (
     getpath,
     parse,
     save_file,

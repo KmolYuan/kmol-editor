@@ -8,6 +8,7 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 import platform
+from textblob import TextBlob
 from core.QtModules import (
     pyqtSignal,
     pyqtSlot,
@@ -17,6 +18,7 @@ from core.QtModules import (
     QFont,
     QFontMetrics,
     QColor,
+    QTimer,
     # QScintilla widget
     QsciScintilla,
     # Other highlighters
@@ -121,6 +123,9 @@ class TextEditor(QsciScintilla):
 
         # Remove trailing blanks.
         self.__no_trailing_blanks = True
+
+        # Check timer.
+        self.check_timer = QTimer(self)
 
     @pyqtSlot(str)
     def set_highlighter(self, option: str):
