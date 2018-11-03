@@ -8,7 +8,8 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 import platform
-from textblob import TextBlob
+import re
+from spellchecker import SpellChecker
 from core.QtModules import (
     pyqtSignal,
     pyqtSlot,
@@ -26,6 +27,7 @@ from core.QtModules import (
 )
 
 
+_spell = SpellChecker()
 _parentheses = (
     (Qt.Key_ParenLeft, Qt.Key_ParenRight, '(', ')'),
     (Qt.Key_BracketLeft, Qt.Key_BracketRight, '[', ']'),
@@ -49,6 +51,11 @@ _commas_markdown = (
     Qt.Key_Colon,
     Qt.Key_Period,
 )
+
+
+def _camel_case_split(identifier):
+    matches = re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
+    return [m.group(0) for m in matches]
 
 
 class TextEditor(QsciScintilla):
@@ -122,6 +129,10 @@ class TextEditor(QsciScintilla):
 
         # Check timer.
         self.check_timer = QTimer(self)
+
+        # Spell checker indicator.
+        self.indicatorDefine(QsciScintilla.SquiggleIndicator, 0)
+        self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
 
     @pyqtSlot(str)
     def set_highlighter(self, option: str):
@@ -216,8 +227,32 @@ class TextEditor(QsciScintilla):
         super(TextEditor, self).setText(doc)
         self.setCursorPosition(line, self.lineLength(line) - 1)
 
+    def __clear_all_indicators(self):
+        """Clear all indicators."""
+        self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), 0)
+
+    def __spell_check(self):
+        """Spell checker."""
+        doc = self.text()
+        words = []
+        for s in re.split(r"(\W|\d|_)+", doc):
+            if len(s) < 2:
+                continue
+            for w in _camel_case_split(s):
+                words.append(w.lower())
+
+        for unknown in _spell.unknown(words):
+            for m in re.finditer(unknown, doc):
+                self.fillIndicatorRange(
+                    *self.lineIndexFromPosition(m.start()),
+                    *self.lineIndexFromPosition(m.end()),
+                    0
+                )
+
     def setText(self, doc: str):
         """Remove trailing blanks in text editor."""
         super(TextEditor, self).setText(doc)
         if self.__no_trailing_blanks:
             self.remove_trailing_blanks()
+        self.__clear_all_indicators()
+        self.__spell_check()
