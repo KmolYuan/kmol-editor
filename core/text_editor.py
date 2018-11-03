@@ -7,6 +7,7 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+from typing import Tuple, Iterator
 import platform
 import re
 from spellchecker import SpellChecker
@@ -56,6 +57,20 @@ _commas_markdown = (
 def _camel_case_split(identifier):
     matches = re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
     return [m.group(0) for m in matches]
+
+
+def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
+    """Yield unknown words and position."""
+    words = []
+    for s in re.split(r"(\W|\d|_)+", doc):
+        if len(s) < 2:
+            continue
+        for w in _camel_case_split(s):
+            words.append(w.lower())
+
+    for unknown in _spell.unknown(words):
+        for m in re.finditer(unknown, doc):
+            yield m.start(), m.end()
 
 
 class TextEditor(QsciScintilla):
@@ -204,6 +219,7 @@ class TextEditor(QsciScintilla):
                     return
 
         super(TextEditor, self).keyPressEvent(event)
+        self.__spell_check_line()
 
         # Auto close of parentheses.
         for k1, k2, t0, t1 in parentheses:
@@ -218,6 +234,31 @@ class TextEditor(QsciScintilla):
                 self.__cursor_move_next()
                 return
 
+    def __clear_indicator_all(self, indicator: int):
+        """Clear all indicators."""
+        self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), indicator)
+
+    def __spell_check_all(self):
+        """Spell check for all text."""
+        self.__clear_indicator_all(0)
+        for start, end in _spell_check(self.text()):
+            self.fillIndicatorRange(
+                *self.lineIndexFromPosition(start),
+                *self.lineIndexFromPosition(end),
+                0
+            )
+
+    def __clear_line_indicator(self, line: int, indicator: int):
+        """Clear all indicators."""
+        self.clearIndicatorRange(line, 0, line, self.lineLength(line), indicator)
+
+    def __spell_check_line(self):
+        """Spell check for current line."""
+        line, index = self.getCursorPosition()
+        self.__clear_line_indicator(line, 0)
+        for start, end in _spell_check(self.text(line)):
+            self.fillIndicatorRange(line, start, line, end, 0)
+
     def remove_trailing_blanks(self):
         """Remove trailing blanks in text editor."""
         line, index = self.getCursorPosition()
@@ -227,32 +268,9 @@ class TextEditor(QsciScintilla):
         super(TextEditor, self).setText(doc)
         self.setCursorPosition(line, self.lineLength(line) - 1)
 
-    def __clear_all_indicators(self):
-        """Clear all indicators."""
-        self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), 0)
-
-    def __spell_check(self):
-        """Spell checker."""
-        doc = self.text()
-        words = []
-        for s in re.split(r"(\W|\d|_)+", doc):
-            if len(s) < 2:
-                continue
-            for w in _camel_case_split(s):
-                words.append(w.lower())
-
-        for unknown in _spell.unknown(words):
-            for m in re.finditer(unknown, doc):
-                self.fillIndicatorRange(
-                    *self.lineIndexFromPosition(m.start()),
-                    *self.lineIndexFromPosition(m.end()),
-                    0
-                )
-
     def setText(self, doc: str):
         """Remove trailing blanks in text editor."""
         super(TextEditor, self).setText(doc)
         if self.__no_trailing_blanks:
             self.remove_trailing_blanks()
-        self.__clear_all_indicators()
-        self.__spell_check()
+        self.__spell_check_all()
