@@ -54,19 +54,15 @@ _commas_markdown = (
 )
 
 
-def _camel_case_split(identifier):
-    matches = re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
-    return [m.group(0) for m in matches]
-
-
 def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
     """Yield unknown words and position."""
     words = []
     for s in re.split(r"(\W|\d|_)+", doc):
         if len(s) < 2:
             continue
-        for w in _camel_case_split(s):
-            words.append(w.lower())
+        # Camel case.
+        for m in re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', s):
+            words.append(m.group(0).lower())
 
     for unknown in _spell.unknown(words):
         for m in re.finditer(unknown, doc):
@@ -116,7 +112,7 @@ class TextEditor(QsciScintilla):
 
         # Don't want to see the horizontal scrollbar at all.
         self.setWrapMode(QsciScintilla.WrapWord)
-        self.setHorizontalScrollBar(None)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # Auto completion.
         self.setAutoCompletionCaseSensitivity(True)
