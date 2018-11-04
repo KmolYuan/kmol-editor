@@ -32,13 +32,14 @@ from core.QtModules import (
     QDesktopServices,
     QIcon,
     QPixmap,
+    QAction,
+    QMenu,
     QSCIHIGHLIGHTERS,
     HIGHLIGHTER_SUFFIX,
     HIGHLIGHTER_FILENAME,
 )
 from core.info import INFO, ARGUMENTS
 from core.text_editor import TextEditor
-from core.context_menu import setmenu
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
 from core.parsers import (
@@ -96,7 +97,54 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
         # Tree widget
-        setmenu(self)
+        self.tree_widget.customContextMenuRequested.connect(
+            self.on_tree_widget_context_menu
+        )
+        self.popMenu_tree = QMenu(self)
+        self.popMenu_tree.setSeparatorsCollapsible(True)
+        self.popMenu_tree.addAction(self.action_new_project)
+        self.popMenu_tree.addAction(self.action_open)
+        self.popMenu_tree.addAction(self.action_open_from_dir)
+        self.tree_add = QAction("&Add Node", self)
+        self.tree_add.triggered.connect(self.add_node)
+        self.tree_add.setShortcut("Ctrl+I")
+        self.tree_add.setShortcutContext(Qt.WindowShortcut)
+        self.popMenu_tree.addAction(self.tree_add)
+
+        self.popMenu_tree.addSeparator()
+
+        self.tree_path = QAction("Set &Path", self)
+        self.tree_path.triggered.connect(self.set_path)
+        self.popMenu_tree.addAction(self.tree_path)
+        self.tree_refresh = QAction("&Refresh from Path", self)
+        self.tree_refresh.triggered.connect(self.refresh_proj)
+        self.popMenu_tree.addAction(self.tree_refresh)
+        self.tree_openurl = QAction("&Open from Path", self)
+        self.tree_openurl.triggered.connect(self.open_path)
+        self.popMenu_tree.addAction(self.tree_openurl)
+        self.action_save.triggered.connect(self.save_proj)
+        self.popMenu_tree.addAction(self.action_save)
+        self.tree_copy = QAction("Co&py", self)
+        self.tree_copy.triggered.connect(self.copy_node)
+        self.popMenu_tree.addAction(self.tree_copy)
+        self.tree_clone = QAction("C&lone", self)
+        self.tree_clone.triggered.connect(self.clone_node)
+        self.popMenu_tree.addAction(self.tree_clone)
+        self.tree_copy_tree = QAction("Recursive Copy", self)
+        self.tree_copy_tree.triggered.connect(self.copy_node_recursive)
+        self.popMenu_tree.addAction(self.tree_copy_tree)
+        self.tree_clone_tree = QAction("Recursive Clone", self)
+        self.tree_clone_tree.triggered.connect(self.clone_node_recursive)
+        self.popMenu_tree.addAction(self.tree_clone_tree)
+
+        self.popMenu_tree.addSeparator()
+
+        self.tree_delete = QAction("&Delete", self)
+        self.tree_delete.triggered.connect(self.delete_node)
+        self.popMenu_tree.addAction(self.tree_delete)
+        self.tree_close = QAction("&Close", self)
+        self.tree_close.triggered.connect(self.close_file)
+        self.popMenu_tree.addAction(self.tree_close)
         self.tree_main.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         # Console
@@ -396,11 +444,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
 
     @pyqtSlot()
-    def on_action_save_all_triggered(self):
-        """Save all project."""
-        self.save_proj(for_all=True)
-
-    @pyqtSlot()
     def delete_node(self):
         """Delete the current item."""
         node = self.tree_main.currentItem()
@@ -536,13 +579,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
-    @pyqtSlot()
-    def on_action_about_qt_triggered(self):
+    @pyqtSlot(name='on_action_about_qt_triggered')
+    def __about_qt(self):
         """Qt about."""
         QMessageBox.aboutQt(self)
 
-    @pyqtSlot()
-    def on_action_about_triggered(self):
+    @pyqtSlot(name='on_action_about_triggered')
+    def __about(self):
         """Kmol editor about."""
         QMessageBox.about(self, "About Kmol Editor", '\n'.join(INFO + (
             '',
