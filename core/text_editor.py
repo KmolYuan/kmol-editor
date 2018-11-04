@@ -10,6 +10,7 @@ __email__ = "pyslvs@gmail.com"
 from typing import Tuple, Iterator
 import platform
 import re
+import string
 from spellchecker import SpellChecker
 from core.QtModules import (
     pyqtSignal,
@@ -21,6 +22,7 @@ from core.QtModules import (
     QFontMetrics,
     QColor,
     QTimer,
+    QMenu,
     # QScintilla widget
     QsciScintilla,
     # Other highlighters
@@ -62,10 +64,12 @@ def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
             continue
         # Camel case.
         for m in re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', s):
-            words.append(m.group(0).lower())
+            word = m.group(0)
+            if len(word.encode('utf-8')) == len(word):
+                words.append(word.lower())
 
     for unknown in _spell.unknown(words):
-        for m in re.finditer(unknown, doc):
+        for m in re.finditer(unknown.encode('utf-8'), doc.encode('utf-8')):
             yield m.start(), m.end()
 
 
@@ -174,6 +178,12 @@ class TextEditor(QsciScintilla):
             self.zoomIn()
         else:
             self.zoomOut()
+
+    def contextMenuEvent(self, event):
+        """Customized context menu."""
+        line, index = self.getCursorPosition()
+        menu: QMenu = self.createStandardContextMenu()
+        super(TextEditor, self).contextMenuEvent(event)
 
     def __cursor_move_next(self):
         """Move text cursor to next character."""
