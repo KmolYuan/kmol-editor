@@ -3,6 +3,7 @@
 <qresource>
     <file>icons/kmol.png</file>
     <file>icons/Logo_Qt.png</file>
+    <file>icons/directory.png</file>
     <file>icons/python.png</file>
     <file>icons/markdown.png</file>
     <file>icons/html.png</file>

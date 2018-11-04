@@ -59,6 +59,7 @@ SUPPORT_FILE_FORMATS = ';;'.join(
     "{} (*.{})".format(name, suffix_text if suffix_text else '*')
     for name, suffix_text in zip(_SUPPORT_FORMAT, _SUPPORT_FILE_SUFFIX + ('',))
 )
+_file = ":/icons/{}.png".format
 
 
 def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
@@ -119,14 +120,18 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
 
     def add_node(node_dict: NodeDict) -> QTreeWidgetItem:
         """Add node in to tree widget."""
+        name: str = node_dict['name']
         code_int: int = node_dict['code']
-        node = QTreeWidgetItem([node_dict['name'], node_dict['path'], str(code_int)])
-        if node_dict['name'].startswith('@'):
-            node.setIcon(0, QIcon(QPixmap(":/icons/python.png")))
-            data.add_macro(node_dict['name'][1:], code_int)
-        suffix_text = file_suffix(node_dict['path'])
+        path: str = node_dict['path']
+        node = QTreeWidgetItem([name, path, str(code_int)])
+        if name.startswith('@'):
+            node.setIcon(0, QIcon(QPixmap(_file("python"))))
+            data.add_macro(name[1:], code_int)
+        suffix_text = file_suffix(path)
         if suffix_text:
             parse_list.append(node)
+        elif path:
+            node.setIcon(0, QIcon(QPixmap(_file("directory"))))
         subs: List[NodeDict] = node_dict['sub']
         for sub in subs:
             node.addChild(add_node(sub))
@@ -191,18 +196,18 @@ def parse(node: QTreeWidgetItem, data: DataDict):
         node.setText(2, str(code))
     if suffix_text == 'md':
         # Markdown
-        node.setIcon(0, QIcon(QPixmap(":/icons/markdown.png")))
+        node.setIcon(0, QIcon(QPixmap(_file("markdown"))))
         parse_markdown(filename, node, code, data)
     elif suffix_text == 'html':
         # TODO: Need to parse HTML (reveal.js index.html)
-        node.setIcon(0, QIcon(QPixmap(":/icons/html.png")))
+        node.setIcon(0, QIcon(QPixmap(_file("html"))))
         parse_text(filename, code, data)
     elif suffix_text == 'kmol':
         # Kmol project
-        node.setIcon(0, QIcon(QPixmap(":/icons/kmol.png")))
+        node.setIcon(0, QIcon(QPixmap(_file("kmol"))))
         _parse_tree(node, data)
     else:
         # Text files and Python scripts.
-        node.setIcon(0, QIcon(QPixmap(":/icons/txt.png")))
+        node.setIcon(0, QIcon(QPixmap(_file("txt"))))
         parse_text(filename, code, data)
     print("Loaded: {}".format(node.text(1)))
