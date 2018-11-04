@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""Text editor of kmol editor."""
+"""Text editor of kmol editor.
+
+Warning:
+    Regular expression (re) module should handle in bytes mode.
+    So any pattern and source should be encoded to UTF-8.
+"""
 
 __author__ = "Yuan Chang"
 __copyright__ = "Copyright (C) 2018"
@@ -20,7 +25,6 @@ from core.QtModules import (
     QFont,
     QFontMetrics,
     QColor,
-    QTimer,
     QMenu,
     QAction,
     QInputDialog,
@@ -143,12 +147,26 @@ class TextEditor(QsciScintilla):
         # Remove trailing blanks.
         self.__no_trailing_blanks = True
 
-        # Check timer.
-        self.check_timer = QTimer(self)
-
-        # Spell checker indicator.
+        # Spell checker indicator [0]
         self.indicatorDefine(QsciScintilla.SquiggleIndicator, 0)
-        self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, 0)
+
+        # Keyword indicator [1]
+        self.indicatorDefine(QsciScintilla.BoxIndicator, 1)
+        self.cursorPositionChanged.connect(self.__catch_word)
+
+    @pyqtSlot(int, int)
+    def __catch_word(self, line: int, index: int):
+        """Catch and indicate current word."""
+        self.__clear_indicator_all(1)
+        pos = self.positionFromLineIndex(line, index)
+        _, _, word = self.__word_at_pos(pos)
+        word = r'\b' + word + r'\b'
+        for m in re.finditer(word.encode('utf-8'), self.text().encode('utf-8'), re.IGNORECASE):
+            self.fillIndicatorRange(
+                *self.lineIndexFromPosition(m.start()),
+                *self.lineIndexFromPosition(m.end()),
+                1
+            )
 
     @pyqtSlot(str)
     def set_highlighter(self, option: str):
