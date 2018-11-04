@@ -684,7 +684,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if action.text() == name:
                 break
         else:
-            action = self.macros_toolbar.addAction(QIcon(QPixmap(":icons/text-x-python.png")), name)
+            action = self.macros_toolbar.addAction(QIcon(QPixmap(":icons/python.png")), name)
             action.triggered.connect(lambda: self.__exec_script(code))
 
     def __find_text(self, forward: bool):

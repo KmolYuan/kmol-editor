@@ -18,6 +18,8 @@ from core.QtModules import (
     QTreeWidgetItem,
     QFileInfo,
     QDir,
+    QIcon,
+    QPixmap,
 )
 from core.data_structure import DataDict
 from core.info import __version__
@@ -120,6 +122,7 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
         code_int: int = node_dict['code']
         node = QTreeWidgetItem([node_dict['name'], node_dict['path'], str(code_int)])
         if node_dict['name'].startswith('@'):
+            node.setIcon(0, QIcon(QPixmap(":/icons/python.png")))
             data.add_macro(node_dict['name'][1:], code_int)
         suffix_text = file_suffix(node_dict['path'])
         if suffix_text:
@@ -188,14 +191,18 @@ def parse(node: QTreeWidgetItem, data: DataDict):
         node.setText(2, str(code))
     if suffix_text == 'md':
         # Markdown
+        node.setIcon(0, QIcon(QPixmap(":/icons/markdown.png")))
         parse_markdown(filename, node, code, data)
     elif suffix_text == 'html':
         # TODO: Need to parse HTML (reveal.js index.html)
+        node.setIcon(0, QIcon(QPixmap(":/icons/html.png")))
         parse_text(filename, code, data)
     elif suffix_text == 'kmol':
         # Kmol project
+        node.setIcon(0, QIcon(QPixmap(":/icons/kmol.png")))
         _parse_tree(node, data)
     else:
         # Text files and Python scripts.
+        node.setIcon(0, QIcon(QPixmap(":/icons/txt.png")))
         parse_text(filename, code, data)
     print("Loaded: {}".format(node.text(1)))
