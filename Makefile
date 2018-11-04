@@ -33,7 +33,7 @@ ifeq ($(OS),Windows_NT)
 else ifeq ($(shell uname),Darwin)
 	pyinstaller -w -F $< -i ./icons/kmol.icns -n "Kmol Editor" \
 --hidden-import=PyQt5.QtPrintSupport \
---add-data=$(SPELLPATH)/resources;spellchecker/resources
+--add-data=$(SPELLPATH)/resources:spellchecker/resources
 	mv "dist/Kmol Editor" dist/$(EXENAME)
 	chmod +x dist/$(EXENAME)
 	mv "dist/Kmol Editor.app" dist/$(EXENAME).app

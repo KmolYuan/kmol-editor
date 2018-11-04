@@ -10,7 +10,6 @@ __email__ = "pyslvs@gmail.com"
 from typing import Tuple, Iterator
 import platform
 import re
-import string
 from spellchecker import SpellChecker
 from core.QtModules import (
     pyqtSignal,
@@ -23,6 +22,8 @@ from core.QtModules import (
     QColor,
     QTimer,
     QMenu,
+    QAction,
+    QInputDialog,
     # QScintilla widget
     QsciScintilla,
     # Other highlighters
@@ -63,13 +64,13 @@ def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
         if len(s) < 2:
             continue
         # Camel case.
-        for m in re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', s):
+        for m in re.finditer(r'[A-Za-z][a-z]+', s):
             word = m.group(0)
             if len(word.encode('utf-8')) == len(word):
                 words.append(word.lower())
 
     for unknown in _spell.unknown(words):
-        for m in re.finditer(unknown.encode('utf-8'), doc.encode('utf-8')):
+        for m in re.finditer(unknown.encode('utf-8'), doc.encode('utf-8'), re.IGNORECASE):
             yield m.start(), m.end()
 
 
@@ -180,10 +181,53 @@ class TextEditor(QsciScintilla):
             self.zoomOut()
 
     def contextMenuEvent(self, event):
-        """Customized context menu."""
-        line, index = self.getCursorPosition()
+        """Custom context menu."""
+        # Spell refactor.
         menu: QMenu = self.createStandardContextMenu()
-        super(TextEditor, self).contextMenuEvent(event)
+        menu.addSeparator()
+        correction_action = QAction("&Refactor Words", self)
+        correction_action.triggered.connect(self.__spell_correction)
+        menu.addAction(correction_action)
+        menu.exec(self.mapToGlobal(event.pos()))
+
+    def __replace_all(self, word: str, replace_word: str):
+        """Replace the word for all occurrence."""
+        found = self.findFirst(word, False, False, True, True)
+        while found:
+            self.replace(replace_word)
+            found = self.findNext()
+
+    def __word_at_pos(self, pos: int) -> Tuple[int, int, str]:
+        """Return pos of current word."""
+        return (
+            self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True),
+            self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True),
+            self.wordAtLineIndex(*self.getCursorPosition())
+        )
+
+    @pyqtSlot()
+    def __spell_correction(self):
+        """Refactor words."""
+        pos = self.positionFromLineIndex(*self.getCursorPosition())
+        start, end, words = self.__word_at_pos(pos)
+        if not words:
+            return
+
+        # Camel case.
+        word = words
+        for m in re.finditer(r'[A-Za-z][a-z]+', words):
+            if m.start() < pos - start < m.end():
+                word = m.group(0)
+                break
+
+        answer, ok = QInputDialog.getItem(
+            self,
+            "Spell correction",
+            f"Refactor word: \"{word}\"",
+            _spell.candidates(word)
+        )
+        if ok:
+            self.__replace_all(words, words.replace(word, answer))
 
     def __cursor_move_next(self):
         """Move text cursor to next character."""
