@@ -83,13 +83,14 @@ def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
             node_dict['sub'].append(add_node(node.child(j)))
         return node_dict
 
-    yml_data['description'] = int(root_node.text(2))
+    root_code = int(root_node.text(2))
+    yml_data['description'] = root_code
 
     yml_data['node'] = []
     for i in range(root_node.childCount()):
         yml_data['node'].append(add_node(root_node.child(i)))
 
-    yml_data['data'] = {}
+    yml_data['data'] = {root_code: data[root_code]}
     for code in my_codes:
         yml_data['data'][code] = data[code]
 

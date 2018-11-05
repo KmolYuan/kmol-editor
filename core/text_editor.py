@@ -82,7 +82,7 @@ class TextEditor(QsciScintilla):
 
     """QScintilla text editor."""
 
-    currentWordChanged = pyqtSignal(str)
+    word_changed = pyqtSignal()
 
     def __init__(self, parent: QWidget):
         """UI settings."""
@@ -287,6 +287,7 @@ class TextEditor(QsciScintilla):
                     return
 
         super(TextEditor, self).keyPressEvent(event)
+        self.word_changed.emit()
         self.__spell_check_line()
 
         # Auto close of parentheses.

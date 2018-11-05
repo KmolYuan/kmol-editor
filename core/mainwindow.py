@@ -84,8 +84,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.addWidget(self.text_editor)
-        self.text_editor.currentWordChanged.connect(self.search_bar.setPlaceholderText)
-        self.text_editor.textChanged.connect(self.__set_not_saved_title)
+        self.text_editor.word_changed.connect(self.__set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.set_remove_trailing_blanks)
 

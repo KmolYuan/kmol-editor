@@ -47,9 +47,8 @@ class DataDict(QObject):
 
     def __setitem__(self, key: Hashable, context: str):
         """Set item."""
-        old_context = self[key]
+        self.__saved[key] = self[key] == context
         self.__data[key] = context
-        self.__saved[key] = old_context == context
         if not self.__saved[key]:
             self.not_saved.emit()
 
