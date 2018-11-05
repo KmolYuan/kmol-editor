@@ -40,7 +40,6 @@ from core.QtModules import (
 from core.info import INFO, ARGUMENTS
 from core.text_editor import TextEditor
 from core.translator import TranslatorWidget
-from core.loggingHandler import XStream
 from core.data_structure import DataDict
 from core.parsers import (
     getpath,
@@ -48,7 +47,8 @@ from core.parsers import (
     save_file,
     SUPPORT_FILE_FORMATS,
 )
-from .Ui_mainwindow import Ui_MainWindow
+from .logging_handler import XStream
+from .Ui_main_window import Ui_MainWindow
 __variables__ = {}
 
 

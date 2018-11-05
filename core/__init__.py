@@ -9,7 +9,7 @@ __email__ = "pyslvs@gmail.com"
 
 from sys import exit
 import platform
-from .mainwindow import MainWindow
+from .main_window import MainWindow
 from .info import ARGUMENTS
 from .QtModules import QApplication
 
