@@ -222,14 +222,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__add_macros()
         event.acceptProposedAction()
 
-    @pyqtSlot(name='on_copy_refer_button_clicked')
-    def __copy_refer(self):
-        """Copy word references."""
-        item: Optional[QListWidgetItem] = self.dict_list.currentItem()
-        if item is None:
-            return
-        QApplication.clipboard().setText(item.text())
-
     @pyqtSlot()
     def __set_not_saved_title(self):
         """Show star sign on window title."""
