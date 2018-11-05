@@ -12,7 +12,6 @@ import re
 from core.QtModules import (
     pyqtSlot,
     Qt,
-    QApplication,
     QMainWindow,
     QShortcut,
     QKeySequence,
@@ -40,6 +39,7 @@ from core.QtModules import (
 )
 from core.info import INFO, ARGUMENTS
 from core.text_editor import TextEditor
+from core.translator import TranslatorWidget
 from core.loggingHandler import XStream
 from core.data_structure import DataDict
 from core.parsers import (
@@ -95,7 +95,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.text_editor.set_highlighter
         )
 
-        # Tree widget
+        # Tree widget context menu.
         self.tree_widget.customContextMenuRequested.connect(
             self.on_tree_widget_context_menu
         )
@@ -170,6 +170,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         replace.activated.connect(self.replace_node_button.click)
         replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         replace_project.activated.connect(self.replace_project_button.click)
+
+        # Translator.
+        self.panel_widget.addTab(TranslatorWidget(self), "Translator")
 
         # Node edit function. (Ctrl + ArrowKey)
         move_up_node = QShortcut(QKeySequence("Ctrl+Up"), self)

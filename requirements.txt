@@ -2,3 +2,4 @@ pyqt5
 qscintilla
 pyyaml
 pyspellchecker
+py_translator
