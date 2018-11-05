@@ -102,6 +102,7 @@ from PyQt5.QtGui import (
     QTextOption,
 )
 from PyQt5.Qsci import (
+    QSCINTILLA_VERSION_STR,
     QsciScintilla,
     QsciLexer,
     QsciLexerBash,
@@ -220,6 +221,7 @@ __all__ = [
     'QsciScintilla',
     'QSCIHIGHLIGHTERS',
     'Qt',
+    'QSCINTILLA_VERSION_STR',
     'HIGHLIGHTER_SUFFIX',
     'HIGHLIGHTER_FILENAME',
 ]

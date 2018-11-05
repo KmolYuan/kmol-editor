@@ -14,6 +14,7 @@ import argparse
 from core.QtModules import (
     qVersion,
     PYQT_VERSION_STR,
+    QSCINTILLA_VERSION_STR,
 )
 
 _Qt_Version = qVersion().strip()
@@ -25,13 +26,17 @@ INFO = (
     "Python Version: {v.major}.{v.minor}.{v.micro}({v.releaselevel})".format(v=version_info),
     "Python Compiler: {}".format(platform.python_compiler()),
     "Qt Version: {}".format(_Qt_Version),
-    "PyQt Version: {}".format(_PyQt_Version)
+    "PyQt Version: {}".format(_PyQt_Version),
+    "QScintilla Version: {}".format(QSCINTILLA_VERSION_STR),
 )
 
 _POWEREDBY = (
     "Python IDE Eric 6",
     "PyQt 5",
     "QScintilla 2",
+    "PyYAML",
+    "PySpellchecker",
+    "PyTranslator",
 )
 
 # --help arguments
