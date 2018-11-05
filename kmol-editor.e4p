@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-5.1.dtd">
 <!-- eric project file for project kmol-editor -->
-<!-- Saved: 2018-07-09, 14:54:34 -->
+<!-- Saved: 2018-11-05, 23:25:20 -->
 <!-- Copyright (C) 2018 KmolYuan, pyslvs@gmail.com -->
 <Project version="5.1">
   <Language>en_US</Language>
@@ -14,21 +14,22 @@
   <Eol index="0"/>
   <Sources>
     <Source>core/QtModules.py</Source>
-    <Source>core/Ui_mainwindow.py</Source>
     <Source>core/__init__.py</Source>
-    <Source>core/context_menu.py</Source>
     <Source>core/data_structure.py</Source>
     <Source>core/info.py</Source>
-    <Source>core/loggingHandler.py</Source>
-    <Source>core/mainwindow.py</Source>
-    <Source>core/parser.py</Source>
+    <Source>core/main_window/Ui_main_window.py</Source>
+    <Source>core/main_window/__init__.py</Source>
+    <Source>core/main_window/logging_handler.py</Source>
+    <Source>core/parsers/__init__.py</Source>
+    <Source>core/parsers/markdown.py</Source>
+    <Source>core/parsers/misc.py</Source>
+    <Source>core/parsers/text.py</Source>
     <Source>core/text_editor.py</Source>
+    <Source>core/translator/Ui_translator.py</Source>
+    <Source>core/translator/__init__.py</Source>
     <Source>icons_rc.py</Source>
     <Source>launch_kmol.py</Source>
   </Sources>
-  <Forms>
-    <Form>core/mainwindow.ui</Form>
-  </Forms>
   <Resources>
     <Resource>icons.qrc</Resource>
   </Resources>
