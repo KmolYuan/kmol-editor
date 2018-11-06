@@ -25,9 +25,9 @@ class TranslatorWidget(QWidget, Ui_Form):
         super(TranslatorWidget, self).__init__(parent)
         self.setupUi(self)
 
-        languages = ('auto', 'en', 'zh-TW', 'zh-CN')
-        self.src_lang.addItems(languages)
-        self.dest_lang.addItems(languages[1:])
+        languages = ('en', 'fr', 'de', 'ru', 'ko', 'ja', 'zh-CN', 'zh-TW')
+        self.src_lang.addItems(languages + ('auto',))
+        self.dest_lang.addItems(reversed(languages))
 
     @pyqtSlot(name='on_swap_button_clicked')
     def __swap(self):

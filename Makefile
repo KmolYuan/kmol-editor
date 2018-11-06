@@ -28,7 +28,7 @@ EXENAME = kmol-editor-$(EDITORVER).$(COMPILERVER)-$(SYSVER)
 build: launch_kmol.py
 	@echo ---Kmol Editor Build---
 ifeq ($(OS),Windows_NT)
-	pyinstaller -F $< -i ./icons/kmol.ico -n "Kmol Editor" \
+	pyinstaller -w -F $< -i ./icons/kmol.ico -n "Kmol Editor" \
 --hidden-import=PyQt5.QtPrintSupport \
 --add-data=$(SPELLPATH)\resources;spellchecker\resources \
 --add-data=$(LANGPATH)\utils\messages.properties;langdetect\utils
