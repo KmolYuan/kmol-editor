@@ -112,7 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.popMenu_tree.addSeparator()
 
-        self.tree_path = QAction("Set &Path", self)
+        self.tree_path = QAction("Set Path", self)
         self.tree_path.triggered.connect(self.set_path)
         self.popMenu_tree.addAction(self.tree_path)
         self.tree_refresh = QAction("&Refresh from Path", self)
@@ -689,6 +689,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         is_root = (not node.parent()) if has_item else False
         for action in (
             self.action_open,
+            self.action_open_from_dir,
             self.action_new_project,
         ):
             action.setVisible(is_root or not has_item)
