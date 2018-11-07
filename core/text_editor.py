@@ -28,6 +28,7 @@ from core.QtModules import (
     QMenu,
     QAction,
     QInputDialog,
+    QScrollBar,
     # QScintilla widget
     QsciScintilla,
     # Other highlighters
@@ -260,7 +261,7 @@ class TextEditor(QsciScintilla):
     def keyPressEvent(self, event):
         """Input key event."""
         key = event.key()
-        text = self.selectedText()
+        selected_text = self.selectedText()
 
         # Commas and parentheses.
         parentheses = list(_parentheses)
@@ -280,14 +281,19 @@ class TextEditor(QsciScintilla):
                     return
 
         # Wrap the selected text.
-        if text:
+        if selected_text:
             for k1, k2, t0, t1 in parentheses:
                 if key == k1:
-                    self.replaceSelectedText(t0 + text + t1)
+                    self.replaceSelectedText(t0 + selected_text + t1)
+                    self.word_changed.emit()
                     return
 
+        line, _ = self.getCursorPosition()
+        doc_pre = self.text(line)
         super(TextEditor, self).keyPressEvent(event)
-        self.word_changed.emit()
+        doc_post = self.text(line)
+        if doc_pre != doc_post:
+            self.word_changed.emit()
         self.__spell_check_line()
 
         # Auto close of parentheses.
@@ -330,12 +336,17 @@ class TextEditor(QsciScintilla):
 
     def remove_trailing_blanks(self):
         """Remove trailing blanks in text editor."""
+        scroll_bar: QScrollBar = self.verticalScrollBar()
+        pos = scroll_bar.sliderPosition()
+
         line, index = self.getCursorPosition()
         doc = ""
         for line_str in self.text().splitlines():
             doc += line_str.rstrip() + '\n'
         super(TextEditor, self).setText(doc)
+
         self.setCursorPosition(line, self.lineLength(line) - 1)
+        scroll_bar.setSliderPosition(pos)
 
     def setText(self, doc: str):
         """Remove trailing blanks in text editor."""
