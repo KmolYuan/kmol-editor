@@ -20,7 +20,7 @@ else
     COMPILERVER = $(shell python3 -c "import platform; print(''.join(platform.python_compiler().split(\" \")[:2]).replace('.', '').lower())")
     SYSVER = $(shell python3 -c "import platform; print(platform.machine().lower())")
     SPELLPATH = $(shell python3 -c "import spellchecker; print(spellchecker.__path__[0])")
-    LANGPATH = $(shell python -c "import langdetect; print(langdetect.__path__[0])")
+    LANGPATH = $(shell python3 -c "import langdetect; print(langdetect.__path__[0])")
 endif
 EXENAME = kmol-editor-$(EDITORVER).$(COMPILERVER)-$(SYSVER)
 
