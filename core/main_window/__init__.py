@@ -8,7 +8,9 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import Hashable, Optional, Union
+from os import chdir
 import re
+from threading import Thread
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -51,7 +53,6 @@ from core.parsers import (
 )
 from .logging_handler import XStream
 from .Ui_main_window import Ui_MainWindow
-__variables__ = {}
 
 
 def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
@@ -606,30 +607,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Run a script in a new thread."""
         self.__save_current()
 
-        def run(script: str):
-            __variables__.clear()
-            node = self.tree_main.currentItem()
-            __variables__['node'] = node
-            if node:
-                root = _get_root(node)
-                __variables__['root'] = root
-                root_path = QFileInfo(root.text(1)).absoluteFilePath()
-                __variables__['root_path'] = root_path
-                node_path = getpath(node)
-                __variables__['node_path'] = node_path
+        variables = {
+            # Qt file operation classes.
+            'QStandardPaths': QStandardPaths,
+            'QFileInfo': QFileInfo,
+            'QDir': QDir,
+        }
+        node = self.tree_main.currentItem()
+        variables['node'] = node
+        if node:
+            root = _get_root(node)
+            variables['root'] = root
+            variables['root_path'] = QFileInfo(root.text(1)).absoluteFilePath()
+            variables['node_path'] = getpath(node)
 
-            def chdir(path: str):
-                from os import chdir
-                if QFileInfo(path).isDir():
-                    chdir(path)
-                elif QFileInfo(path).isFile():
-                    chdir(QFileInfo(path).absolutePath())
+        def chdir_tree(path: str):
+            if QFileInfo(path).isDir():
+                chdir(path)
+            elif QFileInfo(path).isFile():
+                chdir(QFileInfo(path).absolutePath())
 
-            __variables__['chdir'] = chdir
-            exec(script)
-
-        from threading import Thread
-        Thread(target=run, args=(self.data[code] if type(code) == int else code,)).start()
+        variables['chdir'] = chdir_tree
+        thread = Thread(
+            target=exec,
+            args=(self.data[code] if type(code) == int else code, variables)
+        )
+        thread.start()
 
     @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem, name='on_tree_main_currentItemChanged')
     def __switch_data(
