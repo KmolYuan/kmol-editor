@@ -8,6 +8,7 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import Hashable, Optional, Union
+import os
 import re
 from core.QtModules import (
     pyqtSlot,
@@ -45,6 +46,8 @@ from core.parsers import (
     getpath,
     parse,
     save_file,
+    file_suffix,
+    file_icon,
     SUPPORT_FILE_FORMATS,
 )
 from .logging_handler import XStream
@@ -103,7 +106,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.popMenu_tree.setSeparatorsCollapsible(True)
         self.popMenu_tree.addAction(self.action_new_project)
         self.popMenu_tree.addAction(self.action_open)
-        self.popMenu_tree.addAction(self.action_open_from_dir)
         self.tree_add = QAction("&Add Node", self)
         self.tree_add.triggered.connect(self.add_node)
         self.tree_add.setShortcut("Ctrl+I")
@@ -260,16 +262,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if not filename:
             return
-        if suffix != "All files (*.*)":
-            suffix = suffix.split('.')[-1][:-1]
-            if QFileInfo(filename).suffix() != suffix:
-                filename += '.' + suffix
         self.env = QFileInfo(filename).absolutePath()
-        self.tree_main.addTopLevelItem(QTreeRoot(
+        root_node = QTreeRoot(
             QFileInfo(filename).baseName(),
             filename,
             str(self.data.new_num())
-        ))
+        )
+        suffix_text = file_suffix(filename)
+        if suffix_text == 'md':
+            root_node.setIcon(0, file_icon("markdown"))
+        elif suffix_text == 'html':
+            root_node.setIcon(0, file_icon("html"))
+        elif suffix_text == 'kmol':
+            root_node.setIcon(0, file_icon("kmol"))
+        else:
+            root_node.setIcon(0, file_icon("txt"))
+        self.tree_main.addTopLevelItem(root_node)
 
     @pyqtSlot(name='on_action_open_triggered')
     def open_proj(self):
@@ -303,10 +311,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
 
         self.text_editor.clear()
-
-    @pyqtSlot(name='on_action_open_from_dir_triggered')
-    def open_dir(self):
-        """TODO: Open dir as project."""
 
     @pyqtSlot()
     def refresh_proj(self):
@@ -689,7 +693,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         is_root = (not node.parent()) if has_item else False
         for action in (
             self.action_open,
-            self.action_open_from_dir,
             self.action_new_project,
         ):
             action.setVisible(is_root or not has_item)

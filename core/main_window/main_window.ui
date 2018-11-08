@@ -17,7 +17,7 @@
    <string>Kmol editor</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../icons.qrc">
     <normaloff>:/icons/kmol.png</normaloff>:/icons/kmol.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -313,7 +313,6 @@
     </property>
     <addaction name="action_new_project"/>
     <addaction name="action_open"/>
-    <addaction name="action_open_from_dir"/>
     <addaction name="action_save"/>
     <addaction name="separator"/>
     <addaction name="action_New_Window"/>
@@ -390,7 +389,7 @@
   </action>
   <action name="action_about">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/kmol.png</normaloff>:/icons/kmol.png</iconset>
    </property>
    <property name="text">
@@ -407,7 +406,7 @@
   </action>
   <action name="action_about_qt">
    <property name="icon">
-    <iconset resource="../icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/Logo_Qt.png</normaloff>:/icons/Logo_Qt.png</iconset>
    </property>
    <property name="text">
@@ -423,14 +422,9 @@
     <string>New Window</string>
    </property>
   </action>
-  <action name="action_open_from_dir">
-   <property name="text">
-    <string>Open from Directory</string>
-   </property>
-  </action>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../icons.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -188,11 +188,8 @@ class Ui_MainWindow(object):
         self.action_New_Window = QtWidgets.QAction(MainWindow)
         self.action_New_Window.setIcon(icon1)
         self.action_New_Window.setObjectName("action_New_Window")
-        self.action_open_from_dir = QtWidgets.QAction(MainWindow)
-        self.action_open_from_dir.setObjectName("action_open_from_dir")
         self.menu_File.addAction(self.action_new_project)
         self.menu_File.addAction(self.action_open)
-        self.menu_File.addAction(self.action_open_from_dir)
         self.menu_File.addAction(self.action_save)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.action_New_Window)
@@ -244,6 +241,5 @@ class Ui_MainWindow(object):
         self.action_mde_tw.setText(_translate("MainWindow", "mde.tw"))
         self.action_about_qt.setText(_translate("MainWindow", "About Qt"))
         self.action_New_Window.setText(_translate("MainWindow", "New Window"))
-        self.action_open_from_dir.setText(_translate("MainWindow", "Open from Directory"))
 
 import icons_rc
