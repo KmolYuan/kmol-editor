@@ -175,23 +175,28 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
         if suffix_text == 'kmol':
             # Save project.
             _write_tree(node.text(1), node, data)
-        elif suffix_text in _SUPPORT_FILE_SUFFIX:
-            # Save text files.
-            filepath = QDir(QFileInfo(node_getpath(node)).absolutePath())
-            if not filepath.exists():
-                filepath.mkpath('.')
-                print("Create Folder: {}".format(filepath.absolutePath()))
-            filename = filepath.filePath(path_text)
-            # Add end new line.
-            if my_content and (my_content[-1] != '\n'):
-                my_content += '\n'
-            try:
-                with open(filename, 'w', encoding='utf-8') as f:
-                    f.write(my_content)
-            except UnicodeError:
-                print(f"Unicode Error in: {filename}")
-            else:
-                print(f"Saved: {filename}")
+        else:
+            # File path.
+            file_path = QDir(QFileInfo(node_getpath(node)).absolutePath())
+            if not file_path.exists():
+                file_path.mkpath('.')
+                print("Create Folder: {}".format(file_path.absolutePath()))
+            file_name = file_path.filePath(path_text)
+
+            if suffix_text in _SUPPORT_FILE_SUFFIX:
+                # Add end new line.
+                if my_content and (my_content[-1] != '\n'):
+                    my_content += '\n'
+                try:
+                    with open(file_name, 'w', encoding='utf-8') as f:
+                        f.write(my_content)
+                except UnicodeError:
+                    print(f"Unicode Error in: {file_name}")
+                else:
+                    print(f"Saved: {file_name}")
+            elif suffix_text:
+                print(f"Ignore file: {file_name}")
+
     return my_content, all_saved
 
 
@@ -221,5 +226,4 @@ def parse(node: QTreeWidgetItem, data: DataDict):
         # Text files and Python scripts.
         node.setIcon(0, file_icon("txt"))
         parse_text(filename, code, data)
-        print(data[code])
     print("Loaded: {}".format(node.text(1)))

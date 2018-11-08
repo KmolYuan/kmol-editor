@@ -21,10 +21,14 @@ def parse_text(
     except FileNotFoundError as e:
         data[code] = str(e)
         return
+    except PermissionError:
+        # Is directory.
+        return
     try:
         with f:
             doc = f.read()
     except UnicodeDecodeError:
+        # Binary files.
         return
     else:
         data[code] = doc
