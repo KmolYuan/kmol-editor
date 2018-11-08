@@ -8,7 +8,7 @@
 # Create the AppDir
 ########################################################################
 
-APP=kmol_editor
+APP=kmol-editor
 LOWERAPP=${APP,,}
 
 mkdir -p ENV/$APP.AppDir/
