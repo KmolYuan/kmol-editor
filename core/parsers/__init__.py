@@ -185,9 +185,13 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
             # Add end new line.
             if my_content and (my_content[-1] != '\n'):
                 my_content += '\n'
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(my_content)
-            print("Saved: {}".format(filename))
+            try:
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(my_content)
+            except UnicodeError:
+                print(f"Unicode Error in: {filename}")
+            else:
+                print(f"Saved: {filename}")
     return my_content, all_saved
 
 
@@ -217,4 +221,5 @@ def parse(node: QTreeWidgetItem, data: DataDict):
         # Text files and Python scripts.
         node.setIcon(0, file_icon("txt"))
         parse_text(filename, code, data)
+        print(data[code])
     print("Loaded: {}".format(node.text(1)))

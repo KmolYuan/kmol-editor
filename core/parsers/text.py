@@ -21,7 +21,10 @@ def parse_text(
     except FileNotFoundError as e:
         data[code] = str(e)
         return
-
-    with f:
-        doc = f.read()
-    data[code] = doc
+    try:
+        with f:
+            doc = f.read()
+    except UnicodeDecodeError:
+        return
+    else:
+        data[code] = doc

@@ -8,7 +8,6 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import Hashable, Optional, Union
-import os
 import re
 from core.QtModules import (
     pyqtSlot,
@@ -219,11 +218,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def dropEvent(self, event):
         """Drop file in to our window."""
-        filename = event.mimeData().urls()[-1].toLocalFile()
-        root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
-        self.tree_main.addTopLevelItem(root_node)
-        parse(root_node, self.data)
-        self.tree_main.setCurrentItem(root_node)
+        for url in event.mimeData().urls():
+            filename = url.toLocalFile()
+            root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
+            self.tree_main.addTopLevelItem(root_node)
+            parse(root_node, self.data)
+            self.tree_main.setCurrentItem(root_node)
         self.__add_macros()
         event.acceptProposedAction()
 
@@ -245,8 +245,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.insertPlainText(log)
         self.console.moveCursor(QTextCursor.End)
 
-    @pyqtSlot(QPoint)
-    def on_tree_widget_context_menu(self, point: QPoint):
+    @pyqtSlot(QPoint, name='on_tree_widget_context_menu')
+    def __tree_context_menu(self, point: QPoint):
         """Operations."""
         self.__action_changed()
         self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
@@ -254,7 +254,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(name='on_action_new_project_triggered')
     def new_proj(self):
         """New file."""
-        filename, suffix = QFileDialog.getSaveFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             self,
             "New Project",
             self.env,
@@ -306,11 +306,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tree_main.addTopLevelItem(root_node)
                 parse(root_node, self.data)
                 self.tree_main.setCurrentItem(root_node)
-                self.__add_macros()
             else:
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
 
-        self.text_editor.clear()
+        self.__add_macros()
 
     @pyqtSlot()
     def refresh_proj(self):
@@ -814,4 +813,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         name='on_find_list_currentItemChanged')
     def __find_results(self, *_: QListWidgetItem):
         """TODO: Switch to target node."""
-        print("Not Implemented.")
