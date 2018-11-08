@@ -439,7 +439,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __save_current(self):
         """Save the current text of editor."""
         self.text_editor.remove_trailing_blanks()
-        self.data[int(self.tree_main.currentItem().text(2))] = self.text_editor.text()
+        item = self.tree_main.currentItem()
+        if item:
+            self.data[int(item.text(2))] = self.text_editor.text()
 
     @pyqtSlot()
     def delete_node(self):
