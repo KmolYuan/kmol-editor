@@ -14,9 +14,9 @@ from core.QtModules import (
 )
 
 
-def file_suffix(filename: str) -> str:
+def file_suffix(file_name: str) -> str:
     """Return suffix of file name."""
-    return QFileInfo(filename).suffix()
+    return QFileInfo(file_name).completeSuffix()
 
 
 def node_getpath(node: QTreeWidgetItem) -> str:
@@ -34,7 +34,7 @@ def node_getpath(node: QTreeWidgetItem) -> str:
 def getpath(node: QTreeWidgetItem) -> str:
     """Get the path of current node."""
     parent = node.parent()
-    filename = node.text(1)
+    file_name = node.text(1)
     if parent:
-        return QFileInfo(QDir(node_getpath(parent)).filePath(filename)).absoluteFilePath()
-    return filename
+        return QFileInfo(QDir(node_getpath(parent)).filePath(file_name)).absoluteFilePath()
+    return file_name

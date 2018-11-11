@@ -11,13 +11,13 @@ from core.data_structure import DataDict
 
 
 def parse_text(
-    filename: str,
+    file_name: str,
     code: int,
     data: DataDict
 ):
     """Just store file content to data structure."""
     try:
-        f = open(filename, encoding='utf-8')
+        f = open(file_name, encoding='utf-8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return

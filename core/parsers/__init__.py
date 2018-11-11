@@ -16,6 +16,7 @@ from typing import (
 import yaml
 from core.QtModules import (
     QTreeWidgetItem,
+    QTreeItem,
     QFileInfo,
     QDir,
     QIcon,
@@ -40,7 +41,7 @@ __all__ = [
 NodeDict = Dict[str, Union[int, str, List['NodeDict']]]
 YMLData = Dict[str, Union[int, List[NodeDict], Dict[int, str]]]
 
-_SUPPORT_FILE_SUFFIX = (
+_SUPPORT_FILE_SUFFIX: Tuple[str, ...] = (
     'kmol',
     'md',
     'html',
@@ -48,7 +49,7 @@ _SUPPORT_FILE_SUFFIX = (
     'tex',
     'txt',
 )
-_SUPPORT_FORMAT = (
+_SUPPORT_FORMAT: Tuple[str, ...] = (
     "Kmol Project",
     "Markdown",
     "HTML",
@@ -130,7 +131,7 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
         name: str = node_dict['name']
         code_int: int = node_dict['code']
         path: str = node_dict['path']
-        node = QTreeWidgetItem([name, path, str(code_int)])
+        node = QTreeItem(name, path, str(code_int))
         if name.startswith('@'):
             node.setIcon(0, file_icon("python"))
             data.add_macro(name[1:], code_int)
@@ -203,8 +204,8 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
 def parse(node: QTreeWidgetItem, data: DataDict):
     """Parse file to tree format."""
     node.takeChildren()
-    filename = getpath(node)
-    suffix_text = file_suffix(filename)
+    file_name = getpath(node)
+    suffix_text = file_suffix(file_name)
     if node.text(2):
         code = int(node.text(2))
     else:
@@ -213,11 +214,15 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     if suffix_text == 'md':
         # Markdown
         node.setIcon(0, file_icon("markdown"))
-        parse_markdown(filename, node, code, data)
+        parse_markdown(file_name, node, code, data)
+    elif suffix_text == 'py':
+        # Python script
+        node.setIcon(0, file_icon("python"))
+        parse_text(file_name, code, data)
     elif suffix_text == 'html':
         # TODO: Need to parse HTML (reveal.js index.html)
         node.setIcon(0, file_icon("html"))
-        parse_text(filename, code, data)
+        parse_text(file_name, code, data)
     elif suffix_text == 'kmol':
         # Kmol project
         node.setIcon(0, file_icon("kmol"))
@@ -225,5 +230,5 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     else:
         # Text files and Python scripts.
         node.setIcon(0, file_icon("txt"))
-        parse_text(filename, code, data)
+        parse_text(file_name, code, data)
     print("Loaded: {}".format(node.text(1)))

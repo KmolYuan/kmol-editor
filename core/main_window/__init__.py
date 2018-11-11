@@ -7,10 +7,17 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
-from typing import Hashable, Optional, Union
-from os import chdir
+from typing import (
+    Dict,
+    Hashable,
+    Optional,
+    Union,
+    Any,
+)
+from os import chdir, system as os_system
 import re
 from threading import Thread
+from subprocess import check_output
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -65,6 +72,11 @@ def _grand_parent(node: QTreeWidgetItem) -> QTreeWidgetItem:
     """Return the grand parent if exist."""
     parent = node.parent()
     return (parent.parent() if parent else node.treeWidget()) or node.treeWidget()
+
+
+def _str_between(s: str, front: str, back: str) -> str:
+    """Get from parenthesis."""
+    return s[(s.find(front) + 1):s.find(back)]
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -203,11 +215,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data.all_saved.connect(self.__set_saved_title)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
 
-        for filename in ARGUMENTS.r:
-            filename = QFileInfo(filename).canonicalFilePath()
-            if not filename:
+        for file_name in ARGUMENTS.r:
+            file_name = QFileInfo(file_name).canonicalFilePath()
+            if not file_name:
                 return
-            root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
+            root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
             self.tree_main.addTopLevelItem(root_node)
             parse(root_node, self.data)
         self.__add_macros()
@@ -220,8 +232,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def dropEvent(self, event):
         """Drop file in to our window."""
         for url in event.mimeData().urls():
-            filename = url.toLocalFile()
-            root_node = QTreeRoot(QFileInfo(filename).baseName(), filename, '')
+            file_name = url.toLocalFile()
+            root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
             self.tree_main.addTopLevelItem(root_node)
             parse(root_node, self.data)
             self.tree_main.setCurrentItem(root_node)
@@ -255,23 +267,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot(name='on_action_new_project_triggered')
     def new_proj(self):
         """New file."""
-        filename, _ = QFileDialog.getSaveFileName(
+        file_name, suffix_type = QFileDialog.getSaveFileName(
             self,
             "New Project",
             self.env,
             SUPPORT_FILE_FORMATS
         )
-        if not filename:
+        if not file_name:
             return
-        self.env = QFileInfo(filename).absolutePath()
+        suffix = _str_between(suffix_type, '(', ')').split('*')[-1]
+        if QFileInfo(file_name).completeSuffix() != suffix[1:]:
+            file_name += suffix
+        self.env = QFileInfo(file_name).absolutePath()
         root_node = QTreeRoot(
-            QFileInfo(filename).baseName(),
-            filename,
+            QFileInfo(file_name).baseName(),
+            file_name,
             str(self.data.new_num())
         )
-        suffix_text = file_suffix(filename)
+        suffix_text = file_suffix(file_name)
         if suffix_text == 'md':
             root_node.setIcon(0, file_icon("markdown"))
+        elif suffix_text == 'py':
+            root_node.setIcon(0, file_icon("python"))
         elif suffix_text == 'html':
             root_node.setIcon(0, file_icon("html"))
         elif suffix_text == 'kmol':
@@ -330,9 +347,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_path(self):
         """Open path of current node."""
         node = self.tree_main.currentItem()
-        filename = getpath(node)
-        QDesktopServices.openUrl(QUrl(filename))
-        print("Open: {}".format(filename))
+        file_name = getpath(node)
+        QDesktopServices.openUrl(QUrl(file_name))
+        print("Open: {}".format(file_name))
 
     @pyqtSlot()
     def add_node(self):
@@ -359,7 +376,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_path(self):
         """Set file directory."""
         node = self.tree_main.currentItem()
-        filename, ok = QFileDialog.getOpenFileName(
+        file_name, ok = QFileDialog.getOpenFileName(
             self,
             "Open File",
             self.env,
@@ -367,10 +384,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if not ok:
             return
-        self.env = QFileInfo(filename).absolutePath()
+        self.env = QFileInfo(file_name).absolutePath()
         project_path = QDir(_get_root(node).text(1))
         project_path.cdUp()
-        node.setText(1, project_path.relativeFilePath(filename))
+        node.setText(1, project_path.relativeFilePath(file_name))
 
     @pyqtSlot()
     def copy_node(self):
@@ -609,7 +626,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Run a script in a new thread."""
         self.__save_current()
 
-        variables = {
+        variables: Dict[str, Any] = {
+            # Shell functions.
+            "run_shell": os_system,
+            "run_shell_out": lambda *command: check_output(command).decode('utf-8'),
             # Qt file operation classes.
             'QStandardPaths': QStandardPaths,
             'QFileInfo': QFileInfo,
@@ -617,11 +637,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         }
         node = self.tree_main.currentItem()
         variables['node'] = node
-        if node:
+        if node is not None:
             root = _get_root(node)
             variables['root'] = root
-            variables['root_path'] = QFileInfo(root.text(1)).absoluteFilePath()
-            variables['node_path'] = getpath(node)
+            variables['root_file'] = QFileInfo(root.text(1)).absoluteFilePath()
+            variables['root_path'] = QFileInfo(variables['root_file']).absolutePath()
+            variables['node_file'] = getpath(node)
+            variables['node_path'] = QFileInfo(variables['node_file']).absolutePath()
 
         def chdir_tree(path: str):
             if QFileInfo(path).isDir():
@@ -656,8 +678,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if current:
             # Auto highlight.
             path = current.text(1)
-            filename = QFileInfo(path).fileName()
-            suffix = QFileInfo(filename).suffix()
+            file_name = QFileInfo(path).fileName()
+            suffix = QFileInfo(file_name).suffix()
             if current.text(0).startswith('@'):
                 self.highlighter_option.setCurrentText("Python")
             else:
@@ -669,7 +691,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         break
                 else:
                     for name_m, filename_m in HIGHLIGHTER_FILENAME.items():
-                        if filename in filename_m:
+                        if file_name in filename_m:
                             self.highlighter_option.setCurrentText(name_m)
                             break
             self.text_editor.setText(self.data[int(current.text(2))])

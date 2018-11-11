@@ -12,14 +12,14 @@ from core.data_structure import DataDict
 
 
 def parse_markdown(
-    filename: str,
+    file_name: str,
     node: QTreeWidgetItem,
     code: int,
     data: DataDict
 ):
     """Parse Markdown file to tree nodes."""
     try:
-        f = open(filename, encoding='utf-8')
+        f = open(file_name, encoding='utf-8')
     except FileNotFoundError as e:
         data[code] = str(e)
         return
