@@ -82,7 +82,8 @@ def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
             'path': node.text(1),
             'sub': [],
         }
-        my_codes.append(code_int)
+        if file_suffix(node.text(1)) not in _SUPPORT_FILE_SUFFIX:
+            my_codes.append(code_int)
         if QFileInfo(QDir(node_getpath(node.parent())).filePath(node.text(1))).isFile():
             # Files do not need to make a copy.
             return node_dict
