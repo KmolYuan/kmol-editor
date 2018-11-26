@@ -58,7 +58,6 @@ _commas = (
 _commas_markdown = (
     Qt.Key_Semicolon,
     Qt.Key_Colon,
-    Qt.Key_Period,
 )
 
 
