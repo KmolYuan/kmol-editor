@@ -112,7 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Tree widget context menu.
         self.tree_widget.customContextMenuRequested.connect(
-            self.on_tree_widget_context_menu
+            self.__tree_context_menu
         )
         self.pop_menu_tree = QMenu(self)
         self.pop_menu_tree.setSeparatorsCollapsible(True)
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.console.insertPlainText(log)
         self.console.moveCursor(QTextCursor.End)
 
-    @pyqtSlot(QPoint, name='on_tree_widget_context_menu')
+    @pyqtSlot(QPoint)
     def __tree_context_menu(self, point: QPoint):
         """Operations."""
         self.__action_changed()
