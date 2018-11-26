@@ -114,50 +114,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_widget.customContextMenuRequested.connect(
             self.on_tree_widget_context_menu
         )
-        self.popMenu_tree = QMenu(self)
-        self.popMenu_tree.setSeparatorsCollapsible(True)
-        self.popMenu_tree.addAction(self.action_new_project)
-        self.popMenu_tree.addAction(self.action_open)
+        self.pop_menu_tree = QMenu(self)
+        self.pop_menu_tree.setSeparatorsCollapsible(True)
+        self.pop_menu_tree.addAction(self.action_new_project)
+        self.pop_menu_tree.addAction(self.action_open)
         self.tree_add = QAction("&Add Node", self)
         self.tree_add.triggered.connect(self.add_node)
         self.tree_add.setShortcut("Ctrl+I")
         self.tree_add.setShortcutContext(Qt.WindowShortcut)
-        self.popMenu_tree.addAction(self.tree_add)
+        self.pop_menu_tree.addAction(self.tree_add)
 
-        self.popMenu_tree.addSeparator()
+        self.pop_menu_tree.addSeparator()
 
         self.tree_path = QAction("Set Path", self)
         self.tree_path.triggered.connect(self.set_path)
-        self.popMenu_tree.addAction(self.tree_path)
+        self.pop_menu_tree.addAction(self.tree_path)
         self.tree_refresh = QAction("&Refresh from Path", self)
         self.tree_refresh.triggered.connect(self.refresh_proj)
-        self.popMenu_tree.addAction(self.tree_refresh)
+        self.pop_menu_tree.addAction(self.tree_refresh)
         self.tree_openurl = QAction("&Open from Path", self)
         self.tree_openurl.triggered.connect(self.open_path)
-        self.popMenu_tree.addAction(self.tree_openurl)
+        self.pop_menu_tree.addAction(self.tree_openurl)
         self.action_save.triggered.connect(self.save_proj)
-        self.popMenu_tree.addAction(self.action_save)
+        self.pop_menu_tree.addAction(self.action_save)
         self.tree_copy = QAction("Co&py", self)
         self.tree_copy.triggered.connect(self.copy_node)
-        self.popMenu_tree.addAction(self.tree_copy)
+        self.pop_menu_tree.addAction(self.tree_copy)
         self.tree_clone = QAction("C&lone", self)
         self.tree_clone.triggered.connect(self.clone_node)
-        self.popMenu_tree.addAction(self.tree_clone)
+        self.pop_menu_tree.addAction(self.tree_clone)
         self.tree_copy_tree = QAction("Recursive Copy", self)
         self.tree_copy_tree.triggered.connect(self.copy_node_recursive)
-        self.popMenu_tree.addAction(self.tree_copy_tree)
+        self.pop_menu_tree.addAction(self.tree_copy_tree)
         self.tree_clone_tree = QAction("Recursive Clone", self)
         self.tree_clone_tree.triggered.connect(self.clone_node_recursive)
-        self.popMenu_tree.addAction(self.tree_clone_tree)
+        self.pop_menu_tree.addAction(self.tree_clone_tree)
 
-        self.popMenu_tree.addSeparator()
+        self.pop_menu_tree.addSeparator()
 
         self.tree_delete = QAction("&Delete", self)
         self.tree_delete.triggered.connect(self.delete_node)
-        self.popMenu_tree.addAction(self.tree_delete)
+        self.pop_menu_tree.addAction(self.tree_delete)
         self.tree_close = QAction("&Close", self)
         self.tree_close.triggered.connect(self.close_file)
-        self.popMenu_tree.addAction(self.tree_close)
+        self.pop_menu_tree.addAction(self.tree_close)
         self.tree_main.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         # Console
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __tree_context_menu(self, point: QPoint):
         """Operations."""
         self.__action_changed()
-        self.popMenu_tree.exec_(self.tree_widget.mapToGlobal(point))
+        self.pop_menu_tree.exec_(self.tree_widget.mapToGlobal(point))
 
     @pyqtSlot(name='on_action_new_project_triggered')
     def new_proj(self):
@@ -636,7 +636,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             'QDir': QDir,
         }
         node = self.tree_main.currentItem()
-        variables['node'] = node
         if node is not None:
             root = _get_root(node)
             variables['root'] = root
@@ -723,21 +722,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ):
             action.setVisible(is_root or not has_item)
         self.tree_close.setVisible(has_item and is_root)
-        for action in (
+        for action in [
             self.tree_add,
             self.tree_refresh,
             self.tree_openurl,
             self.action_save,
-        ):
+        ]:
             action.setVisible(has_item)
-        for action in (
+        for action in [
             self.tree_copy,
             self.tree_clone,
             self.tree_copy_tree,
             self.tree_clone_tree,
             self.tree_path,
             self.tree_delete,
-        ):
+        ]:
             action.setVisible(has_item and not is_root)
 
     def __add_macros(self):
