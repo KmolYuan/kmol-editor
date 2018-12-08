@@ -48,9 +48,9 @@ class DataDict(QObject):
     def __setitem__(self, key: Hashable, context: str):
         """Set item."""
         self.__saved[key] = self[key] == context
-        self.__data[key] = context
         if not self.__saved[key]:
             self.not_saved.emit()
+        self.__data[key] = context
 
     def __delitem__(self, key: Hashable):
         """Delete the key and avoid raise error."""

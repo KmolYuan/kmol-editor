@@ -57,7 +57,7 @@ def parse_markdown(
         return
     if titles[0][0] == 0:
         # Start with line 0.
-        data[code] = "@others"
+        data[code] = "@others\n"
     else:
         data[code] = '\n'.join(string_list[:titles[0][0]])
     tree_items = []

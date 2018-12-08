@@ -120,7 +120,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pop_menu_tree.addAction(self.action_open)
         self.tree_add = QAction("&Add Node", self)
         self.tree_add.triggered.connect(self.add_node)
-        self.tree_add.setShortcut("Ctrl+I")
         self.tree_add.setShortcutContext(Qt.WindowShortcut)
         self.pop_menu_tree.addAction(self.tree_add)
 
@@ -189,6 +188,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.panel_widget.addTab(TranslatorWidget(self), "Translator")
 
         # Node edit function. (Ctrl + ArrowKey)
+        new_node = QShortcut(QKeySequence("Ctrl+Ins"), self)
+        new_node.activated.connect(self.add_node)
+        del_node = QShortcut(QKeySequence("Ctrl+Del"), self)
+        del_node.activated.connect(self.delete_node)
         move_up_node = QShortcut(QKeySequence("Ctrl+Up"), self)
         move_up_node.activated.connect(self.__move_up_node)
         move_down_node = QShortcut(QKeySequence("Ctrl+Down"), self)
@@ -339,6 +342,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 "No path",
                 "Can only refresh from valid path."
             )
+            return
         parse(node, self.data)
         self.tree_main.setCurrentItem(node)
         self.text_editor.setText(self.data[int(node.text(2))])
@@ -463,7 +467,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @pyqtSlot()
     def delete_node(self):
         """Delete the current item."""
-        node = self.tree_main.currentItem()
+        node: Optional[QTreeWidgetItem] = self.tree_main.currentItem()
+        if not node:
+            return
         parent = node.parent()
         self.tree_main.setCurrentItem(parent)
         self.__delete_node_data(node)
