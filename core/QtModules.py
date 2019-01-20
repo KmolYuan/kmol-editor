@@ -15,6 +15,7 @@ from PyQt5.QtCore import qVersion, PYQT_VERSION_STR
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtWebEngineWidgets import *
 from PyQt5.Qsci import (
     QSCINTILLA_VERSION_STR,
     QsciScintilla,
@@ -133,6 +134,7 @@ __all__ = [
     'QUrl',
     'QVBoxLayout',
     'QWidget',
+    'QWebEngineView',
     'QsciScintilla',
     'QSCIHIGHLIGHTERS',
     'Qt',

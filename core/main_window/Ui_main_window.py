@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_window.ui'
+# Form implementation generated from reading ui file '/home/foxy/Desktop/kmol-editor/core/main_window/main_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.2
 #
@@ -124,9 +124,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.re_option)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem2)
-        self.find_project_button = QtWidgets.QPushButton(self.find_tab)
-        self.find_project_button.setObjectName("find_project_button")
-        self.horizontalLayout_4.addWidget(self.find_project_button)
         self.verticalLayout_6.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -140,6 +137,9 @@ class Ui_MainWindow(object):
         self.replace_project_button.setObjectName("replace_project_button")
         self.horizontalLayout_3.addWidget(self.replace_project_button)
         self.verticalLayout_6.addLayout(self.horizontalLayout_3)
+        self.find_project_button = QtWidgets.QPushButton(self.find_tab)
+        self.find_project_button.setObjectName("find_project_button")
+        self.verticalLayout_6.addWidget(self.find_project_button)
         self.find_list = QtWidgets.QListWidget(self.find_tab)
         self.find_list.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.find_list.setObjectName("find_list")
@@ -148,7 +148,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.h_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 31))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -221,10 +221,10 @@ class Ui_MainWindow(object):
         self.wrap_around.setText(_translate("MainWindow", "Wrap around"))
         self.match_case_option.setText(_translate("MainWindow", "Match case"))
         self.whole_word_option.setText(_translate("MainWindow", "Whole word"))
-        self.re_option.setText(_translate("MainWindow", "Regular expression"))
-        self.find_project_button.setText(_translate("MainWindow", "Find in Project"))
+        self.re_option.setText(_translate("MainWindow", "RE"))
         self.replace_node_button.setText(_translate("MainWindow", "Replace in Node"))
         self.replace_project_button.setText(_translate("MainWindow", "Rplace in Project"))
+        self.find_project_button.setText(_translate("MainWindow", "Find in Project"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.find_tab), _translate("MainWindow", "Find and Replace"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Help.setTitle(_translate("MainWindow", "&Help"))

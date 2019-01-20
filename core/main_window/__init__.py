@@ -18,6 +18,7 @@ from os import chdir, system as os_system
 import re
 from threading import Thread
 from subprocess import check_output
+from markdown import markdown
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -42,7 +43,7 @@ from core.QtModules import (
     QPixmap,
     QAction,
     QMenu,
-    QTextBrowser,
+    QWebEngineView,
     QSCIHIGHLIGHTERS,
     HIGHLIGHTER_SUFFIX,
     HIGHLIGHTER_FILENAME,
@@ -100,9 +101,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Text editor
         self.text_editor = TextEditor(self)
         self.h_splitter.addWidget(self.text_editor)
-        self.html_previewer = QTextBrowser(self)
-        self.html_previewer.setOpenExternalLinks(True)
+        self.html_previewer = QWebEngineView()
+        self.html_previewer.setContent(b"", "text/plain")
         self.h_splitter.addWidget(self.html_previewer)
+        self.text_editor.word_changed.connect(self.__reload_html_view)
         self.text_editor.word_changed.connect(self.__set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.set_remove_trailing_blanks)
@@ -211,10 +213,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
         # Splitter
-        self.h_splitter.setStretchFactor(0, 10)
-        self.h_splitter.setStretchFactor(1, 60)
-        self.v_splitter.setStretchFactor(0, 30)
-        self.v_splitter.setStretchFactor(1, 10)
+        self.h_splitter.setSizes([5, 60, 50])
+        self.v_splitter.setSizes([30, 10])
 
         # Data
         self.data = DataDict()
@@ -246,6 +246,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tree_main.setCurrentItem(root_node)
         self.__add_macros()
         event.acceptProposedAction()
+
+    def __reload_html_view(self):
+        """Reload HTML content."""
+        doc = self.text_editor.text()
+        option = self.text_editor.lexer_option
+        if option == "HTML":
+            self.html_previewer.setHtml(doc)
+        elif option == "Markdown":
+            self.html_previewer.setHtml(markdown(doc, extensions=['extra']))
+        else:
+            self.html_previewer.setContent(doc, "text/plain;charset=UTF-8")
 
     @pyqtSlot()
     def __set_not_saved_title(self):

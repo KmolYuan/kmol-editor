@@ -236,7 +236,7 @@
             <item>
              <widget class="QCheckBox" name="re_option">
               <property name="text">
-               <string>Regular expression</string>
+               <string>RE</string>
               </property>
              </widget>
             </item>
@@ -252,13 +252,6 @@
                </size>
               </property>
              </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="find_project_button">
-              <property name="text">
-               <string>Find in Project</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </item>
@@ -284,6 +277,13 @@
            </layout>
           </item>
           <item>
+           <widget class="QPushButton" name="find_project_button">
+            <property name="text">
+             <string>Find in Project</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QListWidget" name="find_list">
             <property name="verticalScrollMode">
              <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -304,7 +304,7 @@
      <x>0</x>
      <y>0</y>
      <width>964</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

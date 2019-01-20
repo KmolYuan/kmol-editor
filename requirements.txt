@@ -4,3 +4,4 @@ qscintilla
 pyyaml
 pyspellchecker
 py_translator
+markdown

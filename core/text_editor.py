@@ -47,11 +47,6 @@ _parentheses = (
 _parentheses_html = (
     (Qt.Key_Less, Qt.Key_Greater, '<', '>'),
 )
-_parentheses_markdown = (
-    (Qt.Key_Dollar, Qt.Key_Dollar, '$', '$'),
-    (Qt.Key_Asterisk, Qt.Key_Asterisk, '*', '*'),
-    _parentheses_html[0],
-)
 _commas = (
     Qt.Key_Comma,
 )
@@ -265,10 +260,7 @@ class TextEditor(QsciScintilla):
         # Commas and parentheses.
         parentheses = list(_parentheses)
         commas = list(_commas)
-        if self.lexer_option == "Markdown":
-            parentheses.extend(_parentheses_markdown)
-            commas.extend(_commas_markdown)
-        elif self.lexer_option == "HTML":
+        if self.lexer_option in {"Markdown", "HTML"}:
             parentheses.extend(_parentheses_html)
             commas.extend(_commas_markdown)
 
