@@ -24,10 +24,14 @@ from core.QtModules import (
 )
 from core.data_structure import DataDict
 from core.info import __version__
-from .misc import file_suffix, node_getpath, getpath
+from .misc import (
+    file_suffix,
+    node_getpath,
+    getpath,
+)
 from .text import parse_text
 from .markdown import (
-    LINK_PATTERNS,
+    CODE_STYLE,
     parse_markdown,
     pandoc_markdown,
 )
@@ -38,8 +42,8 @@ __all__ = [
     'save_file',
     'file_suffix',
     'file_icon',
+    'CODE_STYLE',
     'pandoc_markdown',
-    'LINK_PATTERNS',
     'SUPPORT_FILE_FORMATS',
 ]
 

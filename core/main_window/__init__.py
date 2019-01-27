@@ -19,6 +19,9 @@ import re
 from threading import Thread
 from subprocess import check_output
 from markdown2 import markdown
+from pygments import highlight
+from pygments.lexers.python import Python3Lexer
+from pygments.formatters.html import HtmlFormatter
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -58,8 +61,8 @@ from core.parsers import (
     save_file,
     file_suffix,
     file_icon,
+    CODE_STYLE,
     pandoc_markdown,
-    LINK_PATTERNS,
     SUPPORT_FILE_FORMATS,
 )
 from .logging_handler import XStream
@@ -257,12 +260,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if option == "HTML":
             self.html_previewer.setHtml(doc)
         elif option == "Markdown":
-            self.html_previewer.setHtml(markdown(pandoc_markdown(doc), extras=[
-                'extra',
-                'metadata',
-                'cuddled-lists',
-                'link-patterns',
-            ], link_patterns=LINK_PATTERNS))
+            self.html_previewer.setHtml(
+                f"<style>{CODE_STYLE}</style>" +
+                markdown(pandoc_markdown(doc), extras=[
+                    'numbering',
+                    'tables',
+                    'metadata',
+                    'fenced-code-blocks',
+                    'cuddled-lists',
+                    'tag-friendly',
+                ])
+            )
+        elif option == "Python":
+            self.html_previewer.setHtml(
+                f"<style>{CODE_STYLE}</style>" +
+                highlight(doc, Python3Lexer(), HtmlFormatter())
+            )
         else:
             self.html_previewer.setHtml(f"<code>{doc}</code>")
 

@@ -5,3 +5,4 @@ pyyaml
 pyspellchecker
 py_translator
 markdown2
+pygments

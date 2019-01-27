@@ -7,29 +7,12 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
-import re
+from pygments.formatters.html import HtmlFormatter
+from pygments.styles import get_style_by_name
 from core.QtModules import QTreeWidgetItem, QTreeItem
 from core.data_structure import DataDict
 
-LINK_PATTERNS = [
-    (re.compile(
-        r"("
-        r"("
-        r"([A-Za-z]{3,9}:(?://)?)"
-        r"(?:[\-;:&=+$,\w]+@)?"
-        r"[A-Za-z0-9.\-]+"
-        r"(:[0-9]+)?"
-        r"|(?:www\.|[\-;:&=+$,\w]+@)"
-        r"[A-Za-z0-9.\-]+"
-        r")"
-        r"("
-        r"(?:/[+~%/.\w\-]*)?"
-        r"\??(?:[\-+=&;%@.\w]*)"
-        r"#?(?:[.!/\\\w]*)"
-        r")?"
-        r")"
-    ), r'\1'),
-]
+CODE_STYLE = HtmlFormatter(style=get_style_by_name('default')).get_style_defs()
 
 
 def parse_markdown(
