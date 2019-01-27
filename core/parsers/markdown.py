@@ -7,15 +7,36 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+import re
 from core.QtModules import QTreeWidgetItem, QTreeItem
 from core.data_structure import DataDict
 
+LINK_PATTERNS = [
+    (re.compile(
+        r"("
+        r"("
+        r"([A-Za-z]{3,9}:(?://)?)"
+        r"(?:[\-;:&=+$,\w]+@)?"
+        r"[A-Za-z0-9.\-]+"
+        r"(:[0-9]+)?"
+        r"|(?:www\.|[\-;:&=+$,\w]+@)"
+        r"[A-Za-z0-9.\-]+"
+        r")"
+        r"("
+        r"(?:/[+~%/.\w\-]*)?"
+        r"\??(?:[\-+=&;%@.\w]*)"
+        r"#?(?:[.!/\\\w]*)"
+        r")?"
+        r")"
+    ), r'\1'),
+]
+
 
 def parse_markdown(
-    file_name: str,
-    node: QTreeWidgetItem,
-    code: int,
-    data: DataDict
+        file_name: str,
+        node: QTreeWidgetItem,
+        code: int,
+        data: DataDict
 ):
     """Parse Markdown file to tree nodes."""
     try:
@@ -87,3 +108,10 @@ def parse_markdown(
         item = QTreeItem(title, '', str(code))
         parent(index, level).addChild(item)
         tree_items.append(item)
+
+
+def pandoc_markdown(doc: str) -> str:
+    """TODO: Pandoc markdown to normal markdown."""
+    # Symbol @others
+    doc = doc.replace('@others', "<p style=\"color:red\">&lt;...&gt;</p>")
+    return doc

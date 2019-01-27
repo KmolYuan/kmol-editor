@@ -18,7 +18,7 @@ from os import chdir, system as os_system
 import re
 from threading import Thread
 from subprocess import check_output
-from markdown import markdown
+from markdown2 import markdown
 from core.QtModules import (
     pyqtSlot,
     Qt,
@@ -58,6 +58,8 @@ from core.parsers import (
     save_file,
     file_suffix,
     file_icon,
+    pandoc_markdown,
+    LINK_PATTERNS,
     SUPPORT_FILE_FORMATS,
 )
 from .logging_handler import XStream
@@ -214,7 +216,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Splitter
         self.h_splitter.setSizes([5, 60, 50])
-        self.v_splitter.setSizes([30, 10])
+        self.v_splitter.setSizes([500, 500])
 
         # Data
         self.data = DataDict()
@@ -225,10 +227,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for file_name in ARGUMENTS.r:
             file_name = QFileInfo(file_name).canonicalFilePath()
             if not file_name:
-                return
+                continue
             root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
             self.tree_main.addTopLevelItem(root_node)
             parse(root_node, self.data)
+
         self.__add_macros()
 
     def dragEnterEvent(self, event):
@@ -254,9 +257,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if option == "HTML":
             self.html_previewer.setHtml(doc)
         elif option == "Markdown":
-            self.html_previewer.setHtml(markdown(doc, extensions=['extra']))
+            self.html_previewer.setHtml(markdown(pandoc_markdown(doc), extras=[
+                'extra',
+                'metadata',
+                'cuddled-lists',
+                'link-patterns',
+            ], link_patterns=LINK_PATTERNS))
         else:
-            self.html_previewer.setContent(doc, "text/plain;charset=UTF-8")
+            self.html_previewer.setHtml(f"<code>{doc}</code>")
 
     @pyqtSlot()
     def __set_not_saved_title(self):
@@ -716,6 +724,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             break
             self.text_editor.setText(self.data[int(current.text(2))])
 
+        self.__reload_html_view()
         self.__action_changed()
 
     @pyqtSlot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')
