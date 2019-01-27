@@ -120,6 +120,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.highlighter_option.currentTextChanged.connect(
             self.text_editor.set_highlighter
         )
+        self.highlighter_option.currentTextChanged.connect(self.__reload_html_view)
 
         # Tree widget context menu.
         self.tree_widget.customContextMenuRequested.connect(
@@ -277,7 +278,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 highlight(doc, Python3Lexer(), HtmlFormatter())
             )
         else:
-            self.html_previewer.setHtml(f"<code>{doc}</code>")
+            self.html_previewer.setContent(b"", "text/plain")
+            self.html_previewer.setVisible(False)
+            return
+
+        self.html_previewer.setVisible(True)
 
     @pyqtSlot()
     def __set_not_saved_title(self):
