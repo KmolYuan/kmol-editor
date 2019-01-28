@@ -105,10 +105,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Text editor
         self.text_editor = TextEditor(self)
-        self.h_splitter.addWidget(self.text_editor)
+        self.h2_splitter.addWidget(self.text_editor)
         self.html_previewer = QWebEngineView()
         self.html_previewer.setContent(b"", "text/plain")
-        self.h_splitter.addWidget(self.html_previewer)
+        self.h2_splitter.addWidget(self.html_previewer)
         self.text_editor.word_changed.connect(self.__reload_html_view)
         self.text_editor.word_changed.connect(self.__set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
@@ -218,10 +218,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         run_sript.activated.connect(self.exec_button.click)
         self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
-        # Splitter
-        self.h_splitter.setSizes([5, 60, 50])
-        self.v_splitter.setSizes([500, 500])
-
         # Data
         self.data = DataDict()
         self.data.not_saved.connect(self.__set_not_saved_title)
@@ -237,6 +233,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             parse(root_node, self.data)
 
         self.__add_macros()
+
+    def showMaximized(self):
+        """Change splitter sizes after maximized."""
+        super(MainWindow, self).showMaximized()
+        self.h1_splitter.setSizes([20, 2000])
+        self.h2_splitter.setSizes([200, 200])
+        self.v_splitter.setSizes([300, 300])
 
     def dragEnterEvent(self, event):
         """Drag file in to our window."""

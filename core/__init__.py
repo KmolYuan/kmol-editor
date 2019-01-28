@@ -27,5 +27,5 @@ def main():
     if ARGUMENTS.fusion:
         qapp.setStyle('fusion')
     run = MainWindow()
-    run.show()
+    run.showMaximized()
     exit(qapp.exec())

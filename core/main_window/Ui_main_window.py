@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/foxy/Desktop/kmol-editor/core/main_window/main_window.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -18,12 +18,12 @@ class Ui_MainWindow(object):
         MainWindow.setWindowIcon(icon)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.centralWidget)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.h_splitter = QtWidgets.QSplitter(self.centralWidget)
-        self.h_splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.h_splitter.setObjectName("h_splitter")
-        self.v_splitter = QtWidgets.QSplitter(self.h_splitter)
+        self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.centralWidget)
+        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.h1_splitter = QtWidgets.QSplitter(self.centralWidget)
+        self.h1_splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.h1_splitter.setObjectName("h1_splitter")
+        self.v_splitter = QtWidgets.QSplitter(self.h1_splitter)
         self.v_splitter.setOrientation(QtCore.Qt.Vertical)
         self.v_splitter.setObjectName("v_splitter")
         self.verticalWidget = QtWidgets.QWidget(self.v_splitter)
@@ -145,7 +145,10 @@ class Ui_MainWindow(object):
         self.find_list.setObjectName("find_list")
         self.verticalLayout_6.addWidget(self.find_list)
         self.panel_widget.addTab(self.find_tab, "")
-        self.verticalLayout_4.addWidget(self.h_splitter)
+        self.h2_splitter = QtWidgets.QSplitter(self.h1_splitter)
+        self.h2_splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.h2_splitter.setObjectName("h2_splitter")
+        self.verticalLayout_7.addWidget(self.h1_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 31))
