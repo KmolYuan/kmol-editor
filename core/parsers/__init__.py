@@ -51,27 +51,22 @@ __all__ = [
 NodeDict = Dict[str, Union[int, str, List['NodeDict']]]
 YMLData = Dict[str, Union[int, List[NodeDict], Dict[int, str]]]
 
-_SUPPORT_FILE_SUFFIX: Tuple[str, ...] = (
-    'kmol',
-    'md',
-    'html',
-    'py',
-    'tex',
-    'txt',
-)
-_SUPPORT_FORMAT: Tuple[str, ...] = (
-    "Kmol Project",
-    "Markdown",
-    "HTML",
-    "Python script",
-    "Latex",
-    "Text file",
-    "All files",
-)
+_SUPPORTED_FILE_SUFFIX: Dict[str, str] = {
+    'kmol': "Kmol Project",
+    'md': "Markdown",
+    'yaml': "YAML",
+    'html': "HTML",
+    'py': "Python script",
+    'tex': "Latex",
+    'bib': "Bibtex",
+    'txt': "Text file",
+    "": "All files",
+}
 SUPPORT_FILE_FORMATS = ';;'.join(
     "{} (*.{})".format(name, suffix_text if suffix_text else '*')
-    for name, suffix_text in zip(_SUPPORT_FORMAT, _SUPPORT_FILE_SUFFIX + ('',))
+    for name, suffix_text in _SUPPORTED_FILE_SUFFIX.items()
 )
+_SUPPORTED_FILE_SUFFIX.pop("")
 
 
 def file_icon(file_type: str) -> QIcon:
@@ -92,7 +87,7 @@ def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
             'path': node.text(1),
             'sub': [],
         }
-        if file_suffix(node.text(1)) not in _SUPPORT_FILE_SUFFIX:
+        if file_suffix(node.text(1)) not in _SUPPORTED_FILE_SUFFIX:
             my_codes.append(code_int)
         if QFileInfo(QDir(node_getpath(node.parent())).filePath(node.text(1))).isFile():
             # Files do not need to make a copy.
@@ -195,7 +190,7 @@ def save_file(node: QTreeWidgetItem, data: DataDict) -> Tuple[str, bool]:
                 print("Create Folder: {}".format(file_path.absolutePath()))
             file_name = file_path.filePath(path_text)
 
-            if suffix_text in _SUPPORT_FILE_SUFFIX:
+            if suffix_text in _SUPPORTED_FILE_SUFFIX:
                 # Add end new line.
                 if my_content and (my_content[-1] != '\n'):
                     my_content += '\n'

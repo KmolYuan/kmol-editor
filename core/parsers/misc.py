@@ -23,7 +23,7 @@ def node_getpath(node: QTreeWidgetItem) -> str:
     """Recursive return the path of the node."""
     path = node.text(1)
     parent = node.parent()
-    if not parent:
+    if parent is None:
         if file_suffix(path) == 'kmol':
             return QFileInfo(path).absolutePath()
         else:

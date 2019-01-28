@@ -7,6 +7,7 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
+import re
 from pygments.formatters.html import HtmlFormatter
 from pygments.styles import get_style_by_name
 from core.QtModules import QTreeWidgetItem, QTreeItem
@@ -16,10 +17,10 @@ CODE_STYLE = HtmlFormatter(style=get_style_by_name('default')).get_style_defs()
 
 
 def parse_markdown(
-        file_name: str,
-        node: QTreeWidgetItem,
-        code: int,
-        data: DataDict
+    file_name: str,
+    node: QTreeWidgetItem,
+    code: int,
+    data: DataDict
 ):
     """Parse Markdown file to tree nodes."""
     try:
@@ -59,6 +60,7 @@ def parse_markdown(
         # Plain text.
         data[code] = '\n'.join(string_list)
         return
+
     if titles[0][0] == 0:
         # Start with line 0.
         data[code] = "@others\n"

@@ -490,9 +490,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for row in range(self.tree_main.topLevelItemCount()):
                 self.save_proj(row)
             return
+
         node = self.tree_main.currentItem()
-        if not node:
+        if node is None:
             return
+
         if index is None:
             root = _get_root(node)
         else:
@@ -555,8 +557,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __move_up_node(self):
         """Move up current node."""
         node = self.tree_main.currentItem()
-        if not node:
+        if node is None:
             return
+
         tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
@@ -573,6 +576,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
             tree_main.takeTopLevelItem(index)
             tree_main.insertTopLevelItem(index - 1, node)
+
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
@@ -580,11 +584,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __move_down_node(self):
         """Move down current node."""
         node = self.tree_main.currentItem()
-        if not node:
+        if node is None:
             return
+
         tree_main = node.treeWidget()
         parent = node.parent()
-        if parent:
+        if parent is not None:
             # Is sub-node.
             index = parent.indexOfChild(node)
             if index == parent.childCount() - 1:
@@ -598,6 +603,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
             tree_main.takeTopLevelItem(index)
             tree_main.insertTopLevelItem(index + 1, node)
+
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
@@ -605,8 +611,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __move_right_node(self):
         """Move right current node."""
         node = self.tree_main.currentItem()
-        if not node:
+        if node is None:
             return
+
         tree_main = node.treeWidget()
         parent = node.parent()
         if parent:
@@ -623,6 +630,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
             tree_main.takeTopLevelItem(index)
             tree_main.topLevelItem(index - 1).addChild(node)
+
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
@@ -630,16 +638,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __move_left_node(self):
         """Move left current node."""
         node = self.tree_main.currentItem()
-        if not node:
+        if node is None:
             return
+
         tree_main = node.treeWidget()
         parent = node.parent()
-        if not parent:
+        if parent is None:
             return
+
         # Must be a sub-node.
         grand_parent = parent.parent()
-        if not grand_parent:
+        if grand_parent is None:
             return
+
         index = grand_parent.indexOfChild(parent)
         parent.removeChild(node)
         grand_parent.insertChild(index + 1, node)
@@ -849,8 +860,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Find in all project."""
         self.find_list.clear()
         node_current = self.tree_main.currentItem()
-        if not node_current:
+        if node_current is None:
             return
+
         root = _get_root(node_current)
         if not self.search_bar.text():
             self.search_bar.setText(self.search_bar.placeholderText())
