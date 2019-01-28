@@ -44,12 +44,6 @@ class XStream(QObject):
     _stderr = None
     messageWritten = pyqtSignal(str)
 
-    def flush(self):
-        pass
-
-    def fileno(self):
-        return -1
-
     def write(self, msg: str):
         """Output the message."""
         if not self.signalsBlocked():
@@ -71,6 +65,7 @@ class XStream(QObject):
             sys.stderr = XStream._stderr
         return XStream._stderr
 
+    @staticmethod
     def back():
         """Disconnect from Qt widget."""
         sys.stdout = _SYS_STDOUT
