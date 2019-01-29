@@ -189,6 +189,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         find_tab.activated.connect(lambda: self.panel_widget.setCurrentIndex(1))
         find_project = QShortcut(QKeySequence("Ctrl+Shift+F"), self)
         find_project.activated.connect(self.find_project_button.click)
+        self.find_list_node: Dict[int, QTreeWidgetItem] = {}
 
         # Replacing function.
         replace = QShortcut(QKeySequence("Ctrl+R"), self)
@@ -859,6 +860,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __find_project(self):
         """Find in all project."""
         self.find_list.clear()
+        self.find_list_node.clear()
         node_current = self.tree_main.currentItem()
         if node_current is None:
             return
@@ -875,12 +877,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.match_case_option.isChecked():
             flags |= re.IGNORECASE
 
-        def add_find_result(code: int, last_name: str, start: int, end: int):
-            """Add result to list."""
-            item = QListWidgetItem("{}: [{}, {}]".format(code, start, end))
-            item.setToolTip(last_name)
-            self.find_list.addItem(item)
-
         def find_in_nodes(node: QTreeWidgetItem, last_name: str = ''):
             """Find the word in all nodes."""
             last_name += node.text(0)
@@ -888,17 +884,49 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 last_name += '->'
             code = int(node.text(2))
             doc = self.data[code]
-            pattern = re.compile(text, flags)
-            for m in pattern.finditer(doc):
-                add_find_result(code, last_name, *m.span())
+            pattern = re.compile(text.encode('utf-8'), flags)
+            for m in pattern.finditer(doc.encode('utf-8')):
+                start, end = m.span()
+                item = QListWidgetItem(last_name)
+                item.setToolTip(f"{code}:{start}:{end}")
+                self.find_list_node[code] = node
+                self.find_list.addItem(item)
             for i in range(node.childCount()):
                 find_in_nodes(node.child(i), last_name)
 
         find_in_nodes(root)
+        count = self.find_list.count()
+        QMessageBox.information(self, "Find in project", f"Found {count} result.")
 
     @pyqtSlot(
         QListWidgetItem,
         QListWidgetItem,
         name='on_find_list_currentItemChanged')
-    def __find_results(self, *_: QListWidgetItem):
-        """TODO: Switch to target node."""
+    def __find_results(self, item: QListWidgetItem, _: QListWidgetItem):
+        """Switch to target node."""
+        if item is None:
+            return
+
+        tool_tips = item.toolTip().split(':')
+        code = int(tool_tips[0])
+        start = int(tool_tips[1])
+        end = int(tool_tips[2])
+        self.tree_main.setCurrentItem(self.find_list_node[code])
+        self.text_editor.setSelection(start, end)
+
+    @pyqtSlot(name='on_replace_project_button_clicked')
+    def __replace_project(self):
+        """Replace in project."""
+        count = self.find_list.count()
+        if count == 0:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Replace in project",
+            f"Replace all? ({count})"
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        # TODO: Replace in project.

@@ -12,7 +12,11 @@ __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
-from typing import Tuple, Iterator
+from typing import (
+    Tuple,
+    Iterator,
+    overload,
+)
 import platform
 import re
 from spellchecker import SpellChecker
@@ -178,6 +182,22 @@ class TextEditor(QsciScintilla):
         super(TextEditor, self).setEdgeMode(
             QsciScintilla.EdgeLine if option else QsciScintilla.EdgeNone
         )
+
+    @overload
+    def setSelection(self, p1: int, p2: int, p3: int, p4: int) -> None:
+        ...
+
+    @overload
+    def setSelection(self, p1: int, p2: int, *_: int) -> None:
+        ...
+
+    def setSelection(self, *args: int):
+        if len(args) == 2:
+            line1, index1 = self.lineIndexFromPosition(args[0])
+            line2, index2 = self.lineIndexFromPosition(args[1])
+            super(TextEditor, self).setSelection(line1, index1, line2, index2)
+        else:
+            super(TextEditor, self).setSelection(*args)
 
     @pyqtSlot(bool)
     def set_remove_trailing_blanks(self, option: bool):
