@@ -15,6 +15,7 @@ __email__ = "pyslvs@gmail.com"
 from typing import (
     Tuple,
     Iterator,
+    Match,
     overload,
 )
 import platform
@@ -60,20 +61,26 @@ _commas_markdown = (
 )
 
 
+def _finditer(p: str, d: str, flags: re.RegexFlag = 0) -> Iterator[Match[str]]:
+    """Iterator of encoding version."""
+    yield from re.finditer(p.encode('utf-8'), d.encode('utf-8'), flags)
+
+
 def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
     """Yield unknown words and position."""
     words = []
     for s in re.split(r"(\W|\d|_)+", doc):
         if len(s) < 2:
             continue
+
         # Camel case.
-        for m in re.finditer(r'[A-Za-z][a-z]+', s):
-            word = m.group(0)
-            if len(word.encode('utf-8')) == len(word):
-                words.append(word.lower())
+        for m in _finditer(r'[A-Za-z][a-z]+', s):
+            word: bytes = m.group(0)
+            if len(word) == len(word.decode('utf-8')):
+                words.append(word.decode('utf-8').lower())
 
     for unknown in _spell.unknown(words):
-        for m in re.finditer(unknown.encode('utf-8'), doc.encode('utf-8'), re.IGNORECASE):
+        for m in _finditer(unknown, doc, re.IGNORECASE):
             yield m.start(), m.end()
 
 
@@ -160,8 +167,7 @@ class TextEditor(QsciScintilla):
         self.__clear_indicator_all(1)
         pos = self.positionFromLineIndex(line, index)
         _, _, word = self.__word_at_pos(pos)
-        word = r'\b' + word + r'\b'
-        for m in re.finditer(word.encode('utf-8'), self.text().encode('utf-8'), re.IGNORECASE):
+        for m in _finditer(r'\b' + word + r'\b', self.text(), re.IGNORECASE):
             self.fillIndicatorRange(
                 *self.lineIndexFromPosition(m.start()),
                 *self.lineIndexFromPosition(m.end()),
@@ -249,7 +255,7 @@ class TextEditor(QsciScintilla):
 
         # Camel case.
         word = words
-        for m in re.finditer(r'[A-Za-z][a-z]+', words):
+        for m in _finditer(r'[A-Za-z][a-z]+', words):
             if m.start() < pos - start < m.end():
                 word = m.group(0)
                 break

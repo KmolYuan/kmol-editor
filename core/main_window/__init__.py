@@ -186,7 +186,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         find_previous = QShortcut(QKeySequence("F4"), self)
         find_previous.activated.connect(self.find_previous_button.click)
         find_tab = QShortcut(QKeySequence("Ctrl+F"), self)
-        find_tab.activated.connect(lambda: self.panel_widget.setCurrentIndex(1))
+        find_tab.activated.connect(self.__start_finder)
         find_project = QShortcut(QKeySequence("Ctrl+Shift+F"), self)
         find_project.activated.connect(self.find_project_button.click)
         self.find_list_node: Dict[int, QTreeWidgetItem] = {}
@@ -819,6 +819,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             action = self.macros_toolbar.addAction(QIcon(QPixmap(":icons/python.png")), name)
             action.triggered.connect(lambda: self.__exec_script(code))
+
+    def __start_finder(self):
+        """Start finder when press the hot key."""
+        self.panel_widget.setCurrentIndex(1)
+        keyword = self.text_editor.selectedText() or self.text_editor
+        if keyword:
+            self.search_bar.setText(keyword)
 
     def __find_text(self, forward: bool):
         """Find text by options."""

@@ -10,13 +10,18 @@ __email__ = "pyslvs@gmail.com"
 from typing import (
     Tuple,
     Iterable,
+    ItemsView,
     Hashable,
     Dict,
+    Union,
+    TypeVar,
 )
 from core.QtModules import (
     pyqtSignal,
     QObject,
 )
+
+_VT = TypeVar('_VT')
 
 
 class DataDict(QObject):
@@ -28,9 +33,9 @@ class DataDict(QObject):
 
     def __init__(self):
         super(DataDict, self).__init__()
-        self.__data = {}
-        self.__saved = {}
-        self.__macros = {}
+        self.__data: Dict[Hashable, str] = {}
+        self.__saved: Dict[Hashable, bool] = {}
+        self.__macros: Dict[str, Hashable] = {}
 
     def clear(self):
         """Clear data."""
@@ -53,13 +58,8 @@ class DataDict(QObject):
         self.__data[key] = context
 
     def __delitem__(self, key: Hashable):
-        """Delete the key and avoid raise error."""
-        if key in self.__data:
-            del self.__data[key]
-            del self.__saved[key]
-            for m, code in tuple(self.__macros.items()):
-                if code == key:
-                    del self.__macros[m]
+        """Delete the key."""
+        self.pop(key)
 
     def __len__(self) -> int:
         """Length."""
@@ -78,9 +78,23 @@ class DataDict(QObject):
         for key, context in target.items():
             self[key] = context
 
-    def items(self) -> Iterable[Tuple[int, str]]:
+    def items(self) -> ItemsView[Hashable, str]:
         """Items of data."""
         return self.__data.items()
+
+    def pop(self, key: Hashable, k: _VT = None) -> Union[Hashable, _VT]:
+        """Delete the key and return the value."""
+        if key in self.__data:
+            data = self.__data.pop(key)
+            del self.__saved[key]
+            for m, code in tuple(self.__macros.items()):
+                if code == key:
+                    del self.__macros[m]
+            return data
+        elif k is None:
+            raise KeyError
+        else:
+            return k
 
     def set_saved(self, key: Hashable, saved: bool):
         """Saved status adjustment."""
