@@ -131,43 +131,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pop_menu_tree.addAction(self.action_new_project)
         self.pop_menu_tree.addAction(self.action_open)
         self.tree_add = QAction("&Add Node", self)
-        self.tree_add.triggered.connect(self.add_node)
+        self.tree_add.triggered.connect(self.__add_node)
         self.tree_add.setShortcutContext(Qt.WindowShortcut)
         self.pop_menu_tree.addAction(self.tree_add)
 
         self.pop_menu_tree.addSeparator()
 
         self.tree_path = QAction("Set Path", self)
-        self.tree_path.triggered.connect(self.set_path)
+        self.tree_path.triggered.connect(self.__set_path)
         self.pop_menu_tree.addAction(self.tree_path)
         self.tree_refresh = QAction("&Refresh from Path", self)
-        self.tree_refresh.triggered.connect(self.refresh_proj)
+        self.tree_refresh.triggered.connect(self.__refresh_proj)
         self.pop_menu_tree.addAction(self.tree_refresh)
         self.tree_openurl = QAction("&Open from Path", self)
-        self.tree_openurl.triggered.connect(self.open_path)
+        self.tree_openurl.triggered.connect(self.__open_path)
         self.pop_menu_tree.addAction(self.tree_openurl)
-        self.action_save.triggered.connect(self.save_proj)
+        self.action_save.triggered.connect(self.__save_proj)
         self.pop_menu_tree.addAction(self.action_save)
         self.tree_copy = QAction("Co&py", self)
-        self.tree_copy.triggered.connect(self.copy_node)
+        self.tree_copy.triggered.connect(self.__copy_node)
         self.pop_menu_tree.addAction(self.tree_copy)
         self.tree_clone = QAction("C&lone", self)
-        self.tree_clone.triggered.connect(self.clone_node)
+        self.tree_clone.triggered.connect(self.__clone_node)
         self.pop_menu_tree.addAction(self.tree_clone)
         self.tree_copy_tree = QAction("Recursive Copy", self)
-        self.tree_copy_tree.triggered.connect(self.copy_node_recursive)
+        self.tree_copy_tree.triggered.connect(self.__copy_node_recursive)
         self.pop_menu_tree.addAction(self.tree_copy_tree)
         self.tree_clone_tree = QAction("Recursive Clone", self)
-        self.tree_clone_tree.triggered.connect(self.clone_node_recursive)
+        self.tree_clone_tree.triggered.connect(self.__clone_node_recursive)
         self.pop_menu_tree.addAction(self.tree_clone_tree)
 
         self.pop_menu_tree.addSeparator()
 
         self.tree_delete = QAction("&Delete", self)
-        self.tree_delete.triggered.connect(self.delete_node)
+        self.tree_delete.triggered.connect(self.__delete_node)
         self.pop_menu_tree.addAction(self.tree_delete)
         self.tree_close = QAction("&Close", self)
-        self.tree_close.triggered.connect(self.close_file)
+        self.tree_close.triggered.connect(self.__close_proj)
         self.pop_menu_tree.addAction(self.tree_close)
         self.tree_main.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
@@ -202,9 +202,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Node edit function. (Ctrl + ArrowKey)
         new_node = QShortcut(QKeySequence("Ctrl+Ins"), self)
-        new_node.activated.connect(self.add_node)
+        new_node.activated.connect(self.__add_node)
         del_node = QShortcut(QKeySequence("Ctrl+Del"), self)
-        del_node.activated.connect(self.delete_node)
+        del_node.activated.connect(self.__delete_node)
         move_up_node = QShortcut(QKeySequence("Ctrl+Up"), self)
         move_up_node.activated.connect(self.__move_up_node)
         move_down_node = QShortcut(QKeySequence("Ctrl+Down"), self)
@@ -313,7 +313,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pop_menu_tree.exec_(self.tree_widget.mapToGlobal(point))
 
     @pyqtSlot(name='on_action_new_project_triggered')
-    def new_proj(self):
+    def __new_proj(self):
         """New file."""
         file_name, suffix_type = QFileDialog.getSaveFileName(
             self,
@@ -346,7 +346,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.addTopLevelItem(root_node)
 
     @pyqtSlot(name='on_action_open_triggered')
-    def open_proj(self):
+    def __open_proj(self):
         """Open file."""
         file_names, ok = QFileDialog.getOpenFileNames(
             self,
@@ -378,7 +378,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__add_macros()
 
     @pyqtSlot()
-    def refresh_proj(self):
+    def __refresh_proj(self):
         """Re-parse the file node."""
         node = self.tree_main.currentItem()
         if not node.text(1):
@@ -393,7 +393,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor.setText(self.data[int(node.text(2))])
 
     @pyqtSlot()
-    def open_path(self):
+    def __open_path(self):
         """Open path of current node."""
         node = self.tree_main.currentItem()
         file_name = getpath(node)
@@ -401,7 +401,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("Open: {}".format(file_name))
 
     @pyqtSlot()
-    def add_node(self):
+    def __add_node(self):
         """Add a node at current item."""
         node = self.tree_main.currentItem()
         new_node = QTreeItem(
@@ -422,7 +422,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
     @pyqtSlot()
-    def set_path(self):
+    def __set_path(self):
         """Set file directory."""
         node = self.tree_main.currentItem()
         file_name, ok = QFileDialog.getOpenFileName(
@@ -439,7 +439,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node.setText(1, project_path.relativeFilePath(file_name))
 
     @pyqtSlot()
-    def copy_node(self):
+    def __copy_node(self):
         """Copy current node."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -451,7 +451,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
     @pyqtSlot()
-    def clone_node(self):
+    def __clone_node(self):
         """Copy current node with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -460,7 +460,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
     @pyqtSlot()
-    def copy_node_recursive(self):
+    def __copy_node_recursive(self):
         """Copy current node and its sub-nodes."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -478,18 +478,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin_copy)
 
     @pyqtSlot()
-    def clone_node_recursive(self):
+    def __clone_node_recursive(self):
         """Copy current node and its sub-nodes with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin.clone())
 
     @pyqtSlot()
-    def save_proj(self, index: Optional[int] = None, *, for_all: bool = False):
+    def __save_proj(self, index: Optional[int] = None, *, for_all: bool = False):
         """Save project and files."""
         if for_all:
             for row in range(self.tree_main.topLevelItemCount()):
-                self.save_proj(row)
+                self.__save_proj(row)
             return
 
         node = self.tree_main.currentItem()
@@ -512,12 +512,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.data[int(item.text(2))] = self.text_editor.text()
 
     @pyqtSlot()
-    def delete_node(self):
+    def __delete_node(self):
         """Delete the current item."""
         node: Optional[QTreeWidgetItem] = self.tree_main.currentItem()
-        if not node:
+        if node is None:
             return
+
         parent = node.parent()
+        if parent is None:
+            return
+
         self.tree_main.setCurrentItem(parent)
         self.__delete_node_data(node)
         parent.removeChild(node)
@@ -529,12 +533,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for action in self.macros_toolbar.actions():
                 if action.text() == name[1:]:
                     self.macros_toolbar.removeAction(action)
-        del self.data[int(node.text(2))]
+        self.data.pop(int(node.text(2)))
         for i in range(node.childCount()):
             self.__delete_node_data(node.child(i))
 
     @pyqtSlot()
-    def close_file(self):
+    def __close_proj(self):
         """Close project node."""
         if not self.data.is_all_saved():
             reply = QMessageBox.question(
@@ -545,7 +549,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.Save
             )
             if reply == QMessageBox.Save:
-                self.save_proj()
+                self.__save_proj()
             elif reply == QMessageBox.Cancel:
                 return
 
