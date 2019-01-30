@@ -14,7 +14,13 @@ from typing import (
     Union,
     Any,
 )
-from os import chdir, system as os_system
+from os import (
+    chdir,
+    remove,
+    rmdir,
+    system as os_system,
+)
+from os.path import isdir, isfile
 import re
 from threading import Thread
 from subprocess import check_output
@@ -576,8 +582,13 @@ class MainWindow(MainWindowBase):
 
         variables: Dict[str, Any] = {
             # Shell functions.
+            "is_file": isfile,
+            "is_dir": isdir,
+            "rm_file": remove,
+            "rm_dir": rmdir,
             "run_shell": os_system,
             "run_shell_out": lambda *command: check_output(command).decode('utf-8'),
+
             # Qt file operation classes.
             'QStandardPaths': QStandardPaths,
             'QFileInfo': QFileInfo,
