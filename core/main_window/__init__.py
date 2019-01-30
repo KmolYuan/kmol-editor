@@ -26,6 +26,7 @@ from core.QtModules import (
     pyqtSlot,
     Qt,
     QMainWindow,
+    QSettings,
     QShortcut,
     QKeySequence,
     QTextCursor,
@@ -102,6 +103,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             run.show()
 
         self.action_New_Window.triggered.connect(new_main_window)
+
+        # Settings
+        self.settings = QSettings("Kmol", "Kmol Editor")
 
         # Text editor
         self.text_editor = TextEditor(self)
@@ -225,13 +229,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data.all_saved.connect(self.__set_saved_title)
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
 
-        for file_name in ARGUMENTS.r:
-            file_name = QFileInfo(file_name).canonicalFilePath()
-            if not file_name:
-                continue
+        if ARGUMENTS.file:
+            file_name = ARGUMENTS.file
             root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
             self.tree_main.addTopLevelItem(root_node)
             parse(root_node, self.data)
+        else:
+            prev_open: str = self.settings.value("prev_open", "", type=str)
+            for file_name in prev_open.split('#'):
+                if not file_name:
+                    continue
+                root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
+                self.tree_main.addTopLevelItem(root_node)
+                parse(root_node, self.data)
 
         self.__add_macros()
 
@@ -257,6 +267,49 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tree_main.setCurrentItem(root_node)
         self.__add_macros()
         event.acceptProposedAction()
+
+    def closeEvent(self, event):
+        """Close event."""
+        if not self.__ask_exit():
+            event.ignore()
+            return
+
+        self.settings.setValue("prev_open", '#'.join(
+            self.tree_main.topLevelItem(i).text(1)
+            for i in range(self.tree_main.topLevelItemCount())
+        ))
+        event.accept()
+
+    def __ask_exit(self) -> bool:
+        """Ask when exit. Return True if the user want to leave."""
+        if self.data.is_all_saved():
+            return True
+
+        reply = QMessageBox.question(
+            self,
+            "Not saved",
+            "Do you went to save the project?",
+            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+            QMessageBox.Save
+        )
+        if reply == QMessageBox.Save:
+            self.__save_proj()
+            return True
+        elif reply == QMessageBox.Discard:
+            return True
+        else:
+            return False
+
+    @pyqtSlot()
+    def __close_proj(self):
+        """Close project node."""
+        if not self.__ask_exit():
+            return
+
+        root = self.tree_main.currentItem()
+        self.__delete_node_data(root)
+        self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
+        self.text_editor.clear()
 
     def __reload_html_view(self):
         """Reload HTML content."""
@@ -536,27 +589,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.data.pop(int(node.text(2)))
         for i in range(node.childCount()):
             self.__delete_node_data(node.child(i))
-
-    @pyqtSlot()
-    def __close_proj(self):
-        """Close project node."""
-        if not self.data.is_all_saved():
-            reply = QMessageBox.question(
-                self,
-                "Not saved",
-                "Do you went to save the project?",
-                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
-                QMessageBox.Save
-            )
-            if reply == QMessageBox.Save:
-                self.__save_proj()
-            elif reply == QMessageBox.Cancel:
-                return
-
-        root = self.tree_main.currentItem()
-        self.__delete_node_data(root)
-        self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
-        self.text_editor.clear()
 
     @pyqtSlot()
     def __move_up_node(self):
