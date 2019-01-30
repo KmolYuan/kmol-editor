@@ -61,7 +61,7 @@
            <item>
             <widget class="QPushButton" name="exec_button">
              <property name="text">
-              <string>Execute Script</string>
+              <string>Execute Python Script</string>
              </property>
             </widget>
            </item>

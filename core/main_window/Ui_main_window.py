@@ -212,7 +212,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Kmol editor"))
         self.highlighter_label.setText(_translate("MainWindow", "Highlighter:"))
-        self.exec_button.setText(_translate("MainWindow", "Execute Script"))
+        self.exec_button.setText(_translate("MainWindow", "Execute Python Script"))
         self.edge_line_option.setText(_translate("MainWindow", "Edge Line"))
         self.auto_expand_option.setText(_translate("MainWindow", "Auto Expand"))
         self.trailing_blanks_option.setText(_translate("MainWindow", "Remove Trailing Blanks"))
