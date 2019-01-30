@@ -11,6 +11,8 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import Type
+from abc import ABCMeta
+from PyQt5.sip import wrappertype
 from PyQt5.QtCore import qVersion, PYQT_VERSION_STR
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -49,6 +51,7 @@ __all__ = [
     'pyqtSlot',
     'qVersion',
     'PYQT_VERSION_STR',
+    'QABCMeta',
     'QAbstractItemView',
     'QAction',
     'QApplication',
@@ -136,7 +139,7 @@ __all__ = [
     'QWidget',
     'QWebEngineView',
     'QsciScintilla',
-    'QSCIHIGHLIGHTERS',
+    'QSCI_HIGHLIGHTERS',
     'Qt',
     'QSCINTILLA_VERSION_STR',
     'HIGHLIGHTER_SUFFIX',
@@ -219,7 +222,7 @@ class QsciLexerCustomLua(QsciLexerLua):
     """Custom Lua highlighter."""
 
 
-QSCIHIGHLIGHTERS = {
+QSCI_HIGHLIGHTERS = {
     "Bash": QsciLexerBash,
     "Batch": QsciLexerBatch,
     "CMake": QsciLexerCMake,
@@ -270,3 +273,16 @@ HIGHLIGHTER_FILENAME = {
     "CMake": {'CMakeList.txt'},
     "Makefile": {'Makefile', 'Makefile.am', 'Makefile.in', 'Makefile.debug'},
 }
+
+
+class QABCMeta(wrappertype, ABCMeta):
+    """Qt ABCMeta class.
+
+    Usage:
+
+    class MyQObject(QObject, metaclass=QABCMeta):
+        @abstractmethod
+        def my_abstract_method(self):
+            ...
+    """
+    pass

@@ -37,7 +37,7 @@ from core.QtModules import (
     # QScintilla widget
     QsciScintilla,
     # Other highlighters
-    QSCIHIGHLIGHTERS,
+    QSCI_HIGHLIGHTERS,
 )
 
 
@@ -178,7 +178,7 @@ class TextEditor(QsciScintilla):
     def set_highlighter(self, option: str):
         """Set highlighter by list."""
         self.lexer_option = option
-        lexer = QSCIHIGHLIGHTERS[option]()
+        lexer = QSCI_HIGHLIGHTERS[option]()
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
 

@@ -24,18 +24,12 @@ from pygments.lexers.python import Python3Lexer
 from pygments.formatters.html import HtmlFormatter
 from core.QtModules import (
     pyqtSlot,
-    Qt,
-    QMainWindow,
-    QSettings,
-    QShortcut,
-    QKeySequence,
     QTextCursor,
     QPoint,
     QTreeItem,
     QTreeRoot,
     QTreeWidgetItem,
     QListWidgetItem,
-    QHeaderView,
     QMessageBox,
     QUrl,
     QFileDialog,
@@ -45,17 +39,10 @@ from core.QtModules import (
     QDesktopServices,
     QIcon,
     QPixmap,
-    QAction,
-    QMenu,
-    QWebEngineView,
-    QSCIHIGHLIGHTERS,
     HIGHLIGHTER_SUFFIX,
     HIGHLIGHTER_FILENAME,
 )
 from core.info import INFO, ARGUMENTS
-from core.text_editor import TextEditor
-from core.translator import TranslatorWidget
-from core.data_structure import DataDict
 from core.parsers import (
     getpath,
     parse,
@@ -66,8 +53,7 @@ from core.parsers import (
     pandoc_markdown,
     SUPPORT_FILE_FORMATS,
 )
-from .logging_handler import XStream
-from .Ui_main_window import Ui_MainWindow
+from .custom import MainWindowBase
 
 
 def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
@@ -87,148 +73,12 @@ def _str_between(s: str, front: str, back: str) -> str:
     return s[(s.find(front) + 1):s.find(back)]
 
 
-class MainWindow(QMainWindow, Ui_MainWindow):
+class MainWindow(MainWindowBase):
 
     """Main window of kmol editor."""
 
     def __init__(self):
-        super(MainWindow, self).__init__(None)
-        self.setupUi(self)
-
-        # Start new window.
-        @pyqtSlot()
-        def new_main_window():
-            XStream.back()
-            run = self.__class__()
-            run.show()
-
-        self.action_New_Window.triggered.connect(new_main_window)
-
-        # Settings
-        self.settings = QSettings("Kmol", "Kmol Editor")
-
-        # Text editor
-        self.text_editor = TextEditor(self)
-        self.h2_splitter.addWidget(self.text_editor)
-        self.html_previewer = QWebEngineView()
-        self.html_previewer.setContent(b"", "text/plain")
-        self.h2_splitter.addWidget(self.html_previewer)
-        self.text_editor.word_changed.connect(self.__reload_html_view)
-        self.text_editor.word_changed.connect(self.__set_not_saved_title)
-        self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
-        self.trailing_blanks_option.toggled.connect(self.text_editor.set_remove_trailing_blanks)
-
-        # Highlighters
-        self.highlighter_option.addItems(sorted(QSCIHIGHLIGHTERS))
-        self.highlighter_option.setCurrentText("Markdown")
-        self.highlighter_option.currentTextChanged.connect(
-            self.text_editor.set_highlighter
-        )
-        self.highlighter_option.currentTextChanged.connect(self.__reload_html_view)
-
-        # Tree widget context menu.
-        self.tree_widget.customContextMenuRequested.connect(
-            self.__tree_context_menu
-        )
-        self.pop_menu_tree = QMenu(self)
-        self.pop_menu_tree.setSeparatorsCollapsible(True)
-        self.pop_menu_tree.addAction(self.action_new_project)
-        self.pop_menu_tree.addAction(self.action_open)
-        self.tree_add = QAction("&Add Node", self)
-        self.tree_add.triggered.connect(self.__add_node)
-        self.tree_add.setShortcutContext(Qt.WindowShortcut)
-        self.pop_menu_tree.addAction(self.tree_add)
-
-        self.pop_menu_tree.addSeparator()
-
-        self.tree_path = QAction("Set Path", self)
-        self.tree_path.triggered.connect(self.__set_path)
-        self.pop_menu_tree.addAction(self.tree_path)
-        self.tree_refresh = QAction("&Refresh from Path", self)
-        self.tree_refresh.triggered.connect(self.__refresh_proj)
-        self.pop_menu_tree.addAction(self.tree_refresh)
-        self.tree_openurl = QAction("&Open from Path", self)
-        self.tree_openurl.triggered.connect(self.__open_path)
-        self.pop_menu_tree.addAction(self.tree_openurl)
-        self.action_save.triggered.connect(self.__save_proj)
-        self.pop_menu_tree.addAction(self.action_save)
-        self.tree_copy = QAction("Co&py", self)
-        self.tree_copy.triggered.connect(self.__copy_node)
-        self.pop_menu_tree.addAction(self.tree_copy)
-        self.tree_clone = QAction("C&lone", self)
-        self.tree_clone.triggered.connect(self.__clone_node)
-        self.pop_menu_tree.addAction(self.tree_clone)
-        self.tree_copy_tree = QAction("Recursive Copy", self)
-        self.tree_copy_tree.triggered.connect(self.__copy_node_recursive)
-        self.pop_menu_tree.addAction(self.tree_copy_tree)
-        self.tree_clone_tree = QAction("Recursive Clone", self)
-        self.tree_clone_tree.triggered.connect(self.__clone_node_recursive)
-        self.pop_menu_tree.addAction(self.tree_clone_tree)
-
-        self.pop_menu_tree.addSeparator()
-
-        self.tree_delete = QAction("&Delete", self)
-        self.tree_delete.triggered.connect(self.__delete_node)
-        self.pop_menu_tree.addAction(self.tree_delete)
-        self.tree_close = QAction("&Close", self)
-        self.tree_close.triggered.connect(self.__close_proj)
-        self.pop_menu_tree.addAction(self.tree_close)
-        self.tree_main.header().setSectionResizeMode(QHeaderView.ResizeToContents)
-
-        # Console
-        self.console.setFont(self.text_editor.font)
-        if not ARGUMENTS.debug_mode:
-            XStream.stdout().messageWritten.connect(self.__append_to_console)
-            XStream.stderr().messageWritten.connect(self.__append_to_console)
-        for info in INFO:
-            print(info)
-        print('-' * 7)
-
-        # Searching function.
-        find_next = QShortcut(QKeySequence("F3"), self)
-        find_next.activated.connect(self.find_next_button.click)
-        find_previous = QShortcut(QKeySequence("F4"), self)
-        find_previous.activated.connect(self.find_previous_button.click)
-        find_tab = QShortcut(QKeySequence("Ctrl+F"), self)
-        find_tab.activated.connect(self.__start_finder)
-        find_project = QShortcut(QKeySequence("Ctrl+Shift+F"), self)
-        find_project.activated.connect(self.find_project_button.click)
-        self.find_list_node: Dict[int, QTreeWidgetItem] = {}
-
-        # Replacing function.
-        replace = QShortcut(QKeySequence("Ctrl+R"), self)
-        replace.activated.connect(self.replace_node_button.click)
-        replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
-        replace_project.activated.connect(self.replace_project_button.click)
-
-        # Translator.
-        self.panel_widget.addTab(TranslatorWidget(self), "Translator")
-
-        # Node edit function. (Ctrl + ArrowKey)
-        new_node = QShortcut(QKeySequence("Ctrl+Ins"), self)
-        new_node.activated.connect(self.__add_node)
-        del_node = QShortcut(QKeySequence("Ctrl+Del"), self)
-        del_node.activated.connect(self.__delete_node)
-        move_up_node = QShortcut(QKeySequence("Ctrl+Up"), self)
-        move_up_node.activated.connect(self.__move_up_node)
-        move_down_node = QShortcut(QKeySequence("Ctrl+Down"), self)
-        move_down_node.activated.connect(self.__move_down_node)
-        move_right_node = QShortcut(QKeySequence("Ctrl+Right"), self)
-        move_right_node.activated.connect(self.__move_right_node)
-        move_left_node = QShortcut(QKeySequence("Ctrl+Left"), self)
-        move_left_node.activated.connect(self.__move_left_node)
-
-        # Run script button.
-        run_sript = QShortcut(QKeySequence("F5"), self)
-        run_sript.activated.connect(self.exec_button.click)
-        self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-
-        # Data
-        self.data = DataDict()
-        self.data.not_saved.connect(self.__set_not_saved_title)
-        self.data.all_saved.connect(self.__set_saved_title)
-        self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
-
+        super(MainWindow, self).__init__()
         if ARGUMENTS.file:
             file_name = ARGUMENTS.file
             root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
@@ -274,10 +124,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             event.ignore()
             return
 
-        self.settings.setValue("prev_open", '#'.join(
+        self.settings.setValue("prev_open", '#'.join({
             self.tree_main.topLevelItem(i).text(1)
             for i in range(self.tree_main.topLevelItemCount())
-        ))
+        }))
         event.accept()
 
     def __ask_exit(self) -> bool:
@@ -293,7 +143,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.Save
         )
         if reply == QMessageBox.Save:
-            self.__save_proj()
+            self.save_proj()
             return True
         elif reply == QMessageBox.Discard:
             return True
@@ -301,7 +151,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return False
 
     @pyqtSlot()
-    def __close_proj(self):
+    def close_proj(self):
         """Close project node."""
         if not self.__ask_exit():
             return
@@ -311,7 +161,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
         self.text_editor.clear()
 
-    def __reload_html_view(self):
+    def reload_html_view(self):
         """Reload HTML content."""
         doc = self.text_editor.text()
         option = self.text_editor.lexer_option
@@ -342,25 +192,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.html_previewer.setVisible(True)
 
     @pyqtSlot()
-    def __set_not_saved_title(self):
+    def set_not_saved_title(self):
         """Show star sign on window title."""
         if '*' not in self.windowTitle():
             self.setWindowTitle(self.windowTitle() + '*')
 
     @pyqtSlot()
-    def __set_saved_title(self):
+    def set_saved_title(self):
         """Remove star sign on window title."""
         self.setWindowTitle(self.windowTitle().replace('*', ''))
 
     @pyqtSlot(str)
-    def __append_to_console(self, log):
+    def append_to_console(self, log: str):
         """After inserted the text, move cursor to end."""
         self.console.moveCursor(QTextCursor.End)
         self.console.insertPlainText(log)
         self.console.moveCursor(QTextCursor.End)
 
     @pyqtSlot(QPoint)
-    def __tree_context_menu(self, point: QPoint):
+    def tree_context_menu(self, point: QPoint):
         """Operations."""
         self.__action_changed()
         self.pop_menu_tree.exec_(self.tree_widget.mapToGlobal(point))
@@ -431,7 +281,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__add_macros()
 
     @pyqtSlot()
-    def __refresh_proj(self):
+    def refresh_proj(self):
         """Re-parse the file node."""
         node = self.tree_main.currentItem()
         if not node.text(1):
@@ -446,7 +296,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_editor.setText(self.data[int(node.text(2))])
 
     @pyqtSlot()
-    def __open_path(self):
+    def open_path(self):
         """Open path of current node."""
         node = self.tree_main.currentItem()
         file_name = getpath(node)
@@ -454,7 +304,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("Open: {}".format(file_name))
 
     @pyqtSlot()
-    def __add_node(self):
+    def add_node(self):
         """Add a node at current item."""
         node = self.tree_main.currentItem()
         new_node = QTreeItem(
@@ -475,7 +325,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
     @pyqtSlot()
-    def __set_path(self):
+    def set_path(self):
         """Set file directory."""
         node = self.tree_main.currentItem()
         file_name, ok = QFileDialog.getOpenFileName(
@@ -492,7 +342,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         node.setText(1, project_path.relativeFilePath(file_name))
 
     @pyqtSlot()
-    def __copy_node(self):
+    def copy_node(self):
         """Copy current node."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -504,7 +354,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
     @pyqtSlot()
-    def __clone_node(self):
+    def clone_node(self):
         """Copy current node with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -513,7 +363,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
     @pyqtSlot()
-    def __copy_node_recursive(self):
+    def copy_node_recursive(self):
         """Copy current node and its sub-nodes."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
@@ -531,18 +381,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin_copy)
 
     @pyqtSlot()
-    def __clone_node_recursive(self):
+    def clone_node_recursive(self):
         """Copy current node and its sub-nodes with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin.clone())
 
     @pyqtSlot()
-    def __save_proj(self, index: Optional[int] = None, *, for_all: bool = False):
+    def save_proj(self, index: Optional[int] = None, *, for_all: bool = False):
         """Save project and files."""
         if for_all:
             for row in range(self.tree_main.topLevelItemCount()):
-                self.__save_proj(row)
+                self.save_proj(row)
             return
 
         node = self.tree_main.currentItem()
@@ -565,7 +415,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.data[int(item.text(2))] = self.text_editor.text()
 
     @pyqtSlot()
-    def __delete_node(self):
+    def delete_node(self):
         """Delete the current item."""
         node: Optional[QTreeWidgetItem] = self.tree_main.currentItem()
         if node is None:
@@ -591,7 +441,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.__delete_node_data(node.child(i))
 
     @pyqtSlot()
-    def __move_up_node(self):
+    def move_up_node(self):
         """Move up current node."""
         node = self.tree_main.currentItem()
         if node is None:
@@ -618,7 +468,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__root_unsaved()
 
     @pyqtSlot()
-    def __move_down_node(self):
+    def move_down_node(self):
         """Move down current node."""
         node = self.tree_main.currentItem()
         if node is None:
@@ -645,7 +495,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__root_unsaved()
 
     @pyqtSlot()
-    def __move_right_node(self):
+    def move_right_node(self):
         """Move right current node."""
         node = self.tree_main.currentItem()
         if node is None:
@@ -672,7 +522,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.__root_unsaved()
 
     @pyqtSlot()
-    def __move_left_node(self):
+    def move_left_node(self):
         """Move left current node."""
         node = self.tree_main.currentItem()
         if node is None:
@@ -793,7 +643,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             break
             self.text_editor.setText(self.data[int(current.text(2))])
 
-        self.__reload_html_view()
+        self.reload_html_view()
         self.__action_changed()
 
     @pyqtSlot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')
@@ -852,7 +702,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             action = self.macros_toolbar.addAction(QIcon(QPixmap(":icons/python.png")), name)
             action.triggered.connect(lambda: self.__exec_script(code))
 
-    def __start_finder(self):
+    def start_finder(self):
         """Start finder when press the hot key."""
         self.panel_widget.setCurrentIndex(1)
         keyword = self.text_editor.selectedText() or self.text_editor
