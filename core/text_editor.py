@@ -160,14 +160,15 @@ class TextEditor(QsciScintilla):
         # Keyword indicator [1]
         self.indicatorDefine(QsciScintilla.BoxIndicator, 1)
         self.cursorPositionChanged.connect(self.__catch_word)
+        self.word = ""
 
     @pyqtSlot(int, int)
     def __catch_word(self, line: int, index: int):
         """Catch and indicate current word."""
         self.__clear_indicator_all(1)
         pos = self.positionFromLineIndex(line, index)
-        _, _, word = self.__word_at_pos(pos)
-        for m in _finditer(r'\b' + word + r'\b', self.text(), re.IGNORECASE):
+        _, _, self.word = self.__word_at_pos(pos)
+        for m in _finditer(r'\b' + self.word + r'\b', self.text(), re.IGNORECASE):
             self.fillIndicatorRange(
                 *self.lineIndexFromPosition(m.start()),
                 *self.lineIndexFromPosition(m.end()),

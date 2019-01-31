@@ -716,7 +716,7 @@ class MainWindow(MainWindowBase):
     def start_finder(self):
         """Start finder when press the hot key."""
         self.panel_widget.setCurrentIndex(1)
-        keyword = self.text_editor.selectedText() or self.text_editor
+        keyword = self.text_editor.selectedText() or self.text_editor.word
         if keyword:
             self.search_bar.setText(keyword)
 
