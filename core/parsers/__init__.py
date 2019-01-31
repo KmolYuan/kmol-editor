@@ -54,7 +54,7 @@ YMLData = Dict[str, Union[int, List[NodeDict], Dict[int, str]]]
 _SUPPORTED_FILE_SUFFIX: Dict[str, str] = {
     'kmol': "Kmol Project",
     'md': "Markdown",
-    'yaml': "YAML",
+    'yml': "YAML",
     'html': "HTML",
     'py': "Python script",
     'tex': "Latex",
