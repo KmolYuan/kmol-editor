@@ -25,9 +25,6 @@ import re
 from threading import Thread
 from subprocess import check_output
 from markdown2 import markdown
-from pygments import highlight
-from pygments.lexers.python import Python3Lexer
-from pygments.formatters.html import HtmlFormatter
 from core.QtModules import (
     pyqtSlot,
     QTextCursor,
@@ -166,8 +163,9 @@ class MainWindow(MainWindowBase):
         self.__delete_node_data(root)
         self.tree_main.takeTopLevelItem(self.tree_main.indexOfTopLevelItem(root))
         self.text_editor.clear()
+        self.reload_html_viewer()
 
-    def reload_html_view(self):
+    def reload_html_viewer(self):
         """Reload HTML content."""
         doc = self.text_editor.text()
         option = self.text_editor.lexer_option
@@ -184,11 +182,6 @@ class MainWindow(MainWindowBase):
                     'cuddled-lists',
                     'tag-friendly',
                 ])
-            )
-        elif option == "Python":
-            self.html_previewer.setHtml(
-                f"<style>{CODE_STYLE}</style>" +
-                highlight(doc, Python3Lexer(), HtmlFormatter())
             )
         else:
             self.html_previewer.setContent(b"", "text/plain")
@@ -654,7 +647,7 @@ class MainWindow(MainWindowBase):
                             break
             self.text_editor.setText(self.data[int(current.text(2))])
 
-        self.reload_html_view()
+        self.reload_html_viewer()
         self.__action_changed()
 
     @pyqtSlot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')

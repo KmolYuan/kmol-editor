@@ -64,7 +64,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         self.html_previewer = QWebEngineView()
         self.html_previewer.setContent(b"", "text/plain")
         self.h2_splitter.addWidget(self.html_previewer)
-        self.text_editor.word_changed.connect(self.reload_html_view)
+        self.text_editor.word_changed.connect(self.reload_html_viewer)
         self.text_editor.word_changed.connect(self.set_not_saved_title)
         self.edge_line_option.toggled.connect(self.text_editor.setEdgeMode)
         self.trailing_blanks_option.toggled.connect(self.text_editor.set_remove_trailing_blanks)
@@ -75,7 +75,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         self.highlighter_option.currentTextChanged.connect(
             self.text_editor.set_highlighter
         )
-        self.highlighter_option.currentTextChanged.connect(self.reload_html_view)
+        self.highlighter_option.currentTextChanged.connect(self.reload_html_viewer)
 
         # Tree widget context menu.
         self.tree_widget.customContextMenuRequested.connect(
@@ -181,7 +181,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         self.env = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
 
     @abstractmethod
-    def reload_html_view(self) -> None:
+    def reload_html_viewer(self) -> None:
         ...
 
     @abstractmethod
