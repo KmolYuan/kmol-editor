@@ -9,7 +9,6 @@ __email__ = "pyslvs@gmail.com"
 
 from typing import (
     Dict,
-    Hashable,
     Optional,
     Union,
     Any,
@@ -698,7 +697,7 @@ class MainWindow(MainWindowBase):
         for name, code in self.data.macros():
             self.__add_macro(name, code)
 
-    def __add_macro(self, name: str, code: Union[int, Hashable]):
+    def __add_macro(self, name: str, code: Union[int, str]):
         """Add macro button."""
         for action in self.macros_toolbar.actions():
             if action.text() == name:

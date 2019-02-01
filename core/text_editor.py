@@ -16,7 +16,8 @@ from typing import (
     Tuple,
     Iterator,
     Match,
-    overload,
+    Union,
+    Optional,
 )
 import platform
 import re
@@ -61,7 +62,7 @@ _commas_markdown = (
 )
 
 
-def _finditer(p: str, d: str, flags: re.RegexFlag = 0) -> Iterator[Match[str]]:
+def _finditer(p: str, d: str, flags: Union[int, re.RegexFlag] = 0) -> Iterator[Match[bytes]]:
     """Iterator of encoding version."""
     yield from re.finditer(p.encode('utf-8'), d.encode('utf-8'), flags)
 
@@ -75,7 +76,7 @@ def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
 
         # Camel case.
         for m in _finditer(r'[A-Za-z][a-z]+', s):
-            word: bytes = m.group(0)
+            word = m.group(0)
             if len(word) == len(word.decode('utf-8')):
                 words.append(word.decode('utf-8').lower())
 
@@ -190,21 +191,13 @@ class TextEditor(QsciScintilla):
             QsciScintilla.EdgeLine if option else QsciScintilla.EdgeNone
         )
 
-    @overload
-    def setSelection(self, p1: int, p2: int, p3: int, p4: int) -> None:
-        ...
-
-    @overload
-    def setSelection(self, p1: int, p2: int, *_: int) -> None:
-        ...
-
-    def setSelection(self, *args: int):
-        if len(args) == 2:
-            line1, index1 = self.lineIndexFromPosition(args[0])
-            line2, index2 = self.lineIndexFromPosition(args[1])
+    def setSelection(self, p1: int, p2: int, p3: Optional[int] = None, p4: Optional[int] = None):
+        if p3 is p4 is None:
+            line1, index1 = self.lineIndexFromPosition(p1)
+            line2, index2 = self.lineIndexFromPosition(p2)
             super(TextEditor, self).setSelection(line1, index1, line2, index2)
         else:
-            super(TextEditor, self).setSelection(*args)
+            super(TextEditor, self).setSelection(p1, p2, p3, p4)
 
     @pyqtSlot(bool)
     def set_remove_trailing_blanks(self, option: bool):
