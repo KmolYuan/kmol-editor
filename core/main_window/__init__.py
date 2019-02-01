@@ -410,8 +410,9 @@ class MainWindow(MainWindowBase):
         """Save the current text of editor."""
         self.text_editor.remove_trailing_blanks()
         item = self.tree_main.currentItem()
-        if item:
+        if item is not None:
             self.data[int(item.text(2))] = self.text_editor.text()
+        self.text_editor.spell_check_all()
 
     @pyqtSlot()
     def delete_node(self):
@@ -799,7 +800,12 @@ class MainWindow(MainWindowBase):
         QListWidgetItem,
         QListWidgetItem,
         name='on_find_list_currentItemChanged')
-    def __find_results(self, item: QListWidgetItem, _: QListWidgetItem):
+    @pyqtSlot(QListWidgetItem, name='on_find_list_itemDoubleClicked')
+    def __find_results(
+        self,
+        item: QListWidgetItem,
+        _: Optional[QListWidgetItem] = None
+    ):
         """Switch to target node."""
         if item is None:
             return

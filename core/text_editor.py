@@ -323,7 +323,7 @@ class TextEditor(QsciScintilla):
 
         # Add space for commas.
         for co in commas:
-            if key == co:
+            if key == co and self.__cursor_next_char() != " ":
                 self.insert(" ")
                 self.__cursor_move_next()
                 return
@@ -332,7 +332,7 @@ class TextEditor(QsciScintilla):
         """Clear all indicators."""
         self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), indicator)
 
-    def __spell_check_all(self):
+    def spell_check_all(self):
         """Spell check for all text."""
         self.__clear_indicator_all(0)
         for start, end in _spell_check(self.text()):
@@ -372,4 +372,4 @@ class TextEditor(QsciScintilla):
         super(TextEditor, self).setText(doc)
         if self.__no_trailing_blanks:
             self.remove_trailing_blanks()
-        self.__spell_check_all()
+        self.spell_check_all()
