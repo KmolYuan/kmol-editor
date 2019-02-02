@@ -53,7 +53,7 @@ class TranslatorWidget(QWidget, Ui_Form):
                 src=self.src_lang.currentText(),
                 dest=self.dest_lang.currentText()
             )
-        except ValueError as error:
+        except (ValueError, IndexError) as error:
             self.dest_text.setPlainText(str(error))
         else:
             self.dest_text.setPlainText(translated.text)
