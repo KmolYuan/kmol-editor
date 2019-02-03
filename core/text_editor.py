@@ -232,7 +232,7 @@ class TextEditor(QsciScintilla):
             found = self.findNext()
 
     def __word_at_pos(self, pos: int) -> Tuple[int, int, str]:
-        """Return pos of current word."""
+        """Return the start and end pos of current word."""
         return (
             self.SendScintilla(QsciScintilla.SCI_WORDSTARTPOSITION, pos, True),
             self.SendScintilla(QsciScintilla.SCI_WORDENDPOSITION, pos, True),
@@ -308,6 +308,16 @@ class TextEditor(QsciScintilla):
             self.word_changed.emit()
         self.__spell_check_line()
 
+        # Remove leading spaces when create newline.
+        if key in {Qt.Key_Return, Qt.Key_Enter}:
+            if len(doc_pre) - len(doc_pre.lstrip(" ")) == 0:
+                line, _ = self.getCursorPosition()
+                doc_post = self.text(line)
+                while 0 < len(doc_post) - len(doc_post.lstrip(" ")):
+                    self.unindent(line)
+                    doc_post = self.text(line)
+            return
+
         # Auto close of parentheses.
         for k1, k2, t0, t1 in parentheses:
             if key == k1:
@@ -323,17 +333,16 @@ class TextEditor(QsciScintilla):
 
     def __clear_indicator_all(self, indicator: int):
         """Clear all indicators."""
-        self.clearIndicatorRange(0, 0, *self.lineIndexFromPosition(self.length()), indicator)
+        line, index = self.lineIndexFromPosition(self.length())
+        self.clearIndicatorRange(0, 0, line, index, indicator)
 
     def spell_check_all(self):
         """Spell check for all text."""
         self.__clear_indicator_all(0)
         for start, end in _spell_check(self.text()):
-            self.fillIndicatorRange(
-                *self.lineIndexFromPosition(start),
-                *self.lineIndexFromPosition(end),
-                0
-            )
+            line1, index1 = self.lineIndexFromPosition(start)
+            line2, index2 = self.lineIndexFromPosition(end)
+            self.fillIndicatorRange(line1, index1, line2, index2, 0)
 
     def __clear_line_indicator(self, line: int, indicator: int):
         """Clear all indicators."""
