@@ -61,13 +61,10 @@ from .custom import MainWindowBase
 def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
     """Return the top-level parent if exist."""
     parent = node.parent()
-    return _get_root(parent) if parent else node
-
-
-def _grand_parent(node: QTreeWidgetItem) -> QTreeWidgetItem:
-    """Return the grand parent if exist."""
-    parent = node.parent()
-    return (parent.parent() if parent else node.treeWidget()) or node.treeWidget()
+    if parent is not None:
+        return _get_root(parent)
+    else:
+        return node
 
 
 def _str_between(s: str, front: str, back: str) -> str:
