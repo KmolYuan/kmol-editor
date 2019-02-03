@@ -273,6 +273,8 @@ class TextEditor(QsciScintilla):
     def __cursor_next_char(self) -> str:
         """Next character of cursor."""
         pos = self.positionFromLineIndex(*self.getCursorPosition())
+        if pos + 1 > self.length():
+            return ""
         return self.text(pos, pos + 1)
 
     def keyPressEvent(self, event):
