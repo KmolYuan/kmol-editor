@@ -62,6 +62,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         self.text_editor = TextEditor(self)
         self.h2_splitter.addWidget(self.text_editor)
         self.html_previewer = QWebEngineView()
+        self.html_previewer.setContextMenuPolicy(Qt.NoContextMenu)
         self.html_previewer.setContent(b"", "text/plain")
         self.h2_splitter.addWidget(self.html_previewer)
         self.text_editor.word_changed.connect(self.reload_html_viewer)

@@ -181,9 +181,11 @@ class MainWindow(MainWindowBase):
             )
         else:
             self.html_previewer.setContent(b"", "text/plain")
+            self.html_previewer.history().clear()
             self.html_previewer.setVisible(False)
             return
 
+        self.html_previewer.history().clear()
         self.html_previewer.setVisible(True)
 
     @pyqtSlot()
