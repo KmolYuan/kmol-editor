@@ -423,6 +423,7 @@ class MainWindow(MainWindowBase):
 
         self.tree_main.setCurrentItem(parent)
         self.__delete_node_data(node)
+        self.data.set_saved(int(parent.text(2)), False)
         parent.removeChild(node)
 
     def __delete_node_data(self, node: QTreeWidgetItem):
