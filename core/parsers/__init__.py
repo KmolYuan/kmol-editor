@@ -14,6 +14,7 @@ from typing import (
     Union,
 )
 import yaml
+from yaml.representer import SafeRepresenter
 from core.QtModules import (
     QTreeWidgetItem,
     QTreeItem,
@@ -69,6 +70,21 @@ SUPPORT_FILE_FORMATS = ';;'.join(
 _SUPPORTED_FILE_SUFFIX.pop("")
 
 
+def _str_style(style, representer):
+    def new_representer(dumper, data):
+        scalar = representer(dumper, data)
+        scalar.style = style
+        return scalar
+    return new_representer
+
+
+class _LiteralDoc(str):
+    pass
+
+
+yaml.add_representer(_LiteralDoc, _str_style('|', SafeRepresenter.represent_str))
+
+
 def file_icon(file_type: str) -> QIcon:
     """Return icon by file format."""
     return QIcon(QPixmap(f":/icons/{file_type}.png"))
@@ -103,9 +119,9 @@ def _write_tree(proj_name: str, root_node: QTreeWidgetItem, data: DataDict):
     for i in range(root_node.childCount()):
         yml_data['node'].append(add_node(root_node.child(i)))
 
-    yml_data['data'] = {root_code: data[root_code]}
+    yml_data['data'] = {root_code: _LiteralDoc(data[root_code]) or ''}
     for code in my_codes:
-        yml_data['data'][code] = data[code]
+        yml_data['data'][code] = _LiteralDoc(data[code]) or ''
 
     data.save_all()
 
