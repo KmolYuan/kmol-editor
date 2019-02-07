@@ -8,18 +8,13 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import (
-    Tuple,
-    Iterable,
     ItemsView,
     Hashable,
     Dict,
     Union,
     TypeVar,
 )
-from core.QtModules import (
-    pyqtSignal,
-    QObject,
-)
+from core.QtModules import pyqtSignal, QObject
 
 _VT = TypeVar('_VT')
 
@@ -129,6 +124,6 @@ class DataDict(QObject):
             raise KeyError("{} is not in data.".format(key))
         self.__macros[name] = key
 
-    def macros(self) -> Iterable[Tuple[str, Hashable]]:
+    def macros(self) -> ItemsView[str, Hashable]:
         """Return macro scripts."""
         return self.__macros.items()
