@@ -32,9 +32,8 @@ from .misc import (
 )
 from .text import parse_text
 from .markdown import (
-    CODE_STYLE,
+    PandocTransformThread,
     parse_markdown,
-    pandoc_markdown,
 )
 
 __all__ = [
@@ -43,8 +42,7 @@ __all__ = [
     'save_file',
     'file_suffix',
     'file_icon',
-    'CODE_STYLE',
-    'pandoc_markdown',
+    'PandocTransformThread',
     'SUPPORT_FILE_FORMATS',
 ]
 

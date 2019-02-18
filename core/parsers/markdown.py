@@ -10,7 +10,13 @@ __email__ = "pyslvs@gmail.com"
 import re
 from pygments.formatters.html import HtmlFormatter
 from pygments.styles import get_style_by_name
-from core.QtModules import QTreeWidgetItem, QTreeItem
+from markdown2 import markdown
+from core.QtModules import (
+    pyqtSignal,
+    QTreeWidgetItem,
+    QTreeItem,
+    QThread,
+)
 from core.data_structure import DataDict
 
 CODE_STYLE = HtmlFormatter(style=get_style_by_name('default')).get_style_defs()
@@ -95,12 +101,30 @@ def parse_markdown(
         tree_items.append(item)
 
 
-def pandoc_markdown(doc: str) -> str:
-    """TODO: Pandoc markdown to normal markdown."""
-    # Symbol @others
-    doc = doc.replace('@others', "<p style=\"color:red\">&lt;...&gt;</p>")
-    doc = re.sub(r"\$\$([^$]+)\$\$", r"```\1```", doc)
-    doc = re.sub(r"\$([^$\n\r]+)\$", r"`\1`", doc)
-    doc = re.sub(r"\[@[\w-]+\]", r"\[99\]", doc)
-    doc = re.sub(r"{@\w+:[\w-]+}", r"xx. 99", doc)
-    return doc
+class PandocTransformThread(QThread):
+
+    """Transform from Pandoc to normal markdown."""
+
+    send = pyqtSignal(str)
+
+    def __init__(self, doc: str):
+        super(PandocTransformThread, self).__init__()
+        self.doc = doc
+
+    def run(self):
+        self.doc = self.doc.replace('@others', "<p style=\"color:red\">&lt;...&gt;</p>")
+        self.doc = re.sub(r"\$\$([^$]+)\$\$", r"```\1```", self.doc)
+        self.doc = re.sub(r"\$([^$\n\r]+)\$", r"`\1`", self.doc)
+        self.doc = re.sub(r"\[@[\w-]+\]", r"\[99\]", self.doc)
+        self.doc = re.sub(r"{@(\w+):[\w-]+}", r"\1. 99", self.doc)
+        self.send.emit(
+            f"<style>{CODE_STYLE}</style>" +
+            markdown(self.doc, extras=[
+                'numbering',
+                'tables',
+                'metadata',
+                'fenced-code-blocks',
+                'cuddled-lists',
+                'tag-friendly',
+            ])
+        )

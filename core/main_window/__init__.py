@@ -23,7 +23,6 @@ from os.path import isdir, isfile
 import re
 from threading import Thread
 from subprocess import check_output
-from markdown2 import markdown
 from core.QtModules import (
     pyqtSlot,
     QTextCursor,
@@ -51,8 +50,7 @@ from core.parsers import (
     save_file,
     file_suffix,
     file_icon,
-    CODE_STYLE,
-    pandoc_markdown,
+    PandocTransformThread,
     SUPPORT_FILE_FORMATS,
 )
 from .custom import MainWindowBase
@@ -168,17 +166,9 @@ class MainWindow(MainWindowBase):
         if option == "HTML":
             self.html_previewer.setHtml(doc)
         elif option == "Markdown":
-            self.html_previewer.setHtml(
-                f"<style>{CODE_STYLE}</style>" +
-                markdown(pandoc_markdown(doc), extras=[
-                    'numbering',
-                    'tables',
-                    'metadata',
-                    'fenced-code-blocks',
-                    'cuddled-lists',
-                    'tag-friendly',
-                ])
-            )
+            thread = PandocTransformThread(doc)
+            thread.send.connect(self.html_previewer.setHtml)
+            thread.start()
         else:
             self.html_previewer.setContent(b"", "text/plain")
             self.html_previewer.history().clear()
