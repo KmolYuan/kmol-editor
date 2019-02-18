@@ -99,4 +99,8 @@ def pandoc_markdown(doc: str) -> str:
     """TODO: Pandoc markdown to normal markdown."""
     # Symbol @others
     doc = doc.replace('@others', "<p style=\"color:red\">&lt;...&gt;</p>")
+    doc = re.sub(r"\$\$([^$]+)\$\$", r"```\1```", doc)
+    doc = re.sub(r"\$([^$\n\r]+)\$", r"`\1`", doc)
+    doc = re.sub(r"\[@[\w-]+\]", r"\[99\]", doc)
+    doc = re.sub(r"{@\w+:[\w-]+}", r"xx. 99", doc)
     return doc
