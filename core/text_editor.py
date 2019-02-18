@@ -16,7 +16,6 @@ from typing import (
     Tuple,
     Iterator,
     Match,
-    Union,
     Optional,
 )
 import platform
@@ -64,9 +63,9 @@ _commas_markdown = (
 )
 
 
-def _finditer(p: str, d: str, flags: Union[int, re.RegexFlag] = 0) -> Iterator[Match[bytes]]:
+def _finditer(p: str, d: str, flags: Optional[re.RegexFlag] = None) -> Iterator[Match[bytes]]:
     """Iterator of encoding version."""
-    yield from re.finditer(p.encode('utf-8'), d.encode('utf-8'), flags)
+    yield from re.finditer(p.encode('utf-8'), d.encode('utf-8'), flags or 0)
 
 
 def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
@@ -83,7 +82,7 @@ def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
                 words.append(word.decode('utf-8').lower())
 
     for unknown in _spell.unknown(words):
-        for m in _finditer(unknown, doc, re.IGNORECASE):
+        for m in _finditer(r'\b' + unknown + r'\b', doc, re.IGNORECASE):
             yield m.start(), m.end()
 
 
@@ -222,7 +221,7 @@ class TextEditor(QsciScintilla):
         menu: QMenu = self.createStandardContextMenu()
         menu.addSeparator()
         correction_action = QAction("&Refactor Words", self)
-        correction_action.triggered.connect(self.__spell_correction)
+        correction_action.triggered.connect(self.__refactor)
         menu.addAction(correction_action)
         menu.exec(self.mapToGlobal(event.pos()))
 
@@ -242,7 +241,7 @@ class TextEditor(QsciScintilla):
         )
 
     @pyqtSlot()
-    def __spell_correction(self):
+    def __refactor(self):
         """Refactor words."""
         pos = self.positionFromLineIndex(*self.getCursorPosition())
         start, end, words = self.__word_at_pos(pos)
