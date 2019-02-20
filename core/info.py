@@ -6,7 +6,7 @@ __author__ = "Yuan Chang"
 __copyright__ = "Copyright (C) 2018"
 __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
-__version__ = "18.11.1"
+__version__ = "19.02.0"
 
 from sys import version_info
 import platform
