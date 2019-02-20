@@ -36,6 +36,8 @@ from core.QtModules import (
     QScrollBar,
     # QScintilla widget
     QsciScintilla,
+    QsciCommand,
+    QsciCommandSet,
     # Other highlighters
     QSCI_HIGHLIGHTERS,
 )
@@ -163,6 +165,18 @@ class TextEditor(QsciScintilla):
         self.indicatorDefine(QsciScintilla.BoxIndicator, 1)
         self.cursorPositionChanged.connect(self.__catch_word)
         self.word = ""
+
+        # Undo redo
+        self.__set_command(QsciCommand.Redo, Qt.ControlModifier | Qt.ShiftModifier | Qt.Key_Z)
+
+    def __set_command(self, command_type: int, shortcut: int):
+        """Set editor shortcut to replace the default setting."""
+        commands: QsciCommandSet = self.standardCommands()
+        command = commands.boundTo(shortcut)
+        if command is not None:
+            command.setKey(0)
+        command: QsciCommand = commands.find(command_type)
+        command.setKey(shortcut)
 
     @pyqtSlot(int, int)
     def __catch_word(self, line: int, index: int):
@@ -369,7 +383,8 @@ class TextEditor(QsciScintilla):
         doc = ""
         for line_str in self.text().splitlines():
             doc += line_str.rstrip() + '\n'
-        super(TextEditor, self).setText(doc)
+        self.selectAll()
+        self.replaceSelectedText(doc)
 
         self.setCursorPosition(line, self.lineLength(line) - 1)
         scroll_bar.setSliderPosition(pos)

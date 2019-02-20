@@ -21,6 +21,8 @@ from PyQt5.QtWebEngineWidgets import *
 from PyQt5.Qsci import (
     QSCINTILLA_VERSION_STR,
     QsciScintilla,
+    QsciCommand,
+    QsciCommandSet,
     QsciLexer,
     QsciLexerBash,
     QsciLexerBatch,
@@ -139,6 +141,8 @@ __all__ = [
     'QWidget',
     'QWebEngineView',
     'QsciScintilla',
+    'QsciCommand',
+    'QsciCommandSet',
     'QSCI_HIGHLIGHTERS',
     'Qt',
     'QSCINTILLA_VERSION_STR',

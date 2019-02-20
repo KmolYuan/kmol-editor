@@ -280,7 +280,8 @@ class MainWindow(MainWindowBase):
             return
         parse(node, self.data)
         self.tree_main.setCurrentItem(node)
-        self.text_editor.setText(self.data[int(node.text(2))])
+        self.text_editor.selectAll()
+        self.text_editor.replaceSelectedText(self.data[int(node.text(2))])
 
     @pyqtSlot()
     def open_path(self):
