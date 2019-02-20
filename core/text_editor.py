@@ -141,7 +141,7 @@ class TextEditor(QsciScintilla):
         # Auto completion.
         self.setAutoCompletionCaseSensitivity(True)
         self.setAutoCompletionSource(QsciScintilla.AcsDocument)
-        self.setAutoCompletionThreshold(1)
+        self.setAutoCompletionThreshold(2)
 
         # Edge mode.
         self.setEdgeMode(QsciScintilla.EdgeNone)
