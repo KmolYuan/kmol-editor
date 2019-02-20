@@ -117,6 +117,7 @@ class PandocTransformThread(QThread):
         self.doc = re.sub(r"\$([^$\n\r]+)\$", r"`\1`", self.doc)
         self.doc = re.sub(r"\[@[\w-]+\]", r"\[99\]", self.doc)
         self.doc = re.sub(r"{@(\w+):[\w-]+}", r"\1. 99", self.doc)
+        self.usleep(1)
         self.send.emit(
             f"<style>{CODE_STYLE}</style>" +
             markdown(self.doc, extras=[
