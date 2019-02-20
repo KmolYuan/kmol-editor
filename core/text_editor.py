@@ -18,6 +18,7 @@ from typing import (
     Match,
     Optional,
 )
+import keyword
 import platform
 import re
 from spellchecker import SpellChecker
@@ -44,6 +45,7 @@ from core.QtModules import (
 
 
 _spell = SpellChecker()
+_keywords = set(keyword.kwlist)
 _parentheses = (
     (Qt.Key_ParenLeft, Qt.Key_ParenRight, '(', ')'),
     (Qt.Key_BracketLeft, Qt.Key_BracketRight, '[', ']'),
@@ -81,7 +83,9 @@ def _spell_check(doc: str) -> Iterator[Tuple[int, int]]:
         for m in _finditer(r'[A-Za-z][a-z]+', s):
             word = m.group(0)
             if len(word) == len(word.decode('utf-8')):
-                words.append(word.decode('utf-8').lower())
+                word = word.decode('utf-8').lower()
+                if word not in _keywords:
+                    words.append(word)
 
     for unknown in _spell.unknown(words):
         for m in _finditer(r'\b' + unknown + r'\b', doc, re.IGNORECASE):

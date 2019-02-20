@@ -8,6 +8,7 @@ __license__ = "AGPL"
 __email__ = "pyslvs@gmail.com"
 
 from typing import (
+    Tuple,
     Dict,
     Optional,
     Union,
@@ -68,6 +69,13 @@ def _get_root(node: QTreeWidgetItem) -> QTreeWidgetItem:
 def _str_between(s: str, front: str, back: str) -> str:
     """Get from parenthesis."""
     return s[(s.find(front) + 1):s.find(back)]
+
+
+def _expand_recursive(node: QTreeWidgetItem):
+    """Expand node and its children."""
+    node.setExpanded(True)
+    for i in range(node.childCount()):
+        _expand_recursive(node.child(i))
 
 
 class MainWindow(MainWindowBase):
@@ -278,8 +286,10 @@ class MainWindow(MainWindowBase):
                 "Can only refresh from valid path."
             )
             return
+
         parse(node, self.data)
         self.tree_main.setCurrentItem(node)
+        _expand_recursive(node)
         self.text_editor.selectAll()
         self.text_editor.replaceSelectedText(self.data[int(node.text(2))])
 
@@ -653,7 +663,7 @@ class MainWindow(MainWindowBase):
     def __root_unsaved(self):
         """Let tree to re-save."""
         node = self.tree_main.currentItem()
-        if node:
+        if node is not None:
             self.data.set_saved(int(_get_root(node).text(2)), False)
 
     def __action_changed(self):
@@ -744,6 +754,23 @@ class MainWindow(MainWindowBase):
         self.text_editor.replace(self.replace_bar.text())
         self.text_editor.findNext()
 
+    def __search_option(self) -> Tuple[str, str, re.RegexFlag]:
+        """Get search option."""
+        if not self.search_bar.text():
+            self.search_bar.setText(self.search_bar.placeholderText())
+        text = self.search_bar.text()
+        replace_text = self.replace_bar.text()
+        flags = re.MULTILINE
+        if not self.re_option.isChecked():
+            text = re.escape(text)
+            replace_text = re.escape(replace_text)
+        if self.whole_word_option.isChecked():
+            text = r"\b" + text + r"\b"
+            replace_text = r"\b" + replace_text + r"\b"
+        if not self.match_case_option.isChecked():
+            flags |= re.IGNORECASE
+        return text, replace_text, flags
+
     @pyqtSlot(name='on_find_project_button_clicked')
     def __find_project(self):
         """Find in all project."""
@@ -754,16 +781,7 @@ class MainWindow(MainWindowBase):
             return
 
         root = _get_root(node_current)
-        if not self.search_bar.text():
-            self.search_bar.setText(self.search_bar.placeholderText())
-        text = self.search_bar.text()
-        flags = re.MULTILINE
-        if not self.re_option.isChecked():
-            text = re.escape(text)
-        if self.whole_word_option.isChecked():
-            text = r'\b' + text + r'\b'
-        if not self.match_case_option.isChecked():
-            flags |= re.IGNORECASE
+        text, _, flags = self.__search_option()
 
         def find_in_nodes(node: QTreeWidgetItem, last_name: str = ''):
             """Find the word in all nodes."""
@@ -810,16 +828,35 @@ class MainWindow(MainWindowBase):
     @pyqtSlot(name='on_replace_project_button_clicked')
     def __replace_project(self):
         """Replace in project."""
+        self.__find_project()
         count = self.find_list.count()
         if count == 0:
             return
 
-        reply = QMessageBox.question(
+        if QMessageBox.question(
             self,
             "Replace in project",
             f"Replace all? ({count})"
-        )
-        if reply != QMessageBox.Yes:
+        ) != QMessageBox.Yes:
             return
 
-        # TODO: Replace in project.
+        replace_text = self.replace_bar.text()
+        if not replace_text:
+            if QMessageBox.question(
+                self,
+                "Empty replace text",
+                f"Replace text is an empty string, still replace all?"
+            ) != QMessageBox.No:
+                return
+
+        text, replace_text, flags = self.__search_option()
+
+        used_code = set()
+        for row in range(self.find_list.count()):
+            code = int(self.find_list.item(row).toolTip().split(':')[0])
+            if code in used_code:
+                continue
+            self.data[code] = re.sub(text, replace_text, self.data[code], flags)
+            used_code.add(code)
+
+        self.__root_unsaved()
