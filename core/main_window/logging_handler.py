@@ -42,12 +42,12 @@ class XStream(QObject):
 
     _stdout = None
     _stderr = None
-    messageWritten = pyqtSignal(str)
+    message_written = pyqtSignal(str)
 
     def write(self, msg: str):
         """Output the message."""
         if not self.signalsBlocked():
-            self.messageWritten.emit(msg)
+            self.message_written.emit(msg)
 
     @staticmethod
     def stdout():
