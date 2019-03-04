@@ -13,6 +13,7 @@ from pygments.styles import get_style_by_name
 from markdown2 import markdown
 from core.QtModules import (
     pyqtSignal,
+    QWidget,
     QTreeWidgetItem,
     QTreeItem,
     QThread,
@@ -107,8 +108,8 @@ class PandocTransformThread(QThread):
 
     send = pyqtSignal(str)
 
-    def __init__(self, doc: str):
-        super(PandocTransformThread, self).__init__()
+    def __init__(self, doc: str, parent: QWidget):
+        super(PandocTransformThread, self).__init__(parent)
         self.doc = doc
 
     def run(self):

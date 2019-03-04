@@ -170,6 +170,18 @@ class TextEditor(QsciScintilla):
         self.cursorPositionChanged.connect(self.__catch_word)
         self.word = ""
 
+        # Undo redo
+        self.__set_command(QsciCommand.Redo, Qt.ControlModifier | Qt.ShiftModifier | Qt.Key_Z)
+
+    def __set_command(self, command_type: int, shortcut: int):
+        """Set editor shortcut to replace the default setting."""
+        commands: QsciCommandSet = self.standardCommands()
+        command = commands.boundTo(shortcut)
+        if command is not None:
+            command.setKey(0)
+        command: QsciCommand = commands.find(command_type)
+        command.setKey(shortcut)
+
     @pyqtSlot(int, int)
     def __catch_word(self, line: int, index: int):
         """Catch and indicate current word."""

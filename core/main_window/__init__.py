@@ -174,7 +174,7 @@ class MainWindow(MainWindowBase):
         if option == "HTML":
             self.html_previewer.setHtml(doc)
         elif option == "Markdown":
-            thread = PandocTransformThread(doc)
+            thread = PandocTransformThread(doc, self)
             thread.send.connect(self.html_previewer.setHtml)
             thread.start()
         else:
