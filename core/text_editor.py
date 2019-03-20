@@ -342,10 +342,11 @@ class TextEditor(QsciScintilla):
             return
 
         # Auto close of parentheses.
-        for k1, k2, t0, t1 in parentheses:
-            if key == k1:
-                self.insert(t1)
-                return
+        if not self.__cursor_next_char().isalpha():
+            for k1, k2, t0, t1 in parentheses:
+                if key == k1:
+                    self.insert(t1)
+                    return
 
         # Add space for commas.
         for co in commas:
