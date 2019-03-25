@@ -19,7 +19,7 @@ from typing import (
     Optional,
 )
 import keyword
-import platform
+from platform import system
 import re
 from spellchecker import SpellChecker
 from core.QtModules import (
@@ -103,10 +103,14 @@ class TextEditor(QsciScintilla):
         super(TextEditor, self).__init__(parent)
 
         # Set the default font.
-        if platform.system() == "Windows":
-            font_name = "Courier New"
+        if system() == "Linux":
+            font_name = "\"DejaVu Sans Mono\""
+        elif system() == "Windows":
+            font_name = "Consolas"
+        elif system() == "Darwin":
+            font_name = "SourceCodePro-Black.ttf"
         else:
-            font_name = "Mono"
+            font_name = "Courier New"
         self.font = QFont(font_name)
         self.font.setFixedPitch(True)
         self.font.setPointSize(14)
