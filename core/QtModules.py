@@ -256,7 +256,7 @@ HIGHLIGHTER_SUFFIX = {
     "Batch": {'bat'},
     "C++": {'c', 'cpp', 'h', 'hpp', 'cxx'},
     "C#": {'cs'},
-    "CSS": {'css', 'bib'},
+    "CSS": {'css'},
     "Diff": {'diff'},
     "Fortran": {'f90'},
     "Fortran77": {'f77'},
@@ -269,7 +269,7 @@ HIGHLIGHTER_SUFFIX = {
     "Matlab": {'m'},
     "Python": {'py'},
     "SQL": {'sql'},
-    "Tex": {'tex'},
+    "Tex": {'tex', 'bib'},
     "XML": {'xml'},
     "YAML": {'yml'},
 }
