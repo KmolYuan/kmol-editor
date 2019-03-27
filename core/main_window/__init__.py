@@ -116,10 +116,16 @@ class MainWindow(MainWindowBase):
         """Drop file in to our window."""
         for url in event.mimeData().urls():
             file_name = url.toLocalFile()
-            root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
-            self.tree_main.addTopLevelItem(root_node)
-            parse(root_node, self.data)
-            self.tree_main.setCurrentItem(root_node)
+            self.env = QFileInfo(file_name).absolutePath()
+            index = self.__in_widget(file_name)
+            if index == -1:
+                root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
+                self.tree_main.addTopLevelItem(root_node)
+                parse(root_node, self.data)
+                self.tree_main.setCurrentItem(root_node)
+            else:
+                self.tree_main.setCurrentIndex(index)
+
         self.__add_macros()
         event.acceptProposedAction()
 
@@ -243,6 +249,13 @@ class MainWindow(MainWindowBase):
             root_node.setIcon(0, file_icon("txt"))
         self.tree_main.addTopLevelItem(root_node)
 
+    def __in_widget(self, path: str) -> int:
+        """Is name in tree widget."""
+        for i in range(self.tree_main.topLevelItemCount()):
+            if path == self.tree_main.topLevelItem(i).text(1):
+                return i
+        return -1
+
     @pyqtSlot(name='on_action_open_triggered')
     def __open_proj(self):
         """Open file."""
@@ -255,16 +268,9 @@ class MainWindow(MainWindowBase):
         if not ok:
             return
 
-        def in_widget(path: str) -> int:
-            """Is name in tree widget."""
-            for i in range(self.tree_main.topLevelItemCount()):
-                if path == self.tree_main.topLevelItem(i).text(1):
-                    return i
-            return -1
-
         for file_name in file_names:
             self.env = QFileInfo(file_name).absolutePath()
-            index = in_widget(file_name)
+            index = self.__in_widget(file_name)
             if index == -1:
                 root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
                 self.tree_main.addTopLevelItem(root_node)
