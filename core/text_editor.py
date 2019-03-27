@@ -104,11 +104,11 @@ class TextEditor(QsciScintilla):
 
         # Set the default font.
         if system() == "Linux":
-            font_name = "\"DejaVu Sans Mono\""
+            font_name = "DejaVu Sans Mono"
         elif system() == "Windows":
             font_name = "Consolas"
         elif system() == "Darwin":
-            font_name = "SourceCodePro-Black.ttf"
+            font_name = "Andale Mono"
         else:
             font_name = "Courier New"
         self.font = QFont(font_name)
