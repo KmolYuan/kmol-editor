@@ -30,12 +30,14 @@ class DataDict(QObject):
         super(DataDict, self).__init__()
         self.__data: Dict[Hashable, str] = {}
         self.__saved: Dict[Hashable, bool] = {}
+        self.__pos: Dict[Hashable, int] = {}
         self.__macros: Dict[str, Hashable] = {}
 
     def clear(self):
         """Clear data."""
         self.__data.clear()
         self.__saved.clear()
+        self.__pos.clear()
         self.__macros.clear()
 
     def __getitem__(self, key: Hashable) -> str:
@@ -82,6 +84,7 @@ class DataDict(QObject):
         if key in self.__data:
             data = self.__data.pop(key)
             del self.__saved[key]
+            del self.__pos[key]
             for m, code in tuple(self.__macros.items()):
                 if code == key:
                     del self.__macros[m]
@@ -127,3 +130,14 @@ class DataDict(QObject):
     def macros(self) -> ItemsView[str, Hashable]:
         """Return macro scripts."""
         return self.__macros.items()
+
+    def set_pos(self, key: Hashable, pos: int):
+        """Set the scroll bar position of the data."""
+        self.__pos[key] = pos
+
+    def pos(self, key: Hashable) -> int:
+        """Get the scroll bar position of the data."""
+        if key in self.__pos:
+            return self.__pos[key]
+        else:
+            return 0

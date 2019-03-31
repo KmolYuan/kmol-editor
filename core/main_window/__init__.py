@@ -41,6 +41,7 @@ from core.QtModules import (
     QDesktopServices,
     QIcon,
     QPixmap,
+    QScrollBar,
     HIGHLIGHTER_SUFFIX,
     HIGHLIGHTER_FILENAME,
 )
@@ -631,8 +632,11 @@ class MainWindow(MainWindowBase):
             self.tree_main.expandItem(current)
         self.tree_main.scrollToItem(current)
 
+        bar: QScrollBar = self.text_editor.verticalScrollBar()
         if previous:
-            self.data[int(previous.text(2))] = self.text_editor.text()
+            key = int(previous.text(2))
+            self.data[key] = self.text_editor.text()
+            self.data.set_pos(key, bar.value())
         if current:
             # Auto highlight.
             path = current.text(1)
@@ -652,7 +656,9 @@ class MainWindow(MainWindowBase):
                         if file_name in filename_m:
                             self.highlighter_option.setCurrentText(name_m)
                             break
-            self.text_editor.setText(self.data[int(current.text(2))])
+            key = int(current.text(2))
+            self.text_editor.setText(self.data[key])
+            bar.setValue(self.data.pos(key))
 
         self.reload_html_viewer()
         self.__action_changed()
