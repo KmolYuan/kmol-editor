@@ -106,7 +106,7 @@ class TextEditor(QsciScintilla):
         if system() == "Linux":
             font_name = "DejaVu Sans Mono"
         elif system() == "Windows":
-            font_name = "Consolas"
+            font_name = "Courier New"
         elif system() == "Darwin":
             font_name = "Andale Mono"
         else:
