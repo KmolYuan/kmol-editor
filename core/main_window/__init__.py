@@ -294,6 +294,8 @@ class MainWindow(MainWindowBase):
             )
             return
 
+        self.__delete_node_data(node)
+        node.takeChildren()
         parse(node, self.data)
         self.tree_main.setCurrentItem(node)
         _expand_recursive(node)

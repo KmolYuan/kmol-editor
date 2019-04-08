@@ -83,8 +83,8 @@ class DataDict(QObject):
         """Delete the key and return the value."""
         if key in self.__data:
             data = self.__data.pop(key)
-            del self.__saved[key]
-            del self.__pos[key]
+            self.__saved.pop(key, None)
+            self.__pos.pop(key, None)
             for m, code in tuple(self.__macros.items()):
                 if code == key:
                     del self.__macros[m]
