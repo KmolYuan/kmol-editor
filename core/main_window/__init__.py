@@ -385,6 +385,7 @@ class MainWindow(MainWindowBase):
                 new_pointer(node.child(i))
 
         new_pointer(node_origin_copy)
+        new_pointer = None
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin_copy)
 
     @pyqtSlot()
@@ -815,6 +816,7 @@ class MainWindow(MainWindowBase):
                 find_in_nodes(node.child(i), last_name)
 
         find_in_nodes(root)
+        find_in_nodes = None
         count = self.find_list.count()
         QMessageBox.information(self, "Find in project", f"Found {count} result.")
 
@@ -874,3 +876,23 @@ class MainWindow(MainWindowBase):
             used_code.add(code)
 
         self.__root_unsaved()
+
+    @pyqtSlot(name='on_expand_button_clicked')
+    def __expand_to_level(self):
+        """Expand to specific level."""
+        item = self.tree_main.currentItem()
+        if item is None:
+            return
+
+        target_level = self.expand_level.value()
+        root = _get_root(item)
+
+        def expand(node: QTreeWidgetItem, level: int):
+            not_target = level != target_level
+            node.setExpanded(not_target)
+            if not_target:
+                for i in range(node.childCount()):
+                    expand(node.child(i), level + 1)
+
+        expand(root, 0)
+        expand = None

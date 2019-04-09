@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/foxy/Desktop/kmol-editor/core/main_window/main_window.ui'
+# Form implementation generated from reading ui file 'main_window.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -18,8 +19,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowIcon(icon)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
-        self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.centralWidget)
-        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.centralWidget)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.h1_splitter = QtWidgets.QSplitter(self.centralWidget)
         self.h1_splitter.setOrientation(QtCore.Qt.Horizontal)
         self.h1_splitter.setObjectName("h1_splitter")
@@ -67,6 +68,18 @@ class Ui_MainWindow(object):
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem1)
         self.verticalLayout_2.addLayout(self.horizontalLayout_5)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.expand_button = QtWidgets.QPushButton(self.tree_widget)
+        self.expand_button.setObjectName("expand_button")
+        self.horizontalLayout_6.addWidget(self.expand_button)
+        self.expand_level = QtWidgets.QSpinBox(self.tree_widget)
+        self.expand_level.setProperty("value", 3)
+        self.expand_level.setObjectName("expand_level")
+        self.horizontalLayout_6.addWidget(self.expand_level)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem2)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_6)
         self.tree_main = QtWidgets.QTreeWidget(self.tree_widget)
         self.tree_main.setDragEnabled(True)
         self.tree_main.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
@@ -122,8 +135,8 @@ class Ui_MainWindow(object):
         self.re_option = QtWidgets.QCheckBox(self.find_tab)
         self.re_option.setObjectName("re_option")
         self.horizontalLayout_4.addWidget(self.re_option)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_4.addItem(spacerItem2)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem3)
         self.verticalLayout_6.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -148,10 +161,10 @@ class Ui_MainWindow(object):
         self.h2_splitter = QtWidgets.QSplitter(self.h1_splitter)
         self.h2_splitter.setOrientation(QtCore.Qt.Horizontal)
         self.h2_splitter.setObjectName("h2_splitter")
-        self.verticalLayout_7.addWidget(self.h1_splitter)
+        self.verticalLayout_4.addWidget(self.h1_splitter)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 31))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 21))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -216,6 +229,7 @@ class Ui_MainWindow(object):
         self.edge_line_option.setText(_translate("MainWindow", "Edge Line"))
         self.auto_expand_option.setText(_translate("MainWindow", "Auto Expand"))
         self.trailing_blanks_option.setText(_translate("MainWindow", "Remove Trailing Blanks"))
+        self.expand_button.setText(_translate("MainWindow", "Expand to Level"))
         self.tree_main.headerItem().setText(0, _translate("MainWindow", "Name"))
         self.tree_main.headerItem().setText(1, _translate("MainWindow", "Path"))
         self.panel_widget.setTabText(self.panel_widget.indexOf(self.console_tab), _translate("MainWindow", "Console"))
@@ -244,5 +258,6 @@ class Ui_MainWindow(object):
         self.action_mde_tw.setText(_translate("MainWindow", "mde.tw"))
         self.action_about_qt.setText(_translate("MainWindow", "About Qt"))
         self.action_New_Window.setText(_translate("MainWindow", "New Window"))
+
 
 import icons_rc
