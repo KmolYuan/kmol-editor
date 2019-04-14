@@ -42,6 +42,7 @@ from core.QtModules import (
     QIcon,
     QPixmap,
     QScrollBar,
+    QsciScintilla,
     HIGHLIGHTER_SUFFIX,
     HIGHLIGHTER_FILENAME,
 )
@@ -896,3 +897,10 @@ class MainWindow(MainWindowBase):
 
         expand(root, 0)
         expand = None
+
+    @pyqtSlot(bool, name='on_hard_wrap_option_toggled')
+    def __hard_wrap(self, wrap: bool):
+        if wrap:
+            self.text_editor.setWrapMode(QsciScintilla.WrapCharacter)
+        else:
+            self.text_editor.setWrapMode(QsciScintilla.WrapWord)

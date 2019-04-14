@@ -132,16 +132,9 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
-               <widget class="QPushButton" name="expand_button">
+               <widget class="QCheckBox" name="hard_wrap_option">
                 <property name="text">
-                 <string>Expand to Level</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="expand_level">
-                <property name="value">
-                 <number>3</number>
+                 <string>Hard Wrap</string>
                 </property>
                </widget>
               </item>
@@ -157,6 +150,20 @@
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="expand_button">
+                <property name="text">
+                 <string>Expand to Level</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="expand_level">
+                <property name="value">
+                 <number>3</number>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
