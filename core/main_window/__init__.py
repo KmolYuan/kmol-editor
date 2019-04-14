@@ -86,6 +86,30 @@ class MainWindow(MainWindowBase):
 
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.option_list = (
+            self.edge_line_option,
+            self.auto_expand_option,
+            self.trailing_blanks_option,
+            self.hard_wrap_option,
+            self.wrap_around,
+            self.match_case_option,
+            self.whole_word_option,
+            self.re_option,
+        )
+
+        for option in self.option_list:
+            option.setChecked(self.settings.value(
+                option.objectName(),
+                defaultValue=option.isChecked(),
+                type=bool
+            ))
+
+        self.expand_level.setValue(self.settings.value(
+            self.expand_level.objectName(),
+            defaultValue=self.expand_level.value(),
+            type=int
+        ))
+
         if ARGUMENTS.file:
             file_name = ARGUMENTS.file
             root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
@@ -137,6 +161,9 @@ class MainWindow(MainWindowBase):
             event.ignore()
             return
 
+        for option in self.option_list:
+            self.settings.setValue(option.objectName(), option.isChecked())
+        self.settings.setValue(self.expand_level.objectName(), self.expand_level.value())
         self.settings.setValue("prev_open", '#'.join({
             self.tree_main.topLevelItem(i).text(1)
             for i in range(self.tree_main.topLevelItemCount())
@@ -900,7 +927,4 @@ class MainWindow(MainWindowBase):
 
     @pyqtSlot(bool, name='on_hard_wrap_option_toggled')
     def __hard_wrap(self, wrap: bool):
-        if wrap:
-            self.text_editor.setWrapMode(QsciScintilla.WrapCharacter)
-        else:
-            self.text_editor.setWrapMode(QsciScintilla.WrapWord)
+        self.text_editor.setWrapMode(QsciScintilla.WrapCharacter if wrap else QsciScintilla.WrapWord)
