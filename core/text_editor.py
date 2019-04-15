@@ -321,11 +321,14 @@ class TextEditor(QsciScintilla):
 
         # Wrap the selected text.
         if selected_text:
-            for k1, k2, t0, t1 in parentheses:
-                if key == k1:
-                    self.replaceSelectedText(t0 + selected_text + t1)
-                    self.word_changed.emit()
-                    return
+            if len(selected_text) == 1 and not selected_text.isalnum():
+                pass
+            elif selected_text[0].isalnum() == selected_text[-1].isalnum():
+                for k1, k2, t0, t1 in parentheses:
+                    if key == k1:
+                        self.replaceSelectedText(t0 + selected_text + t1)
+                        self.word_changed.emit()
+                        return
 
         line, _ = self.getCursorPosition()
         doc_pre = self.text(line)
@@ -346,7 +349,7 @@ class TextEditor(QsciScintilla):
             return
 
         # Auto close of parentheses.
-        if not self.__cursor_next_char().isalpha():
+        if not (selected_text or self.__cursor_next_char().isalnum()):
             for k1, k2, t0, t1 in parentheses:
                 if key == k1:
                     self.insert(t1)
