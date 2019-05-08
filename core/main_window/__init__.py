@@ -347,11 +347,11 @@ class MainWindow(MainWindowBase):
             "",
             str(self.data.new_num())
         )
-        if node.childCount() or node.text(1):
+        if node.isExpanded() and node.childCount():
             node.addChild(new_node)
             return
         parent = node.parent()
-        if parent:
+        if parent is not None:
             parent.insertChild(parent.indexOfChild(node) + 1, new_node)
             return
         self.tree_main.indexOfTopLevelItem(
