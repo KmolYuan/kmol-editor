@@ -24,6 +24,7 @@ from os.path import isdir, isfile
 import re
 from threading import Thread
 from subprocess import check_output
+from platform import system
 from core.QtModules import (
     pyqtSlot,
     QTextCursor,
@@ -335,8 +336,12 @@ class MainWindow(MainWindowBase):
         """Open path of current node."""
         node = self.tree_main.currentItem()
         file_name = getpath(node)
-        QDesktopServices.openUrl(QUrl(file_name))
-        print("Open: {}".format(file_name))
+        if system() == "Darwin":
+            thread = Thread(target=os_system, args=(f"open: {file_name}",))
+            thread.start()
+        else:
+            QDesktopServices.openUrl(QUrl(file_name))
+        print(f"Open: {file_name}")
 
     @pyqtSlot()
     def add_node(self):
