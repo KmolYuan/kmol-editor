@@ -33,7 +33,8 @@ def parse_markdown(
     try:
         f = open(file_name, encoding='utf-8')
     except FileNotFoundError as e:
-        data[code] = str(e)
+        if not data[code]:
+            data[code] = str(e)
         return
 
     with f:
