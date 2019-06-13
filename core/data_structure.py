@@ -14,7 +14,7 @@ from typing import (
     Union,
     TypeVar,
 )
-from core.QtModules import pyqtSignal, QObject
+from core.QtModules import Signal, QObject
 
 _VT = TypeVar('_VT')
 
@@ -23,8 +23,8 @@ class DataDict(QObject):
 
     """A wrapper class contain the data of nodes."""
 
-    not_saved = pyqtSignal()
-    all_saved = pyqtSignal()
+    not_saved = Signal()
+    all_saved = Signal()
 
     def __init__(self):
         super(DataDict, self).__init__()

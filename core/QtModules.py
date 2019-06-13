@@ -12,8 +12,7 @@ __email__ = "pyslvs@gmail.com"
 
 from typing import Type
 from abc import ABCMeta
-from PyQt5.sip import wrappertype
-from PyQt5.QtCore import qVersion, PYQT_VERSION_STR
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -48,10 +47,19 @@ from PyQt5.Qsci import (
     QsciLexerYAML,
 )
 
+Signal = QtCore.pyqtSignal
+Slot = QtCore.pyqtSlot
+QT_VERSION_STR = QtCore.QT_VERSION_STR
+PYQT_VERSION_STR = QtCore.PYQT_VERSION_STR
+
 __all__ = [
-    'pyqtSignal',
-    'pyqtSlot',
-    'qVersion',
+    'Qt',
+    'QtCore',
+    'QtGui',
+    'QtWidgets',
+    'Signal',
+    'Slot',
+    'QT_VERSION_STR',
     'PYQT_VERSION_STR',
     'QABCMeta',
     'QAbstractItemView',
@@ -144,7 +152,6 @@ __all__ = [
     'QsciCommand',
     'QsciCommandSet',
     'QSCI_HIGHLIGHTERS',
-    'Qt',
     'QSCINTILLA_VERSION_STR',
     'HIGHLIGHTER_SUFFIX',
     'HIGHLIGHTER_FILENAME',
@@ -279,7 +286,7 @@ HIGHLIGHTER_FILENAME = {
 }
 
 
-class QABCMeta(wrappertype, ABCMeta):
+class QABCMeta(type(QObject), ABCMeta):
     """Qt ABCMeta class.
 
     Usage:
@@ -289,4 +296,3 @@ class QABCMeta(wrappertype, ABCMeta):
         def my_abstract_method(self):
             ...
     """
-    pass

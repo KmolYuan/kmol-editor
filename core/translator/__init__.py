@@ -10,7 +10,7 @@ __email__ = "pyslvs@gmail.com"
 from py_translator import Translator
 from py_translator.models import Translated, Detected
 from core.QtModules import (
-    pyqtSlot,
+    Slot,
     QWidget,
 )
 from .Ui_translator import Ui_Form
@@ -29,7 +29,7 @@ class TranslatorWidget(QWidget, Ui_Form):
         self.src_lang.addItems(languages + ('auto',))
         self.dest_lang.addItems(reversed(languages))
 
-    @pyqtSlot(name='on_swap_button_clicked')
+    @Slot(name='on_swap_button_clicked')
     def __swap(self):
         """Swap source and destination language."""
         tmp_text = self.src_text.toPlainText()
@@ -44,7 +44,7 @@ class TranslatorWidget(QWidget, Ui_Form):
         self.src_text.setPlainText(self.dest_text.toPlainText())
         self.dest_text.setPlainText(tmp_text)
 
-    @pyqtSlot(name='on_translate_button_clicked')
+    @Slot(name='on_translate_button_clicked')
     def __translate(self):
         """Translate text."""
         try:

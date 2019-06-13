@@ -12,7 +12,7 @@ from pygments.formatters.html import HtmlFormatter
 from pygments.styles import get_style_by_name
 from markdown2 import markdown
 from core.QtModules import (
-    pyqtSignal,
+    Signal,
     QWidget,
     QTreeWidgetItem,
     QTreeItem,
@@ -107,7 +107,7 @@ class PandocTransformThread(QThread):
 
     """Transform from Pandoc to normal markdown."""
 
-    send = pyqtSignal(str)
+    send = Signal(str)
 
     def __init__(self, doc: str, parent: QWidget):
         super(PandocTransformThread, self).__init__(parent)

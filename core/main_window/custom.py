@@ -13,7 +13,7 @@ from typing import (
 )
 from abc import abstractmethod
 from core.QtModules import (
-    pyqtSlot,
+    Slot,
     Qt,
     QABCMeta,
     QMainWindow,
@@ -47,7 +47,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         self.setupUi(self)
 
         # Start new window.
-        @pyqtSlot()
+        @Slot()
         def new_main_window():
             XStream.back()
             run = self.__class__()
@@ -175,6 +175,8 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         run_sript.activated.connect(self.exec_button.click)
         self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
+        self.keeper = None
+
         # Data
         self.data = DataDict()
         self.data.not_saved.connect(self.set_not_saved_title)
@@ -202,7 +204,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         ...
 
     @abstractmethod
-    def refresh_proj(self) -> None:
+    def refresh_proj(self, node: Optional[QTreeWidgetItem] = None) -> None:
         ...
 
     @abstractmethod

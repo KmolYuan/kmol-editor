@@ -23,8 +23,8 @@ from platform import system
 import re
 from spellchecker import SpellChecker
 from core.QtModules import (
-    pyqtSignal,
-    pyqtSlot,
+    Signal,
+    Slot,
     Qt,
     QApplication,
     QWidget,
@@ -96,7 +96,7 @@ class TextEditor(QsciScintilla):
 
     """QScintilla text editor."""
 
-    word_changed = pyqtSignal()
+    word_changed = Signal()
 
     def __init__(self, parent: QWidget):
         """UI settings."""
@@ -186,7 +186,7 @@ class TextEditor(QsciScintilla):
         command: QsciCommand = commands.find(command_type)
         command.setKey(shortcut)
 
-    @pyqtSlot(int, int)
+    @Slot(int, int)
     def __catch_word(self, line: int, index: int):
         """Catch and indicate current word."""
         self.__clear_indicator_all(1)
@@ -199,7 +199,7 @@ class TextEditor(QsciScintilla):
                 1
             )
 
-    @pyqtSlot(str)
+    @Slot(str)
     def set_highlighter(self, option: str):
         """Set highlighter by list."""
         self.lexer_option = option
@@ -207,7 +207,7 @@ class TextEditor(QsciScintilla):
         lexer.setDefaultFont(self.font)
         self.setLexer(lexer)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setEdgeMode(self, option: bool):
         """Set edge mode option."""
         super(TextEditor, self).setEdgeMode(
@@ -222,7 +222,7 @@ class TextEditor(QsciScintilla):
         else:
             super(TextEditor, self).setSelection(p1, p2, p3, p4)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def set_remove_trailing_blanks(self, option: bool):
         """Set remove trailing blanks during 'setText' method."""
         self.__no_trailing_blanks = option
@@ -262,7 +262,7 @@ class TextEditor(QsciScintilla):
             self.wordAtLineIndex(*self.getCursorPosition())
         )
 
-    @pyqtSlot()
+    @Slot()
     def __refactor(self):
         """Refactor words."""
         pos = self.positionFromLineIndex(*self.getCursorPosition())

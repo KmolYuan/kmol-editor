@@ -26,7 +26,7 @@ from threading import Thread
 from subprocess import check_output
 from platform import system
 from core.QtModules import (
-    pyqtSlot,
+    Slot,
     QTextCursor,
     QPoint,
     QTreeItem,
@@ -48,6 +48,7 @@ from core.QtModules import (
     HIGHLIGHTER_FILENAME,
 )
 from core.info import INFO, ARGUMENTS
+from core.file_keeper import FileKeeper
 from core.parsers import (
     getpath,
     parse,
@@ -191,7 +192,7 @@ class MainWindow(MainWindowBase):
         else:
             return False
 
-    @pyqtSlot()
+    @Slot()
     def close_proj(self):
         """Close project node."""
         if not self.__ask_exit():
@@ -222,31 +223,31 @@ class MainWindow(MainWindowBase):
         self.html_previewer.history().clear()
         self.html_previewer.setVisible(True)
 
-    @pyqtSlot()
+    @Slot()
     def set_not_saved_title(self):
         """Show star sign on window title."""
         if '*' not in self.windowTitle():
             self.setWindowTitle(self.windowTitle() + '*')
 
-    @pyqtSlot()
+    @Slot()
     def set_saved_title(self):
         """Remove star sign on window title."""
         self.setWindowTitle(self.windowTitle().replace('*', ''))
 
-    @pyqtSlot(str)
+    @Slot(str)
     def append_to_console(self, log: str):
         """After inserted the text, move cursor to end."""
         self.console.moveCursor(QTextCursor.End)
         self.console.insertPlainText(log)
         self.console.moveCursor(QTextCursor.End)
 
-    @pyqtSlot(QPoint)
+    @Slot(QPoint)
     def tree_context_menu(self, point: QPoint):
         """Operations."""
         self.__action_changed()
         self.pop_menu_tree.exec_(self.tree_widget.mapToGlobal(point))
 
-    @pyqtSlot(name='on_action_new_project_triggered')
+    @Slot(name='on_action_new_project_triggered')
     def __new_proj(self):
         """New file."""
         file_name, suffix_type = QFileDialog.getSaveFileName(
@@ -286,7 +287,7 @@ class MainWindow(MainWindowBase):
                 return i
         return -1
 
-    @pyqtSlot(name='on_action_open_triggered')
+    @Slot(name='on_action_open_triggered')
     def __open_proj(self):
         """Open file."""
         file_names, ok = QFileDialog.getOpenFileNames(
@@ -311,10 +312,11 @@ class MainWindow(MainWindowBase):
 
         self.__add_macros()
 
-    @pyqtSlot()
-    def refresh_proj(self):
+    @Slot()
+    def refresh_proj(self, node: Optional[QTreeWidgetItem] = None):
         """Re-parse the file node."""
-        node = self.tree_main.currentItem()
+        if node is None:
+            node = self.tree_main.currentItem()
         if not node.text(1):
             QMessageBox.warning(
                 self,
@@ -331,7 +333,7 @@ class MainWindow(MainWindowBase):
         self.text_editor.selectAll()
         self.text_editor.replaceSelectedText(self.data[int(node.text(2))])
 
-    @pyqtSlot()
+    @Slot()
     def open_path(self):
         """Open path of current node."""
         node = self.tree_main.currentItem()
@@ -343,7 +345,7 @@ class MainWindow(MainWindowBase):
             QDesktopServices.openUrl(QUrl(file_name))
         print(f"Open: {file_name}")
 
-    @pyqtSlot()
+    @Slot()
     def add_node(self):
         """Add a node at current item."""
         node = self.tree_main.currentItem()
@@ -364,7 +366,7 @@ class MainWindow(MainWindowBase):
             new_node
         )
 
-    @pyqtSlot()
+    @Slot()
     def set_path(self):
         """Set file directory."""
         node = self.tree_main.currentItem()
@@ -381,7 +383,7 @@ class MainWindow(MainWindowBase):
         project_path.cdUp()
         node.setText(1, project_path.relativeFilePath(file_name))
 
-    @pyqtSlot()
+    @Slot()
     def copy_node(self):
         """Copy current node."""
         node_origin = self.tree_main.currentItem()
@@ -393,7 +395,7 @@ class MainWindow(MainWindowBase):
         node.setText(2, str(code))
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
-    @pyqtSlot()
+    @Slot()
     def clone_node(self):
         """Copy current node with same pointer."""
         node_origin = self.tree_main.currentItem()
@@ -402,7 +404,7 @@ class MainWindow(MainWindowBase):
         node.takeChildren()
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node)
 
-    @pyqtSlot()
+    @Slot()
     def copy_node_recursive(self):
         """Copy current node and its sub-nodes."""
         node_origin = self.tree_main.currentItem()
@@ -421,14 +423,14 @@ class MainWindow(MainWindowBase):
         new_pointer = None
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin_copy)
 
-    @pyqtSlot()
+    @Slot()
     def clone_node_recursive(self):
         """Copy current node and its sub-nodes with same pointer."""
         node_origin = self.tree_main.currentItem()
         parent = node_origin.parent()
         parent.insertChild(parent.indexOfChild(node_origin) + 1, node_origin.clone())
 
-    @pyqtSlot()
+    @Slot()
     def save_proj(self, index: Optional[int] = None, *, for_all: bool = False):
         """Save project and files."""
         if for_all:
@@ -456,7 +458,7 @@ class MainWindow(MainWindowBase):
             self.data[int(item.text(2))] = self.text_editor.text()
         self.text_editor.spell_check_all()
 
-    @pyqtSlot()
+    @Slot()
     def delete_node(self):
         """Delete the current item."""
         node: Optional[QTreeWidgetItem] = self.tree_main.currentItem()
@@ -483,7 +485,7 @@ class MainWindow(MainWindowBase):
         for i in range(node.childCount()):
             self.__delete_node_data(node.child(i))
 
-    @pyqtSlot()
+    @Slot()
     def move_up_node(self):
         """Move up current node."""
         node = self.tree_main.currentItem()
@@ -510,7 +512,7 @@ class MainWindow(MainWindowBase):
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
-    @pyqtSlot()
+    @Slot()
     def move_down_node(self):
         """Move down current node."""
         node = self.tree_main.currentItem()
@@ -537,7 +539,7 @@ class MainWindow(MainWindowBase):
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
-    @pyqtSlot()
+    @Slot()
     def move_right_node(self):
         """Move right current node."""
         node = self.tree_main.currentItem()
@@ -564,7 +566,7 @@ class MainWindow(MainWindowBase):
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
-    @pyqtSlot()
+    @Slot()
     def move_left_node(self):
         """Move left current node."""
         node = self.tree_main.currentItem()
@@ -587,12 +589,12 @@ class MainWindow(MainWindowBase):
         tree_main.setCurrentItem(node)
         self.__root_unsaved()
 
-    @pyqtSlot(name='on_action_about_qt_triggered')
+    @Slot(name='on_action_about_qt_triggered')
     def __about_qt(self):
         """Qt about."""
         QMessageBox.aboutQt(self)
 
-    @pyqtSlot(name='on_action_about_triggered')
+    @Slot(name='on_action_about_triggered')
     def __about(self):
         """Kmol editor about."""
         QMessageBox.about(self, "About Kmol Editor", '\n'.join(INFO + (
@@ -603,12 +605,12 @@ class MainWindow(MainWindowBase):
             "License: " + __license__,
         )))
 
-    @pyqtSlot(name='on_action_mde_tw_triggered')
+    @Slot(name='on_action_mde_tw_triggered')
     def __mde_tw(self):
         """Mde website."""
         QDesktopServices.openUrl(QUrl("http://mde.tw"))
 
-    @pyqtSlot(name='on_exec_button_clicked')
+    @Slot(name='on_exec_button_clicked')
     def __exec(self):
         """Run the script from current text editor."""
         self.__exec_script(self.text_editor.text())
@@ -653,12 +655,8 @@ class MainWindow(MainWindowBase):
         )
         thread.start()
 
-    @pyqtSlot(QTreeWidgetItem, QTreeWidgetItem, name='on_tree_main_currentItemChanged')
-    def __switch_data(
-        self,
-        current: QTreeWidgetItem,
-        previous: QTreeWidgetItem
-    ):
+    @Slot(QTreeWidgetItem, QTreeWidgetItem, name='on_tree_main_currentItemChanged')
+    def __switch_data(self, current: QTreeWidgetItem, previous: QTreeWidgetItem):
         """Switch node function.
 
         + Auto collapse and expand function.
@@ -696,10 +694,17 @@ class MainWindow(MainWindowBase):
             self.text_editor.setText(self.data[key])
             bar.setValue(self.data.pos(key))
 
+            # Update keepers
+            if self.keeper is not None:
+                self.keeper.stop()
+            self.keeper = FileKeeper(getpath(current), self)
+            self.keeper.file_changed.connect(self.file_changed_warning)
+            self.keeper.start()
+
         self.reload_html_viewer()
         self.__action_changed()
 
-    @pyqtSlot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')
+    @Slot(QTreeWidgetItem, int, name='on_tree_main_itemChanged')
     def __reload_nodes(self, node: QTreeWidgetItem, _: int):
         """Mark edited node as unsaved."""
         name = node.text(0)
@@ -786,17 +791,17 @@ class MainWindow(MainWindowBase):
                 )
             )
 
-    @pyqtSlot(name='on_find_next_button_clicked')
+    @Slot(name='on_find_next_button_clicked')
     def __find_next(self):
         """Find to next."""
         self.__find_text(True)
 
-    @pyqtSlot(name='on_find_previous_button_clicked')
+    @Slot(name='on_find_previous_button_clicked')
     def __find_previous(self):
         """Find to previous."""
         self.__find_text(False)
 
-    @pyqtSlot(name='on_replace_node_button_clicked')
+    @Slot(name='on_replace_node_button_clicked')
     def __replace(self):
         """Replace current text by replace bar."""
         self.text_editor.replace(self.replace_bar.text())
@@ -819,7 +824,7 @@ class MainWindow(MainWindowBase):
             flags |= re.IGNORECASE
         return text, replace_text, flags
 
-    @pyqtSlot(name='on_find_project_button_clicked')
+    @Slot(name='on_find_project_button_clicked')
     def __find_project(self):
         """Find in all project."""
         self.find_list.clear()
@@ -853,11 +858,11 @@ class MainWindow(MainWindowBase):
         count = self.find_list.count()
         QMessageBox.information(self, "Find in project", f"Found {count} result.")
 
-    @pyqtSlot(
+    @Slot(
         QListWidgetItem,
         QListWidgetItem,
         name='on_find_list_currentItemChanged')
-    @pyqtSlot(QListWidgetItem, name='on_find_list_itemDoubleClicked')
+    @Slot(QListWidgetItem, name='on_find_list_itemDoubleClicked')
     def __find_results(
         self,
         item: QListWidgetItem,
@@ -874,7 +879,7 @@ class MainWindow(MainWindowBase):
         self.tree_main.setCurrentItem(self.find_list_node[code])
         self.text_editor.setSelection(start, end)
 
-    @pyqtSlot(name='on_replace_project_button_clicked')
+    @Slot(name='on_replace_project_button_clicked')
     def __replace_project(self):
         """Replace in project."""
         self.__find_project()
@@ -910,7 +915,7 @@ class MainWindow(MainWindowBase):
 
         self.__root_unsaved()
 
-    @pyqtSlot(name='on_expand_button_clicked')
+    @Slot(name='on_expand_button_clicked')
     def __expand_to_level(self):
         """Expand to specific level."""
         item = self.tree_main.currentItem()
@@ -930,6 +935,17 @@ class MainWindow(MainWindowBase):
         expand(root, 0)
         expand = None
 
-    @pyqtSlot(bool, name='on_hard_wrap_option_toggled')
+    @Slot(bool, name='on_hard_wrap_option_toggled')
     def __hard_wrap(self, wrap: bool):
         self.text_editor.setWrapMode(QsciScintilla.WrapCharacter if wrap else QsciScintilla.WrapWord)
+
+    @Slot(str)
+    def file_changed_warning(self, path: str):
+        """Triggered when file changed."""
+        if QMessageBox.warning(
+                self,
+                "File Changed",
+                f"File {path} has changed.\nReload the file?",
+                QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
+            self.refresh_proj()
