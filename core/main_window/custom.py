@@ -31,7 +31,6 @@ from core.QtModules import (
 )
 from core.text_editor import TextEditor
 from core.info import INFO, ARGUMENTS
-from core.translator import TranslatorWidget
 from core.data_structure import DataDict
 from .logging_handler import XStream
 from .Ui_main_window import Ui_MainWindow
@@ -152,9 +151,6 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         replace.activated.connect(self.replace_node_button.click)
         replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         replace_project.activated.connect(self.replace_project_button.click)
-
-        # Translator.
-        self.panel_widget.addTab(TranslatorWidget(self), "Translator")
 
         # Node edit function. (Ctrl + ArrowKey)
         new_node = QShortcut(QKeySequence("Ctrl+Ins"), self)
