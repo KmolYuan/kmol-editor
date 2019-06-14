@@ -11,8 +11,8 @@
 APP=kmol-editor
 LOWERAPP=${APP,,}
 
-mkdir -p ENV/$APP.AppDir/
-cd ENV/$APP.AppDir/
+mkdir -p ENV/${APP}.AppDir/
+cd ENV/${APP}.AppDir/
 
 ########################################################################
 # Create a virtualenv inside the AppDir
@@ -52,14 +52,14 @@ rm -fr -v ${MY_PYDIR}/distutils
 echo "Copy built-in script patch from '${PYDIR}' to '${MY_PYDIR}' ..."
 cd ${PYDIR}
 for f in *; do
-    if [ ${f} == "__pycache__" ] || [ ${f} == "test" ] \
-        || [ ${f} == "venv" ] || [ ${f} == "idlelib" ]; then continue; fi
+    if [[ ${f} == "__pycache__" ]] || [[ ${f} == "test" ]] \
+        || [[ ${f} == "venv" ]] || [[ ${f} == "idlelib" ]]; then continue; fi
 
     if [[ ${f} == *.py ]]; then
         cp -n -v ${f} ${MY_PYDIR}
     fi
 
-    if [ ! -d ${f} ]; then continue; fi
+    if [[ ! -d ${f} ]]; then continue; fi
 
     echo "Create '${MY_PYDIR}/${f}'"
     mkdir -p ${MY_PYDIR}/${f}
@@ -68,13 +68,13 @@ for f in *; do
     cd ${f}
 
     for sub_f in *; do
-        if [ ${sub_f} == "__pycache__" ]; then continue; fi
+        if [[ ${sub_f} == "__pycache__" ]]; then continue; fi
 
         if [[ ${sub_f} == *.py ]]; then
             cp -n -v ${sub_f} ${MY_PYDIR}/${f}
         fi
 
-        if [ ! -d ${sub_f} ]; then continue; fi
+        if [[ ! -d ${sub_f} ]]; then continue; fi
 
         echo "Create '${MY_PYDIR}/${f}/${sub_f}'"
         mkdir -p ${MY_PYDIR}/${f}/${sub_f}
@@ -98,9 +98,9 @@ deactivate
 # "Install" app in the AppDir
 ########################################################################
 
-cp ../../launch_kmol.py usr/bin/$LOWERAPP
-sed -i "1i\#!/usr/bin/env python" usr/bin/$LOWERAPP
-chmod a+x usr/bin/$LOWERAPP
+cp ../../launch_kmol.py usr/bin/${LOWERAPP}
+sed -i "1i\#!/usr/bin/env python" usr/bin/${LOWERAPP}
+chmod a+x usr/bin/${LOWERAPP}
 
 cp ../../icons_rc.py usr/bin
 cp -r ../../core usr/bin
@@ -114,20 +114,20 @@ get_apprun
 
 cd ../..
 VERSION=$(python3 -c "from core.info import __version__; print(__version__)")
-cd ENV/$APP.AppDir/
+cd ENV/${APP}.AppDir/
 
-cat > $LOWERAPP.desktop <<EOF
+cat > ${LOWERAPP}.desktop <<EOF
 [Desktop Entry]
-Name=$APP
-Exec=$LOWERAPP
+Name=${APP}
+Exec=${LOWERAPP}
 Type=Application
-Icon=$LOWERAPP
+Icon=${LOWERAPP}
 Comment=A light text editor using tree project to edit text-based files.
 EOF
 
 # Make the AppImage ask to "install" itself into the menu
-get_desktopintegration $LOWERAPP
-cp ../../icons/kmol.png $LOWERAPP.png
+get_desktopintegration ${LOWERAPP}
+cp ../../icons/kmol.png ${LOWERAPP}.png
 
 ########################################################################
 # Bundle dependencies
