@@ -44,6 +44,7 @@ __all__ = [
     'file_icon',
     'PandocTransformThread',
     'SUPPORT_FILE_FORMATS',
+    'LOADED_FILES',
 ]
 
 
@@ -66,6 +67,8 @@ SUPPORT_FILE_FORMATS = ';;'.join(
     for name, suffix_text in _SUPPORTED_FILE_SUFFIX.items()
 )
 _SUPPORTED_FILE_SUFFIX.pop("")
+
+LOADED_FILES: List[QTreeWidgetItem] = []
 
 
 def _str_style(style, representer):
@@ -171,6 +174,8 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
 
     for node_item in parse_list:
         parse(node_item, data)
+        # Global file list
+        LOADED_FILES.append(node_item)
 
     data.save_all()
 
@@ -231,6 +236,9 @@ def parse(node: QTreeWidgetItem, data: DataDict):
     else:
         code = data.new_num()
         node.setText(2, str(code))
+    if node not in LOADED_FILES:
+        LOADED_FILES.append(node)
+
     if suffix_text == 'md':
         # Markdown
         node.setIcon(0, file_icon("markdown"))

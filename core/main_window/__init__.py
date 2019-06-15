@@ -10,6 +10,7 @@ __email__ = "pyslvs@gmail.com"
 from typing import (
     Tuple,
     Dict,
+    Sequence,
     Optional,
     Union,
     Any,
@@ -57,6 +58,7 @@ from core.parsers import (
     file_icon,
     PandocTransformThread,
     SUPPORT_FILE_FORMATS,
+    LOADED_FILES,
 )
 from .custom import MainWindowBase
 
@@ -113,20 +115,10 @@ class MainWindow(MainWindowBase):
         ))
 
         if ARGUMENTS.file:
-            file_name = ARGUMENTS.file
-            root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
-            self.tree_main.addTopLevelItem(root_node)
-            parse(root_node, self.data)
+            self.__open_proj([ARGUMENTS.file])
         else:
             prev_open: str = self.settings.value("prev_open", "", type=str)
-            for file_name in prev_open.split('#'):
-                if not file_name:
-                    continue
-                root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
-                self.tree_main.addTopLevelItem(root_node)
-                parse(root_node, self.data)
-
-        self.__add_macros()
+            self.__open_proj([f for f in prev_open.split('#') if f])
 
     def showMaximized(self):
         """Change splitter sizes after maximized."""
@@ -288,16 +280,17 @@ class MainWindow(MainWindowBase):
         return -1
 
     @Slot(name='on_action_open_triggered')
-    def __open_proj(self):
+    def __open_proj(self, file_names: Optional[Sequence[str]] = None):
         """Open file."""
-        file_names, ok = QFileDialog.getOpenFileNames(
-            self,
-            "Open Projects",
-            self.env,
-            SUPPORT_FILE_FORMATS
-        )
-        if not ok:
-            return
+        if file_names is None:
+            file_names, ok = QFileDialog.getOpenFileNames(
+                self,
+                "Open Projects",
+                self.env,
+                SUPPORT_FILE_FORMATS
+            )
+            if not ok:
+                return
 
         for file_name in file_names:
             self.env = QFileInfo(file_name).absolutePath()
@@ -305,12 +298,10 @@ class MainWindow(MainWindowBase):
             if index == -1:
                 root_node = QTreeRoot(QFileInfo(file_name).baseName(), file_name, '')
                 self.tree_main.addTopLevelItem(root_node)
-                parse(root_node, self.data)
+                self.refresh_proj(root_node)
                 self.tree_main.setCurrentItem(root_node)
             else:
                 self.tree_main.setCurrentItem(self.tree_main.topLevelItem(index))
-
-        self.__add_macros()
 
     @Slot()
     def refresh_proj(self, node: Optional[QTreeWidgetItem] = None):
@@ -330,8 +321,15 @@ class MainWindow(MainWindowBase):
         parse(node, self.data)
         self.tree_main.setCurrentItem(node)
         _expand_recursive(node)
-        self.text_editor.selectAll()
-        self.text_editor.replaceSelectedText(self.data[int(node.text(2))])
+        self.text_editor.setText(self.data[int(node.text(2))])
+        self.__add_macros()
+
+        # File keeper
+        if self.keeper is not None:
+            self.keeper.stop()
+        self.keeper = FileKeeper(LOADED_FILES, self)
+        self.keeper.file_changed.connect(self.file_changed_warning)
+        self.keeper.start()
 
     @Slot()
     def open_path(self):
@@ -477,11 +475,16 @@ class MainWindow(MainWindowBase):
     def __delete_node_data(self, node: QTreeWidgetItem):
         """Delete data from data structure."""
         name = node.text(0)
+        if node in LOADED_FILES:
+            LOADED_FILES.remove(node)
         if name.startswith('@'):
             for action in self.macros_toolbar.actions():
                 if action.text() == name[1:]:
                     self.macros_toolbar.removeAction(action)
-        self.data.pop(int(node.text(2)))
+
+        if node.text(2):
+            self.data.pop(int(node.text(2)))
+
         for i in range(node.childCount()):
             self.__delete_node_data(node.child(i))
 
@@ -693,13 +696,6 @@ class MainWindow(MainWindowBase):
             key = int(current.text(2))
             self.text_editor.setText(self.data[key])
             bar.setValue(self.data.pos(key))
-
-            # Update keepers
-            if self.keeper is not None:
-                self.keeper.stop()
-            self.keeper = FileKeeper(getpath(current), self)
-            self.keeper.file_changed.connect(self.file_changed_warning)
-            self.keeper.start()
 
         self.reload_html_viewer()
         self.__action_changed()
@@ -939,13 +935,13 @@ class MainWindow(MainWindowBase):
     def __hard_wrap(self, wrap: bool):
         self.text_editor.setWrapMode(QsciScintilla.WrapCharacter if wrap else QsciScintilla.WrapWord)
 
-    @Slot(str)
-    def file_changed_warning(self, path: str):
+    @Slot(str, QTreeWidgetItem)
+    def file_changed_warning(self, path: str, node: QTreeWidgetItem):
         """Triggered when file changed."""
         if QMessageBox.warning(
-                self,
-                "File Changed",
-                f"File {path} has changed.\nReload the file?",
-                QMessageBox.Yes | QMessageBox.No
+            self,
+            "File Changed",
+            f"File {path} has changed.\nReload the file?",
+            QMessageBox.Yes | QMessageBox.No
         ) == QMessageBox.Yes:
-            self.refresh_proj()
+            self.refresh_proj(node)
