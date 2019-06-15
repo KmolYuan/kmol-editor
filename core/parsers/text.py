@@ -22,13 +22,13 @@ def parse_text(
         data[code] = str(e)
         return
     except PermissionError:
-        # Is directory.
+        # Is directory
         return
     try:
         with f:
             doc = f.read()
     except UnicodeDecodeError:
-        # Binary files.
+        # Binary files
         return
     else:
         data[code] = doc

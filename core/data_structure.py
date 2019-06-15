@@ -89,10 +89,7 @@ class DataDict(QObject):
                 if code == key:
                     del self.__macros[m]
             return data
-        elif k is None:
-            raise KeyError
-        else:
-            return k
+        return k
 
     def set_saved(self, key: Hashable, saved: bool):
         """Saved status adjustment."""
