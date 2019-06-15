@@ -47,7 +47,7 @@ class FileKeeper(QThread):
                 if self.files[f] != stemp:
                     self.file_changed.emit(f, self.nodes[f])
                     self.files[f] = stemp
-                self.msleep(1)
+            self.msleep(1)
 
     @Slot()
     def stop(self):

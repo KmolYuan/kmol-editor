@@ -97,6 +97,7 @@ class DataDict(QObject):
     def set_saved(self, key: Hashable, saved: bool):
         """Saved status adjustment."""
         self.__saved[key] = saved
+        self.is_all_saved()
 
     def is_saved(self, key: Hashable) -> bool:
         """Return saved status."""
@@ -104,7 +105,12 @@ class DataDict(QObject):
 
     def is_all_saved(self) -> bool:
         """Return True if all saved."""
-        return all(self.is_saved(key) for key in self.__data)
+        all_saved = all(self.is_saved(key) for key in self.__data)
+        if all_saved:
+            self.all_saved.emit()
+        else:
+            self.not_saved.emit()
+        return all_saved
 
     def save_all(self):
         """Change all saved status."""

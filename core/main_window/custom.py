@@ -45,7 +45,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         super(MainWindowBase, self).__init__()
         self.setupUi(self)
 
-        # Start new window.
+        # Start new window
         @Slot()
         def new_main_window():
             XStream.back()
@@ -77,7 +77,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         )
         self.highlighter_option.currentTextChanged.connect(self.reload_html_viewer)
 
-        # Tree widget context menu.
+        # Tree widget context menu
         self.tree_widget.customContextMenuRequested.connect(
             self.tree_context_menu
         )
@@ -135,7 +135,7 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
             print(info)
         print('-' * 7)
 
-        # Searching function.
+        # Searching function
         find_next = QShortcut(QKeySequence("F3"), self)
         find_next.activated.connect(self.find_next_button.click)
         find_previous = QShortcut(QKeySequence("F4"), self)
@@ -146,13 +146,13 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         find_project.activated.connect(self.find_project_button.click)
         self.find_list_node: Dict[int, QTreeWidgetItem] = {}
 
-        # Replacing function.
+        # Replacing function
         replace = QShortcut(QKeySequence("Ctrl+R"), self)
         replace.activated.connect(self.replace_node_button.click)
         replace_project = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         replace_project.activated.connect(self.replace_project_button.click)
 
-        # Node edit function. (Ctrl + ArrowKey)
+        # Node edit function (Ctrl + ArrowKey)
         new_node = QShortcut(QKeySequence("Ctrl+Ins"), self)
         new_node.activated.connect(self.add_node)
         del_node = QShortcut(QKeySequence("Ctrl+Del"), self)
@@ -166,11 +166,12 @@ class MainWindowBase(QMainWindow, Ui_MainWindow, metaclass=QABCMeta):
         move_left_node = QShortcut(QKeySequence("Ctrl+Left"), self)
         move_left_node.activated.connect(self.move_left_node)
 
-        # Run script button.
+        # Run script button
         run_sript = QShortcut(QKeySequence("F5"), self)
         run_sript.activated.connect(self.exec_button.click)
         self.macros_toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
+        # File keeper
         self.keeper = None
 
         # Data

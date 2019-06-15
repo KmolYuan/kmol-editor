@@ -162,6 +162,8 @@ class MainWindow(MainWindowBase):
             self.tree_main.topLevelItem(i).text(1)
             for i in range(self.tree_main.topLevelItemCount())
         }))
+        self.keeper.stop()
+        self.keeper.wait()
         event.accept()
 
     def __ask_exit(self) -> bool:
@@ -321,7 +323,9 @@ class MainWindow(MainWindowBase):
         parse(node, self.data)
         self.tree_main.setCurrentItem(node)
         _expand_recursive(node)
-        self.text_editor.setText(self.data[int(node.text(2))])
+        code = int(node.text(2))
+        self.text_editor.setText(self.data[code])
+        self.data.set_saved(code, True)
         self.__add_macros()
 
         # File keeper
