@@ -449,7 +449,9 @@ class MainWindow(MainWindowBase):
         else:
             root = self.tree_main.topLevelItem(index)
         self.__save_current()
+        self.keeper.set_passed(True)
         save_file(root, self.data)
+        self.keeper.set_passed(False)
         self.data.save_all()
 
     def __save_current(self):

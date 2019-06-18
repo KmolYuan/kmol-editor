@@ -36,12 +36,13 @@ class FileKeeper(QThread):
             self.nodes[path] = node
             self.files[path] = stat(path).st_mtime
         self.stopped = False
+        self.passed = False
 
     def run(self):
         """Watch the files."""
         while not self.stopped:
             for f in self.files:
-                if not isfile(f):
+                if self.passed or not isfile(f):
                     continue
                 stemp = stat(f).st_mtime
                 if self.files[f] != stemp:
@@ -52,3 +53,10 @@ class FileKeeper(QThread):
     @Slot()
     def stop(self):
         self.stopped = True
+
+    def set_passed(self, passed: bool):
+        """Skip checking."""
+        if not passed:
+            for f in self.files:
+                self.files[f] = stat(f).st_mtime
+        self.passed = passed

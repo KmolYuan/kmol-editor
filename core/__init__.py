@@ -18,14 +18,15 @@ __all__ = ['main']
 
 def main():
     """Startup function."""
+    global app
     if ARGUMENTS.test:
         print("All module loaded successfully.")
         exit(0)
-    qapp = QApplication([])
+    app = QApplication([])
     if platform.system() == 'Darwin':
         ARGUMENTS.fusion = True
     if ARGUMENTS.fusion:
-        qapp.setStyle('fusion')
+        app.setStyle('fusion')
     run = MainWindow()
     run.showMaximized()
-    exit(qapp.exec())
+    exit(app.exec())
