@@ -141,10 +141,11 @@ def _parse_tree(root_node: QTreeWidgetItem, data: DataDict):
     """Parse in to tree widget."""
     try:
         with open(root_node.text(1), encoding='utf-8') as f:
-            yml_data: YMLData = yaml.load(f)
+            yaml_script = f.read()
     except FileNotFoundError:
         return
 
+    yml_data: YMLData = yaml.load(yaml_script, Loader=yaml.FullLoader)
     parse_list: List[QTreeWidgetItem] = []
 
     root_node.setText(2, str(yml_data['description']))
