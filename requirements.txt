@@ -1,6 +1,6 @@
 requests
-pyqt5
-pyqtwebengine
+pyqt5<=5.12.2
+pyqtwebengine<=5.12.2
 qscintilla
 pyyaml
 pyspellchecker
